@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<table>
+  <base>CRM/Timetrack</base>
+  <class>Punch</class>
+  <name>kpunch</name>
+  <add>1.0</add>
+  <log>true</log>
+  <field>
+    <name>pid</name>
+    <uniqueName>timetrack_punch_id</uniqueName>
+    <title>Timetrack Punch ID</title>
+    <type>int unsigned</type>
+    <required>true</required>
+    <comment>Punch Id</comment>
+    <add>1.0</add>
+  </field>
+  <primaryKey>
+     <name>pid</name>
+     <autoincrement>true</autoincrement>
+  </primaryKey>
+  <field>
+    <name>uid</name>
+    <type>int unsigned</type>
+    <required>true</required>
+    <add>1.0</add>
+    <comment>Author of the punch.</comment>
+  </field>
+  <index>
+    <name>index_uid</name>
+    <fieldName>uid</fieldName>
+    <add>1.0</add>
+  </index>
+  <field>
+    <name>nid</name>
+    <type>int unsigned</type>
+    <required>true</required>
+    <add>1.0</add>
+    <comment>Author of the punch.</comment>
+  </field>
+  <index>
+    <name>index_nid</name>
+    <fieldName>nid</fieldName>
+    <add>1.0</add>
+  </index>
+  <field>
+    <name>begin</name>
+    <type>int unsigned</type>
+    <size>11</size>
+    <required>true</required>
+    <add>1.0</add>
+    <comment>Start timestamp of the punch.</comment>
+  </field>
+  <field>
+    <name>duration</name>
+    <type>int unsigned</type>
+    <size>11</size>
+    <required>false</required>
+    <add>1.0</add>
+    <comment>Duration (in seconds) of the punch.</comment>
+  </field>
+  <field>
+    <name>comment</name>
+    <type>varchar</type>
+    <size>255</size>
+    <required>false</required>
+    <add>1.0</add>
+    <comment>Punch comment, provides more information on what was done.</comment>
+  </field>
+  <field>
+    <name>billable_intern</name>
+    <type>int unsigned</type>
+    <size>11</size>
+    <default>1</default>
+    <required>true</required>
+    <add>1.0</add>
+    <comment>FIXME: probably never used. Intended to distinguish volunteer/paid internally?</comment>
+  </field>
+  <field>
+    <name>billable_client</name>
+    <type>int unsigned</type>
+    <size>11</size>
+    <default>1</default>
+    <required>true</required>
+    <add>1.0</add>
+    <comment>FIXME: probably never used. Whether to bill the client for this or not.</comment>
+  </field>
+  <field>
+    <name>rate</name>
+    <type>decimal</type>
+    <dataPattern>/^\d+(\.\d{2})?$/</dataPattern>
+    <add>1.0</add>
+    <comment>FIXME: probably never used. Rate at which to invoice.</comment>
+  </field>
+  <field>
+    <name>order_reference</name>
+    <type>int unsigned</type>
+    <add>1.0</add>
+    <comment>Invoice/order reference.</comment>
+  </field>
+  <index>
+    <name>index_order_reference</name>
+    <fieldName>order_reference</fieldName>
+    <add>1.0</add>
+  </index>
+</table>
