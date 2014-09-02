@@ -13,12 +13,49 @@ Timetrack also includes reports and new APIs to manipulate the punches.
 To download the latest version of this module:
 https://github.com/mlutfy/ca.bidon.timetrack
 
+Requirements
+============
+
+- CiviCRM >= 4.4 (previous versions untested)
+
+Installation
+============
+
+Install as any other regular CiviCRM extension:
+
+1- Download this extension and unpack it in your 'extensions' directory.
+   You may need to create it if it does not already exist, and configure
+   the correct path in CiviCRM -> Administer -> System -> Directories.
+
+2- Enable the extension from CiviCRM -> Administer -> System -> Extensions.
+
 History
 =======
 
-Timetrack was based on "kproject", a time management tool written by Koumbit.
-It was written as a Drupal module, and duplicated many CRM elements already
-present in CiviCRM. This extension is an attempt at using best of both worlds.
+Timetrack is a fork/rewrite of "kproject", a time management tool written by
+Koumbit. It was written as a Drupal module, and was an awesome time tracker,
+which included an IRC bot and a few planning features suitable for small-medium
+organisations.
+
+However, it was mostly used only by Koumbit, and they did not upgrade it to
+Drupal 7. Since kproject implemented many CRM-ish features that are present in
+CiviCRM, causing some duplication of information (list of clients, contact
+information), this extension attempts to implement in CiviCRM some of the
+features of kproject.
+
+The "client" in kproject becomes a "contact" in CiviCRM (and you can create
+new entity sub-types in CiviCRM, such as 'Clients' based off the 'Organisation'
+entity).
+
+The "contract" in kproject becomes a "case" in CiviCRM. You can create different
+case types depending on your type of contracts (ex: consultation, support), and
+you can create standart timelines for them.
+
+The "task" in kproject becomes an "activity" in CiviCRM (not implemented yet).
+They provide a general idea of the start/end work period on a specific issue.
+
+The "punch" in kproject is kept as-is in CiviCRM, as a custom entity.
+It provides granular information on the work done.
 
 For reference:
 https://www.drupal.org/project/kproject
@@ -37,22 +74,6 @@ Todo:
   task category, lead and state).
 * UI to add new/edit punches, linked to an activity.
 * UI for billing of punches, creating new invoices (c.f. 'korder' sub-module of kproject).
-
-Requirements
-============
-
-- CiviCRM >= 4.4 (previous versions untested)
-
-Installation
-============
-
-Install as any other regular CiviCRM extension:
-
-1- Download this extension and unpack it in your 'extensions' directory.
-   You may need to create it if it does not already exist, and configure
-   the correct path in CiviCRM -> Administer -> System -> Directories.
-
-2- Enable the extension from CiviCRM -> Administer -> System -> Extensions.
 
 Support
 =======
@@ -82,6 +103,11 @@ License
 =======
 
 (C) 2014 Mathieu Lutfy <mathieu@bidon.ca>
+
+Includes code based on kproject:
+
+(C) 2008-2011 Yann Rocq
+(C) 2008-2011 Samuel Vanhove
 
 Distributed under the terms of the GNU Affero General public license (AGPL).
 See LICENSE.txt for details.
