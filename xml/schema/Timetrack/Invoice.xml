@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<table>
+  <base>CRM/Timetrack</base>
+  <class>Invoice</class>
+  <name>korder</name>
+  <add>1.0</add>
+  <log>true</log>
+  <field>
+    <name>koid</name>
+    <uniqueName>timetrack_invoice_id</uniqueName>
+    <title>Timetrack Invoice ID</title>
+    <type>int unsigned</type>
+    <required>true</required>
+    <comment>Invoice Id</comment>
+    <add>1.0</add>
+  </field>
+  <primaryKey>
+     <name>koid</name>
+     <autoincrement>true</autoincrement>
+  </primaryKey>
+  <field>
+    <name>nid</name>
+    <type>int unsigned</type>
+    <required>true</required>
+    <add>1.0</add>
+    <comment>Node linked to the invoice.</comment>
+  </field>
+  <field>
+    <name>vid</name>
+    <type>int unsigned</type>
+    <required>true</required>
+    <add>1.0</add>
+    <comment>Node vid linked to the invoice.</comment>
+  </field>
+  <field>
+    <name>node_reference</name>
+    <type>int unsigned</type>
+    <required>true</required>
+    <add>1.0</add>
+    <comment>Case/Contract invoiced.</comment>
+  </field>
+  <field>
+    <name>state</name>
+    <type>tinyint</type>
+    <size>4</size>
+    <required>false</required>
+    <add>1.0</add>
+    <comment>Invoice status.</comment>
+  </field>
+  <field>
+    <name>ledger_order_id</name>
+    <type>int unsigned</type>
+    <required>false</required>
+    <add>1.0</add>
+    <comment>Work order reference in the accounting system.</comment>
+  </field>
+  <field>
+    <name>ledger_bill_id</name>
+    <type>int unsigned</type>
+    <required>false</required>
+    <add>1.0</add>
+    <comment>Invoice reference in the accounting system.</comment>
+  </field>
+  <field>
+    <name>hours_billed</name>
+    <type>float</type>
+    <add>1.0</add>
+    <comment>Number of hours invoiced.</comment>
+  </field>
+  <field>
+    <name>paid</name>
+    <type>int unsigned</type>
+    <add>1.0</add>
+    <comment>This seems redundant with the status?</comment>
+  </field>
+</table>
