@@ -189,7 +189,7 @@ class CRM_Timetrack_DAO_Invoice extends CRM_Core_DAO
         ) ,
         'state' => array(
           'name' => 'state',
-          'type' => CRM_Utils_Type::T_TINYINT,
+          'type' => CRM_Utils_Type::T_INT,
           'title' => ts('State') ,
           'required' => false,
         ) ,

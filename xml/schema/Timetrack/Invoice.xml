@@ -42,8 +42,8 @@
   </field>
   <field>
     <name>state</name>
-    <type>tinyint</type>
-    <size>4</size>
+    <type>int unsigned</type>
+    <size>FOUR</size>
     <required>false</required>
     <add>1.0</add>
     <comment>Invoice status.</comment>
