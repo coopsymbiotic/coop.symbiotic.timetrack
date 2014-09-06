@@ -102,6 +102,11 @@ class CRM_Timetrack_Form_Punch extends CRM_Core_Form {
     $this->add('text', 'duration', ts('Duration'));
     $this->add('text', 'comment', ts('Comment'));
 
+    $this->addRule('begin', ts('Begin date and time is required'), 'required');
+    $this->addRule('duration', ts('Duration is required'), 'required');
+    $this->addRule('activity_id', ts('Activity is required'), 'required');
+    $this->addRule('contact_id', ts('Contact is required'), 'required');
+
     $this->addButtons(array(
       array(
         'type' => 'submit',
