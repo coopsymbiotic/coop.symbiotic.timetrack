@@ -162,6 +162,11 @@ class CRM_Timetrack_Form_Punch extends CRM_Core_Form {
         )
       );
     }
+    else {
+      // FIXME? This kind of redirects randomly..
+      $session = CRM_Core_Session::singleton();
+      CRM_Utils_System::redirect($session->popUserContext());
+    }
 
     parent::postProcess();
   }
