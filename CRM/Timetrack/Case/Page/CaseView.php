@@ -20,10 +20,15 @@ class CRM_Timetrack_Case_Page_CaseView {
       $node->nid = $kcontract_nid;
 
       if ($kcontract_nid) {
+        $actions = array(
+          CRM_Utils_System::href(ts('Add punch'), 'civicrm/timetrack/punch/', array('reset' => 1, 'cid' => $case_id, 'action' => 'create')),
+          CRM_Utils_System::href(ts('View all punches'), 'node/' . $kcontract_nid . '/punches'),
+          CRM_Utils_System::href(ts('View billing'), 'node/' . $kcontract_nid . '/kbpill'),
+        );
+
         $summary['kproject'] = array(
           'label' => ts('Kproject:'),
-          'value' => CRM_Utils_System::href(ts('View billing'), 'node/' . $kcontract_nid . '/kbpill') . ', '
-                   . CRM_Utils_System::href(ts('View all punches'), 'node/' . $kcontract_nid . '/punches'),
+          'value' => implode(', ', $actions),
         );
 
         $summary['ktasks'] = array(
