@@ -90,6 +90,33 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
             'type' => CRM_Utils_Type::T_DATE,
           ),
         ),
+        'order_bys' => array(
+          'begin' => array(
+            'title' => ts('Begin'),
+            'default' => TRUE,
+            'default_weight' => 1,
+            'default_order' => 'ASC',
+          ),
+        ),
+      ),
+      'invoice' => array(
+        'dao' => 'CRM_Timetrack_DAO_Invoice',
+        'alias' => 'invoice',
+        'fields' => array(
+          'state' => array(
+            'title' => ts('Invoice status'),
+            'default' => TRUE,
+            'type' => CRM_Utils_Type::T_INT,
+          ),
+        ),
+        'filters' => array(
+          'state' => array(
+            'title' => ts('Invoice status'),
+            'operatorType' => CRM_Report_Form::OP_SELECT,
+            'type' => CRM_Utils_Type::T_INT,
+            'options' => array_merge(array('' => ts('- select -')), CRM_Timetrack_PseudoConstant::getInvoiceStatuses()),
+          ),
+        ),
       ),
     );
   }
@@ -128,6 +155,7 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
               LEFT JOIN ktask ON (ktask.nid = punch_civireport.nid)
               LEFT JOIN node as task_civireport ON (task_civireport.nid = ktask.nid)
               LEFT JOIN kcontract ON (kcontract.nid = ktask.parent)
+              LEFT JOIN korder as invoice_civireport ON (invoice_civireport.nid = punch_civireport.order_reference)
               LEFT JOIN civicrm_value_infos_base_contrats_1 as cval ON (cval.kproject_node_2 = ktask.parent)
               LEFT JOIN civicrm_case as case_civireport ON (case_civireport.id = cval.entity_id)';
   }
@@ -162,6 +190,11 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
                 CRM_Utils_Array::value("{$fieldName}_max", $this->_params)
               );
             }
+          }
+
+          // Handling exception for "punch status"
+          if ($tableName == 'invoice' && $fieldName == 'state' && ! empty($clause)) {
+            $clause = str_replace(' = 0', ' is NULL', $clause);
           }
 
           if (!empty($clause)) {
@@ -226,7 +259,7 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
       }
 
       // Make punch ID link to the punch edit form
-      $row['punch_pid'] = CRM_Utils_System::href($row['punch_pid'], 'punch/' . $row['punch_pid'] . '/edit');
+      $row['punch_pid'] = CRM_Utils_System::href($row['punch_pid'], 'civicrm/timetrack/punch', array('reset' => 1, 'pid' => $row['punch_pid'], 'action' => 'edit'));
     }
   }
 
@@ -300,7 +333,9 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
   }
 
   function getAllProjects() {
-    $projects = array();
+    $projects = array(
+      '' => ts('- select -'),
+    );
 
     $sql = 'SELECT c.id, cont.display_name, c.subject
               FROM civicrm_case as c

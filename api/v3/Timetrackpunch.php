@@ -15,42 +15,28 @@ function civicrm_api3_timetrackpunch_get($params) {
   $options = array();
   $punches = array();
 
-  // _civicrm_api3_contact_get_supportanomalies($params, $options);
-  // $contacts = _civicrm_api3_get_using_query_object('contact', $params, $options);
-
-/* TODO
   $sqlparams = array(
-    1 => array('ktask', 'String'),
+    1 => array($params['id'], 'Positive'),
   );
 
-  $sql = 'SELECT tn.nid as task_id, tn.title as subject, c.id as case_id, c.subject as case_subject
-            FROM node as tn
-           INNER JOIN ktask as kt on (kt.nid = tn.nid)
-           INNER JOIN civicrm_value_infos_base_contrats_1 as cv on (cv.kproject_node_2 = kt.parent)
-           INNER JOIN civicrm_case as c on (c.id = cv.entity_id)
-           WHERE type = %1';
-
-  if ($case_id = CRM_Utils_Array::value('case_id', $params)) {
-    $sql .= ' AND c.id = %2';
-    $sqlparams[2] = array($case_id, 'Positive');
-  }
-
-  if ($subject = CRM_Utils_Array::value('subject', $params)) {
-    $subject = CRM_Utils_Type::escape($subject, 'String');
-    $sql .= " AND (c.subject LIKE '{$subject}%' OR tn.title LIKE '{$subject}%')";
-  }
+  $sql = 'SELECT *
+            FROM kpunch
+           WHERE pid = %1';
 
   $dao = CRM_Core_DAO::executeQuery($sql, $sqlparams);
 
   while ($dao->fetch()) {
-    $tasks[] = array(
-      'subject' => $dao->subject,
-      'case_subject' => $dao->case_subject,
-      'task_id' => $dao->task_id,
-      'case_id' => $dao->case_id,
+    // TODO: add missing fields, parent IDs?
+    $punches[] = array(
+      'id' => $dao->pid,
+      'activity_id' => $dao->nid,
+      'contact_id' => $dao->uid,
+      'begin' => $dao->begin,
+      'duration' => $dao->duration,
+      'comment' => $dao->comment,
+      'order_reference' => $dao->order_reference,
     );
   }
-*/
 
   return civicrm_api3_create_success($punches, $params, 'timetrackpunch');
 }
