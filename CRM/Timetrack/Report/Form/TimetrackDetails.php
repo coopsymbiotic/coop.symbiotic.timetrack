@@ -23,6 +23,12 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
         'dao' => 'CRM_Case_DAO_Case',
         'alias' => 'case',
         'fields' => array(
+          'id' => array(
+            'title' => ts('Project ID'),
+            'default' => TRUE,
+            'required' => TRUE,
+            'type' => CRM_Utils_Type::T_INT,
+          ),
           'subject' => array(
             'title' => ts('Project'),
             'default' => TRUE,
@@ -123,6 +129,8 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
 
   function preProcess() {
     $this->assign('reportTitle', ts("Timetrack detailed report"));
+    CRM_Core_Resources::singleton()->addStyleFile('ca.bidon.timetrack', 'css/crm-timetrack-report-timetrackdetails.css');
+
     parent::preProcess();
   }
 
@@ -246,6 +254,19 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
     $crmEditable = array('punch_begin', 'punch_duration', 'punch_comment');
 
     foreach ($rows as &$row) {
+      // Link the case subject to the case itself.
+      if (! empty($row['civicrm_case_subject'])) {
+        $contact_id = $this->getCaseContact($row['civicrm_case_id']);
+
+        $row['civicrm_case_subject'] = CRM_Utils_System::href($row['civicrm_case_subject'], 'civicrm/contact/view/case', array(
+          'reset' => 1,
+          'id' => $row['civicrm_case_id'],
+          'cid' => $contact_id,
+          'action' => 'view',
+          'context' => 'case',
+        ));
+      }
+
       // Keep the plain/orig values for the statistics().
       if (! empty($row['punch_duration'])) {
         $row['punch_duration_plain'] = $row['punch_duration'];
@@ -350,5 +371,25 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
     }
 
     return $projects;
+  }
+
+  function getCaseContact($case_id) {
+    static $case_contact_cache = array();
+
+    if (isset($case_contact_cache[$case_id])) {
+      return $case_contact_cache[$case_id];
+    }
+
+    $dao = CRM_Core_DAO::executeQuery('SELECT contact_id FROM civicrm_case_contact WHERE case_id = %1', array(
+      1 => array($case_id, 'Positive'),
+    ));
+
+    if ($dao->fetch()) {
+      $case_contact_cache[$case_id] = $dao->contact_id;
+      return $dao->contact_id;
+    }
+
+    $case_contact_cache[$case_id] = NULL;
+    return NULL;
   }
 }

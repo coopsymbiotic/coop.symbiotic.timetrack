@@ -1,0 +1,8 @@
+/**
+ * Hide the "Case ID" column.
+ * Required to link the subject column to the case, but otherwise clutter.
+ */
+#TimetrackDetails table.display th:first-child,
+#TimetrackDetails table.display td:first-child {
+  display: none;
+}
