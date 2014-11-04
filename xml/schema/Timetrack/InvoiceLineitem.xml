@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<table>
+  <base>CRM/Timetrack</base>
+  <class>InvoiceLineitem</class>
+  <name>korder_line</name>
+  <add>1.0</add>
+  <log>true</log>
+  <field>
+    <name>id</name>
+    <uniqueName>timetrack_invoice_line_id</uniqueName>
+    <title>Timetrack Invoice Line ID</title>
+    <type>int unsigned</type>
+    <required>true</required>
+    <comment>Invoice Line Id</comment>
+    <add>1.0</add>
+  </field>
+  <primaryKey>
+     <name>id</name>
+     <autoincrement>true</autoincrement>
+  </primaryKey>
+  <field>
+    <name>order_id</name>
+    <type>int unsigned</type>
+    <required>true</required>
+    <add>1.0</add>
+    <comment>Reference to the invoice ID.</comment>
+  </field>
+  <field>
+    <name>title</name>
+    <type>varchar</type>
+    <size>255</size>
+    <required>true</required>
+    <add>1.0</add>
+    <comment>Line item title, short description.</comment>
+  </field>
+  <field>
+    <name>hours_billed</name>
+    <type>float</type>
+    <add>1.0</add>
+    <comment>Number of hours invoiced.</comment>
+  </field>
+  <field>
+    <name>rate</name>
+    <type>float</type>
+    <add>1.0</add>
+    <comment>Hourly rate.</comment>
+  </field>
+</table>

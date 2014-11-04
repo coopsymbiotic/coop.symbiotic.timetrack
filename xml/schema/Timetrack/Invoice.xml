@@ -20,18 +20,12 @@
      <autoincrement>true</autoincrement>
   </primaryKey>
   <field>
-    <name>nid</name>
-    <type>int unsigned</type>
+    <name>title</name>
+    <type>varchar</type>
+    <size>255</size>
     <required>true</required>
     <add>1.0</add>
-    <comment>Node linked to the invoice.</comment>
-  </field>
-  <field>
-    <name>vid</name>
-    <type>int unsigned</type>
-    <required>true</required>
-    <add>1.0</add>
-    <comment>Node vid linked to the invoice.</comment>
+    <comment>Invoice title, short description.</comment>
   </field>
   <field>
     <name>node_reference</name>
