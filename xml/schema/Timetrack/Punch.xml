@@ -60,7 +60,7 @@
   <field>
     <name>comment</name>
     <type>varchar</type>
-    <size>255</size>
+    <length>255</length>
     <required>false</required>
     <add>1.0</add>
     <comment>Punch comment, provides more information on what was done.</comment>

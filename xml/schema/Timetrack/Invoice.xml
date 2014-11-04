@@ -22,7 +22,7 @@
   <field>
     <name>title</name>
     <type>varchar</type>
-    <size>255</size>
+    <length>255</length>
     <required>true</required>
     <add>1.0</add>
     <comment>Invoice title, short description.</comment>
