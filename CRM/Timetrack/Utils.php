@@ -9,6 +9,29 @@ class CRM_Timetrack_Utils {
   }
 
   /**
+   * Returns the main contact (client) of a case.
+   */
+  static function getCaseContact($case_id) {
+    static $case_contact_cache = array();
+
+    if (isset($case_contact_cache[$case_id])) {
+      return $case_contact_cache[$case_id];
+    }
+
+    $dao = CRM_Core_DAO::executeQuery('SELECT contact_id FROM civicrm_case_contact WHERE case_id = %1', array(
+      1 => array($case_id, 'Positive'),
+    ));
+
+    if ($dao->fetch()) {
+      $case_contact_cache[$case_id] = $dao->contact_id;
+      return $dao->contact_id;
+    }
+
+    $case_contact_cache[$case_id] = NULL;
+    return NULL;
+  }
+
+  /**
    * Returns a list of activities for a case.
    * Mostly an API wrapper / transition mechanism.
    *
