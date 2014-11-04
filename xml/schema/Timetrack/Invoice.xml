@@ -75,4 +75,18 @@
     <add>1.0</add>
     <comment>This seems redundant with the status?</comment>
   </field>
+  <field>
+    <name>created_date</name>
+    <type>timestamp</type>
+    <required>true</required>
+    <add>1.0</add>
+    <comment>Time of creation of the invoice.</comment>
+  </field>
+  <field>
+    <name>modified_date</name>
+    <type>timestamp</type>
+    <required>true</required>
+    <add>1.0</add>
+    <comment>Time of creation of the invoice.</comment>
+  </field>
 </table>
