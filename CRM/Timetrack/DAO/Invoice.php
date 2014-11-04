@@ -143,6 +143,18 @@ class CRM_Timetrack_DAO_Invoice extends CRM_Core_DAO
    */
   public $paid;
   /**
+   * Time of creation of the invoice.
+   *
+   * @var timestamp
+   */
+  public $created_date;
+  /**
+   * Time of creation of the invoice.
+   *
+   * @var timestamp
+   */
+  public $modified_date;
+  /**
    * class constructor
    *
    * @access public
@@ -214,6 +226,18 @@ class CRM_Timetrack_DAO_Invoice extends CRM_Core_DAO
           'type' => CRM_Utils_Type::T_INT,
           'title' => ts('Paid') ,
         ) ,
+        'created_date' => array(
+          'name' => 'created_date',
+          'type' => CRM_Utils_Type::T_TIMESTAMP,
+          'title' => ts('Created Date') ,
+          'required' => true,
+        ) ,
+        'modified_date' => array(
+          'name' => 'modified_date',
+          'type' => CRM_Utils_Type::T_TIMESTAMP,
+          'title' => ts('Modified Date') ,
+          'required' => true,
+        ) ,
       );
     }
     return self::$_fields;
@@ -238,6 +262,8 @@ class CRM_Timetrack_DAO_Invoice extends CRM_Core_DAO
         'ledger_bill_id' => 'ledger_bill_id',
         'hours_billed' => 'hours_billed',
         'paid' => 'paid',
+        'created_date' => 'created_date',
+        'modified_date' => 'modified_date',
       );
     }
     return self::$_fieldKeys;
