@@ -204,7 +204,8 @@ class CRM_Timetrack_DAO_Punch extends CRM_Core_DAO
           'type' => CRM_Utils_Type::T_STRING,
           'title' => ts('Comment') ,
           'required' => false,
-          'size' => 255,
+          'maxlength' => 255,
+          'size' => CRM_Utils_Type::HUGE,
         ) ,
         'billable_intern' => array(
           'name' => 'billable_intern',

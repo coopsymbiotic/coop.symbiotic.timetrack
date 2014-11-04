@@ -155,7 +155,8 @@ class CRM_Timetrack_DAO_InvoiceLineitem extends CRM_Core_DAO
           'type' => CRM_Utils_Type::T_STRING,
           'title' => ts('Title') ,
           'required' => true,
-          'size' => CRM_Utils_Type::TWO,
+          'maxlength' => 255,
+          'size' => CRM_Utils_Type::HUGE,
         ) ,
         'hours_billed' => array(
           'name' => 'hours_billed',
