@@ -25,6 +25,14 @@ ALTER TABLE kpunch add CONSTRAINT `FK_kpunch_korder_line_id` FOREIGN KEY (`korde
 -- This updates the new korder_id field, which refers to the korder.koid instead.
 UPDATE kpunch, node, korder SET kpunch.korder_id = korder.koid WHERE node.nid = kpunch.order_reference and korder.nid = node.nid;
 
+-- Add reference to civicrm_case.id in korder
+-- (previously, it would refer to the nid of the contract)
+ALTER TABLE korder add case_id int(10) unsigned DEFAULT NULL;
+UPDATE korder, node, civicrm_value_infos_base_contrats_1
+   SET korder.case_id = civicrm_value_infos_base_contrats_1.entity_id
+ WHERE korder.node_reference = node.nid
+   AND node.nid = civicrm_value_infos_base_contrats_1.kproject_node_2;
+
 -- new korder_line table
 CREATE TABLE `korder_line` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
