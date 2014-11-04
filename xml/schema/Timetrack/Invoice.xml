@@ -85,8 +85,9 @@
   <field>
     <name>modified_date</name>
     <type>timestamp</type>
-    <required>true</required>
+    <required>false</required>
     <add>1.0</add>
+    <default>CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP</default>
     <comment>Time of creation of the invoice.</comment>
   </field>
 </table>
