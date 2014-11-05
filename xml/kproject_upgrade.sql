@@ -39,7 +39,8 @@ CREATE TABLE `korder_line` (
   `order_id` int(10) unsigned NOT NULL,
   `title` varchar(255) DEFAULT '',
   `hours_billed` float NOT NULL DEFAULT '0',
-  `rate` float NOT NULL DEFAULT '0',
+  `cost` float NOT NULL DEFAULT '0',
+  `unit` varchar(15) COLLATE utf8_unicode_ci DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `order_id` (`order_id`),
   CONSTRAINT `FK_korder_line_order_id` FOREIGN KEY (`order_id`) REFERENCES `korder` (`koid`) ON DELETE CASCADE
