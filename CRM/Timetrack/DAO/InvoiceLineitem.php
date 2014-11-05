@@ -113,11 +113,17 @@ class CRM_Timetrack_DAO_InvoiceLineitem extends CRM_Core_DAO
    */
   public $hours_billed;
   /**
-   * Hourly rate.
+   * Cost of item.
    *
    * @var float
    */
-  public $rate;
+  public $cost;
+  /**
+   * Unit of item.
+   *
+   * @var string
+   */
+  public $unit;
   /**
    * class constructor
    *
@@ -163,10 +169,17 @@ class CRM_Timetrack_DAO_InvoiceLineitem extends CRM_Core_DAO
           'type' => CRM_Utils_Type::T_FLOAT,
           'title' => ts('Hours Billed') ,
         ) ,
-        'rate' => array(
-          'name' => 'rate',
+        'cost' => array(
+          'name' => 'cost',
           'type' => CRM_Utils_Type::T_FLOAT,
-          'title' => ts('Rate') ,
+          'title' => ts('Cost') ,
+        ) ,
+        'unit' => array(
+          'name' => 'unit',
+          'type' => CRM_Utils_Type::T_STRING,
+          'title' => ts('Unit') ,
+          'maxlength' => 15,
+          'size' => CRM_Utils_Type::TWELVE,
         ) ,
       );
     }
@@ -187,7 +200,8 @@ class CRM_Timetrack_DAO_InvoiceLineitem extends CRM_Core_DAO
         'order_id' => 'order_id',
         'title' => 'title',
         'hours_billed' => 'hours_billed',
-        'rate' => 'rate',
+        'cost' => 'cost',
+        'unit' => 'unit',
       );
     }
     return self::$_fieldKeys;

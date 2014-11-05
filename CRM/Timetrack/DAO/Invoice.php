@@ -237,6 +237,7 @@ class CRM_Timetrack_DAO_Invoice extends CRM_Core_DAO
           'type' => CRM_Utils_Type::T_TIMESTAMP,
           'title' => ts('Modified Date') ,
           'required' => false,
+          'default' => 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
         ) ,
       );
     }
