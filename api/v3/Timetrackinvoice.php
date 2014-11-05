@@ -15,33 +15,29 @@ function civicrm_api3_timetrackinvoice_get($params) {
   $options = array();
   $invoices = array();
 
-  $sqlparams = array(
-    1 => array('korder', 'String'),
-  );
+  $sqlparams = array();
 
-  $sql = 'SELECT n.nid as invoice_id, n.title as subject, c.id as case_id, c.subject as case_subject,
+  $sql = 'SELECT ko.koid as invoice_id, ko.title, c.id as case_id, c.subject as case_subject,
                  ko.state, ko.ledger_order_id, ko.ledger_bill_id, ko.hours_billed, ko.paid
-            FROM node as n
-           INNER JOIN korder as ko on (ko.nid = n.nid)
-           INNER JOIN civicrm_value_infos_base_contrats_1 as cv on (cv.kproject_node_2 = ko.node_reference)
-           INNER JOIN civicrm_case as c on (c.id = cv.entity_id)
-           WHERE type = %1';
+            FROM korder as ko
+           INNER JOIN civicrm_case as c on (c.id = ko.case_id)
+           WHERE 1=1 ';
 
   if ($case_id = CRM_Utils_Array::value('case_id', $params)) {
     $sql .= ' AND c.id = %2';
     $sqlparams[2] = array($case_id, 'Positive');
   }
 
-  if ($subject = CRM_Utils_Array::value('subject', $params)) {
-    $subject = CRM_Utils_Type::escape($subject, 'String');
-    $sql .= " AND (c.subject LIKE '{$subject}%' OR tn.title LIKE '{$subject}%')";
+  if ($title = CRM_Utils_Array::value('title', $params)) {
+    $title = CRM_Utils_Type::escape($title, 'String');
+    $sql .= " AND (c.subject LIKE '{$title}%' OR ko.title LIKE '{$title}%')";
   }
 
   $dao = CRM_Core_DAO::executeQuery($sql, $sqlparams);
 
   while ($dao->fetch()) {
     $invoice = array(
-      'subject' => $dao->subject,
+      'title' => $dao->title,
       'case_subject' => $dao->case_subject,
       'invoice_id' => $dao->invoice_id,
       'case_id' => $dao->case_id,
@@ -53,7 +49,7 @@ function civicrm_api3_timetrackinvoice_get($params) {
     );
 
     // Calculate the time of included punches
-    $dao2 = CRM_Core_DAO::executeQuery('SELECT sum(duration) as total FROM kpunch WHERE order_reference = %1', array(
+    $dao2 = CRM_Core_DAO::executeQuery('SELECT sum(duration) as total FROM kpunch WHERE korder_id = %1', array(
       1 => array($dao->invoice_id, 'Positive'),
     ));
 
@@ -77,6 +73,24 @@ function civicrm_api3_timetrackinvoice_getcount($params) {
 }
 
 /**
+ * Create a new invoice.
+ */
+function civicrm_api3_timetrackinvoice_create($params) {
+  $invoice = new CRM_Timetrack_DAO_Invoice();
+
+  $invoice->copyValues($params);
+  $invoice->save();
+
+  if (is_null($invoice)) {
+    return civicrm_api3_create_error('Entity not created (Timetrackinvoice create)');
+  }
+
+  $values = array();
+  _civicrm_api3_object_to_array($invoice, $values[$invoice->id]);
+  return civicrm_api3_create_success($values, $params, NULL, 'create', $invoice);
+}
+
+/**
  * Adjust Metadata for Get action
  *
  * @param array $params array or parameters determined by getfields
@@ -86,4 +100,5 @@ function _civicrm_api3_timetrackinvoice_get_spec(&$params) {
 
   $params['title']['title'] = 'Invoice title';
   $params['case_id']['case'] = 'Invoice case/project/contract ID';
+  $params['created_date']['created_date'] = 'Invoice creation date';
 }
