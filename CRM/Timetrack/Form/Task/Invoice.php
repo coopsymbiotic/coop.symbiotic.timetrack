@@ -37,20 +37,31 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Contact_Form_Task {
     $case_id = $this->getCaseID();
     $client_id = CRM_Timetrack_Utils::getCaseContact($case_id);
     $contact = civicrm_api3('Contact', 'getsingle', array('id' => $client_id));
+    $period_start = $this->getPeriodStart();
+    $period_end = $this->getPeriodEnd();
 
     CRM_Utils_System::setTitle(ts('New invoice for %1', array(1 => $contact['display_name'])));
 
-    $this->addElement('text', 'client_name', ts('Client'));
+    $this->addElement('text', 'client_name', ts('Client'))->freeze();
     $this->defaults['client_name'] = $contact['display_name'];
 
+    $this->addElement('text', 'invoice_title', ts('Invoice title'));
+    $this->defaults['invoice_title'] = $contact['display_name'] . ' ' . substr($period_end, 0, 10);
+
     $this->addElement('text', 'invoice_period_start', ts('From'));
-    $this->defaults['invoice_period_start'] = $this->getPeriodStart();
+    $this->defaults['invoice_period_start'] = $period_start;
 
     $this->addElement('text', 'invoice_period_end', ts('To'));
-    $this->defaults['invoice_period_end'] = $this->getPeriodEnd();
+    $this->defaults['invoice_period_end'] = $period_end;
 
     $this->addDate('invoice_date', ts('Invoice date'), TRUE);
     $this->defaults['invoice_date'] = date('m/d/Y');
+
+    $this->add('text', 'ledger_order_id', ts('Ledger order ID'), 'size="7"', FALSE);
+    $this->defaults['ledger_order_id'] = '';
+
+    $this->add('text', 'ledger_bill_id', ts('Ledger invoice ID'), 'size="7"', TRUE);
+    $this->defaults['ledger_invoice_id'] = '';
 
     $tasks = $this->getBillingPerTasks();
 
@@ -58,22 +69,25 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Contact_Form_Task {
       $this->addElement('text', 'task_' . $key . '_label');
       $this->addElement('text', 'task_' . $key . '_hours')->freeze();
       $this->addElement('text', 'task_' . $key . '_hours_billed');
-      $this->addElement('text', 'task_' . $key . '_rate');
+      $this->addElement('text', 'task_' . $key . '_unit');
+      $this->addElement('text', 'task_' . $key . '_cost');
       $this->addElement('text', 'task_' . $key . '_amount');
 
       $this->defaults['task_' . $key . '_label'] = $val['title'];
       $this->defaults['task_' . $key . '_hours'] = $this->getTotalHours($val['punches'], 'duration');
       $this->defaults['task_' . $key . '_hours_billed'] = $this->getTotalHours($val['punches'], 'duration_rounded');
-      $this->defaults['task_' . $key . '_rate'] = 85; // FIXME
+      $this->defaults['task_' . $key . '_unit'] = ts('hour'); // FIXME
+      $this->defaults['task_' . $key . '_cost'] = 85; // FIXME
 
       // This gets recalculated in JS on page load / change.
-      $this->defaults['task_' . $key . '_amount'] = $this->defaults['task_' . $key . '_hours_billed'] * $this->defaults['task_' . $key . '_rate'];
+      $this->defaults['task_' . $key . '_amount'] = $this->defaults['task_' . $key . '_hours_billed'] * $this->defaults['task_' . $key . '_cost'];
     }
 
     for ($key = 0; $key < 5; $key++) {
       $this->addElement('text', 'task_extra' . $key . '_label');
       $this->addElement('text', 'task_extra' . $key . '_hours_billed');
-      $this->addElement('text', 'task_extra' . $key . '_rate');
+      $this->addElement('text', 'task_extra' . $key . '_unit');
+      $this->addElement('text', 'task_extra' . $key . '_cost');
       $this->addElement('text', 'task_extra' . $key . '_amount');
 
       $tasks['extra' . $key] = array(
@@ -95,22 +109,71 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Contact_Form_Task {
    * @return None
    */
   public function postProcess() {
+    $case_id = $this->getCaseID();
     $params = $this->exportValues();
 
-    dsm($params, 'params');
-    dsm($this);
-
     $line_items = array();
+    $total_hours_billed = 0;
 
     $tasks = $this->getBillingPerTasks();
 
-dsm($tasks, 'tasks');
+    foreach ($tasks as $key => $val) {
+      $total_hours_billed += $params['task_' . $key . '_hours_billed'];
+    }
 
-    foreach ($params as $key => $val) {
-      if (substr($key, 0, 4) == 'task') {
-        
+    for ($key = 0; $key < 5; $key++) {
+      $total_hours_billed += $params['task_extra' . $key . '_hours_billed'];
+    }
+
+    // NB: created_date can't be set manually becase it is a timestamp
+    // and the DB layer explicitely ignores timestamps (there is a trigger
+    // defined in timetrack.php).
+    $result = civicrm_api3('Timetrackinvoice', 'create', array(
+      'case_id' => $case_id,
+      'title' => $params['invoice_title'],
+      'state' => 3, // FIXME, expose to UI, pseudoconstant, etc.
+      'ledger_order_id' => $params['ledger_order_id'],
+      'ledger_bill_id' => $params['ledger_bill_id'],
+      'hours_billed' => $total_hours_billed,
+    ));
+
+    $order_id = $result['id'];
+
+    foreach ($tasks as $key => $val) {
+      $result = civicrm_api3('Timetrackinvoicelineitem', 'create', array(
+        'order_id' => $order_id,
+        'title' => $params['task_' . $key . '_title'],
+        'hours_billed' => $params['task_' . $key . '_hours_billed'],
+        'cost' => $params['task_' . $key . '_cost'],
+        'unit' => $params['task_' . $key . '_unit'],
+      ));
+
+      $line_item_id = $result['id'];
+
+      // Assign punches to line item / order.
+      foreach ($val['punches'] as $pkey => $pval) {
+        CRM_Core_DAO::executeQuery('UPDATE kpunch SET korder_id = %1, korder_line_id = %2 WHERE pid = %3', array(
+          1 => array($order_id, 'Positive'),
+          2 => array($line_item_id, 'Positive'),
+          3 => array($pval['pid'], 'Positive'),
+        ));
       }
     }
+
+    for ($key = 0; $key < 5; $key++) {
+      // FIXME: not sure what to consider sufficient to charge an 'extra' line.
+      if ($params['task_extra' . $key . '_cost']) {
+        $result = civicrm_api3('Timetrackinvoicelineitem', 'create', array(
+          'order_id' => $order_id,
+          'title' => $params['task_extra' . $key . '_label'],
+          'hours_billed' => $params['task_extra' . $key . '_hours_billed'],
+          'cost' => $params['task_extra' . $key . '_cost'],
+          'unit' => $params['task_extra' . $key . '_unit'],
+        ));
+      }
+    }
+
+    CRM_Core_Session::setStatus(ts('The order #%1 has been created.', array(1 => $order_id)), '', 'success');
   }
 
   /**
