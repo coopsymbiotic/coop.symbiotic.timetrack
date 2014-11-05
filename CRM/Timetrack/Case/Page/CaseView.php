@@ -66,7 +66,7 @@ class CRM_Timetrack_Case_Page_CaseView {
 
     // FIXME ts() domain.
     $headers = array(
-      'subject' => ts('Title'),
+      'title' => ts('Title'),
       'total' => ts('Total punches'),
       'invoiced' => ts('Invoiced'),
       'invoiced_pct' => ts('% invoiced'),
@@ -87,7 +87,7 @@ class CRM_Timetrack_Case_Page_CaseView {
       $included_hours = CRM_Timetrack_Utils::roundUpSeconds($invoice['total_included'], 1);
 
       $rows[] = array(
-        'subject' => CRM_Utils_System::href($invoice['subject'], 'node/' . $invoice['invoice_id'] . '/edit'),
+        'title' => CRM_Utils_System::href($invoice['title'], 'node/' . $invoice['invoice_id'] . '/edit'),
         'total' => $included_hours,
         'invoiced' => $invoice['hours_billed'], // already in hours
         'invoiced_pct' => ($included_hours > 0 ? round($invoice['hours_billed'] / $included_hours * 100, 2) : 0) . '%',
@@ -108,7 +108,7 @@ class CRM_Timetrack_Case_Page_CaseView {
       LEFT JOIN ktask on (ktask.nid = kpunch.nid)
       LEFT JOIN civicrm_value_infos_base_contrats_1 as bc on (bc.kproject_node_2 = ktask.parent)
       WHERE bc.entity_id = %1
-        AND order_reference is NULL', array(
+        AND korder_id is NULL', array(
       1 => array($case_id, 'Positive'),
     ));
 

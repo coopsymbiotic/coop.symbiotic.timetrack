@@ -107,7 +107,7 @@ class CRM_Timetrack_Form_Search_TimetrackPunches implements CRM_Contact_Form_Sea
   function all($offset = 0, $rowcount = 0, $sort = null, $includeContactIDs = FALSE, $onlyIDs = FALSE) {
     // XXX: kpunch.pid as contact_id is a hack because the tasks require it for the checkboxes.
     $select = "kpunch.pid, kpunch.pid as contact_id, kpunch.uid, from_unixtime(kpunch.begin) as begin, kpunch.duration,
-               kpunch.duration as duration_rounded, kpunch.comment, kpunch.order_reference as invoice_id,
+               kpunch.duration as duration_rounded, kpunch.comment, kpunch.korder_id as invoice_id,
                korder.state as order_state,
                task_civireport.title as task,
                civicrm_case.subject as case_subject, civicrm_case.id as case_id";
@@ -116,7 +116,7 @@ class CRM_Timetrack_Form_Search_TimetrackPunches implements CRM_Contact_Form_Sea
     $this->_tables['ktask'] = "LEFT JOIN ktask kt ON (kt.nid = kpunch.nid)";
     $this->_tables['node'] = "LEFT JOIN node as task_civireport ON (task_civireport.nid = kt.nid)";
     $this->_tables['kcontract'] = "LEFT JOIN kcontract ON (kcontract.nid = kt.parent)";
-    $this->_tables['korder'] = "LEFT JOIN korder ON (korder.nid = kpunch.order_reference)";
+    $this->_tables['korder'] = "LEFT JOIN korder ON (korder.koid = kpunch.korder_id)";
     $this->_tables['base_contract'] = "LEFT JOIN civicrm_value_infos_base_contrats_1 as cval ON (cval.kproject_node_2 = kt.parent)";
     $this->_tables['civicrm_case'] = "LEFT JOIN civicrm_case ON (civicrm_case.id = cval.entity_id)";
 
