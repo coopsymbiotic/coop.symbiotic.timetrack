@@ -5,6 +5,12 @@
 </div>
 
 <div class="crm-section crm-timetrack-general-section">
+  <div class="label">{$form.invoice_title.label}</div>
+  <div class="content">{$form.invoice_title.html}</div>
+  <div class="clear"></div>
+</div>
+
+<div class="crm-section crm-timetrack-general-section">
   <div class="label">{$form.invoice_period_start.label}</div>
   <div class="content">{$form.invoice_period_start.html}</div>
   <div class="clear"></div>
@@ -28,13 +34,26 @@
   <div class="clear"></div>
 </div>
 
+<div class="crm-section crm-timetrack-general-section">
+  <div class="label">{$form.ledger_order_id.label}</div>
+  <div class="content">{$form.ledger_order_id.html}</div>
+  <div class="clear"></div>
+</div>
+
+<div class="crm-section crm-timetrack-general-section">
+  <div class="label">{$form.ledger_bill_id.label}</div>
+  <div class="content">{$form.ledger_bill_id.html}</div>
+  <div class="clear"></div>
+</div>
+
 <table>
   <thead>
     <tr>
       <th>{ts}Task{/ts}</th>
       <th>{ts}Hours{/ts}</th>
       <th>{ts}Rounded{/ts}</th>
-      <th>{ts}Rate{/ts}</th>
+      <th>{ts}Unit{/ts}</th>
+      <th>{ts}Cost{/ts}</th>
       <th>{ts}Amount{/ts}</th>
     </tr>
   </thead>
@@ -43,13 +62,15 @@
       {assign var="label" value='task_'|cat:$foo|cat:'_label'}
       {assign var="hours" value='task_'|cat:$foo|cat:'_hours'}
       {assign var="hoursbilled" value='task_'|cat:$foo|cat:'_hours_billed'}
-      {assign var="rate" value='task_'|cat:$foo|cat:'_rate'}
+      {assign var="unit" value='task_'|cat:$foo|cat:'_unit'}
+      {assign var="cost" value='task_'|cat:$foo|cat:'_cost'}
       {assign var="amount" value='task_'|cat:$foo|cat:'_amount'}
       <tr>
         <td>{$form.$label.html}</td>
         <td>{$form.$hours.html}</td>
         <td>{$form.$hoursbilled.html}</td>
-        <td>{$form.$rate.html}</td>
+        <td>{$form.$unit.html}</td>
+        <td>{$form.$cost.html}</td>
         <td>{$form.$amount.html}</td>
       </tr>
     {/foreach}
