@@ -70,19 +70,6 @@
     <comment>Number of hours invoiced.</comment>
   </field>
   <field>
-    <name>cost</name>
-    <type>float</type>
-    <add>1.0</add>
-    <comment>Cost of item.</comment>
-  </field>
-  <field>
-    <name>unit</name>
-    <type>varchar</type>
-    <length>15</length>
-    <add>1.0</add>
-    <comment>Unit of item.</comment>
-  </field>
-  <field>
     <name>paid</name>
     <type>int unsigned</type>
     <add>1.0</add>
