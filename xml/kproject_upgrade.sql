@@ -28,10 +28,15 @@ UPDATE kpunch, node, korder SET kpunch.korder_id = korder.koid WHERE node.nid = 
 -- Add reference to civicrm_case.id in korder
 -- (previously, it would refer to the nid of the contract)
 ALTER TABLE korder add case_id int(10) unsigned DEFAULT NULL;
+
 UPDATE korder, node, civicrm_value_infos_base_contrats_1
    SET korder.case_id = civicrm_value_infos_base_contrats_1.entity_id
  WHERE korder.node_reference = node.nid
    AND node.nid = civicrm_value_infos_base_contrats_1.kproject_node_2;
+
+-- Make the order ID optional, since not really used.
+-- Invoice ID remains mandatory, for now.. (more of a workflow issue).
+ALTER TABLE korder change ledger_order_id ledger_order_id int(11) null default 0;
 
 -- new korder_line table
 CREATE TABLE `korder_line` (

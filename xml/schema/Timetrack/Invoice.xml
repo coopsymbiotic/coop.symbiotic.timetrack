@@ -59,7 +59,7 @@
   <field>
     <name>ledger_bill_id</name>
     <type>int unsigned</type>
-    <required>false</required>
+    <required>true</required>
     <add>1.0</add>
     <comment>Invoice reference in the accounting system.</comment>
   </field>
