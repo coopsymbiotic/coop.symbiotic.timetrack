@@ -207,3 +207,15 @@ function timetrack_civicrm_searchTasks($objectType, &$tasks) {
     );
   }
 }
+
+/**
+ * Implements hook_civicrm_triggerInfo().
+ */
+function timetrack_civicrm_triggerInfo(&$info, $tableName) {
+  $info[] = array(
+    'table' => array('korder'),
+    'when' => 'BEFORE',
+    'event' => array('INSERT'),
+    'sql' => "\nSET NEW.created_date = CURRENT_TIMESTAMP;\n",
+  );
+}
