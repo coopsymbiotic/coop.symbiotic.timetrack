@@ -139,6 +139,7 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Contact_Form_Task {
 
     $order_id = $result['id'];
 
+    // Known tasks, extracted from the punches being billed.
     foreach ($tasks as $key => $val) {
       $result = civicrm_api3('Timetrackinvoicelineitem', 'create', array(
         'order_id' => $order_id,
@@ -160,8 +161,10 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Contact_Form_Task {
       }
     }
 
+    // Extra tasks, no punches assigned.
     for ($key = 0; $key < 5; $key++) {
       // FIXME: not sure what to consider sufficient to charge an 'extra' line.
+      // Assuming that if there is a 'cost' value, it's enough to charge.
       if ($params['task_extra' . $key . '_cost']) {
         $result = civicrm_api3('Timetrackinvoicelineitem', 'create', array(
           'order_id' => $order_id,
