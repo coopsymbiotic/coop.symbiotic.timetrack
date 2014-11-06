@@ -81,26 +81,26 @@ Your OpenDocument file can have the following tokens that will be filled-in by
 Timetrack. Since we are using the tinybutstrong library, the tokens have the
 following syntax:
 
-* [var.ClientId] ("contact ID" of the case contact)
-* [var.ClientName] ("display name" of the case contact)
-* [var.ClientAddress1] (primary address of the case contact)
-* [var.ClientAddress2] (corresponds to "additional address 1" in CiviCRM)
-* [var.ClientAddress3] (corresponds to "additional address 1" in CiviCRM)
-* [var.ClientCity]
-* [var.ClientStateProvince]
-* [var.ClientPostalCode]
-* [var.LedgerId] (ledger ID associated to an invoice)
-* [var.InvoiceId] (auto-generated internal ID for invoices)
-* [var.InvoiceDate]
-* [var.CaseId]
+* `[var.ClientId]` ("contact ID" of the case contact)
+* `[var.ClientName]` ("display name" of the case contact)
+* `[var.ClientAddress1]` (primary address of the case contact)
+* `[var.ClientAddress2]` (corresponds to "additional address 1" in CiviCRM)
+* `[var.ClientAddress3]` (corresponds to "additional address 1" in CiviCRM)
+* `[var.ClientCity]`
+* `[var.ClientStateProvince]`
+* `[var.ClientPostalCode]`
+* `[var.LedgerId]` (ledger ID associated to an invoice)
+* `[var.InvoiceId]` (auto-generated internal ID for invoices)
+* `[var.InvoiceDate]`
+* `[var.CaseId]`
 
 The following tokens should be used in a row:
 
-* [t.title;block=table:table-row]
-* [t.qty]
-* [t.unit]
-* [t.cost]
-* [t.amount]
+* `[t.title;block=table:table-row]`
+* `[t.qty]`
+* `[t.unit]`
+* `[t.cost]`
+* `[t.amount]`
 
 The invoice subtotal can be found in [var.SubTotal].
 
