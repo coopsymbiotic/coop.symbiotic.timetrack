@@ -127,6 +127,9 @@ Tasks and punches:
 
 Invoices:
 
+* Add JS to recalculate row-totals automatically (qty*unit)
+* Have a way to list the punch details for a task? (popup?)
+* Have a per-task default cost (hourly fee), currently hardcoded.
 * Add a "public note" field, for a text to add on the invoice sent to the client?
 * Add a "private note" field, for internal notes? (not shown on the final invoice)
 * Rename the "hours_billed" in the DB to just "qty".
