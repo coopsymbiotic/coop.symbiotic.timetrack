@@ -14,7 +14,7 @@ has been invoied or not). The extension can generate invoices in OpenDocument
 
 Timetrack also includes reports and new APIs to manipulate the punches.
 
-To download the latest version of this module:
+To download the latest version of this module:  
 https://github.com/mlutfy/ca.bidon.timetrack
 
 Status
@@ -141,26 +141,28 @@ General assumptions that might need fixing:
 Support
 =======
 
-Please post bug reports in the issue tracker of this project on github:
+Please post bug reports in the issue tracker of this project on github:  
 https://github.com/mlutfy/ca.bidon.timetrack/issues
 
-For general questions and support, please post on the "Extensions" forum:
-http://forum.civicrm.org/index.php/board,57.0.html
+For general questions and support, please post on the "Extensions" forum:  
+https://forum.civicrm.org/index.php/board,57.0.html
 
 This is a community contributed extension written thanks to the financial
 support of organisations using it, as well as the very helpful and collaborative
 CiviCRM community.
 
-If you appreciate this module, please consider donating 10$ to the CiviCRM project:
+If you appreciate this module, please consider donating 10$ to the CiviCRM project:  
 http://civicrm.org/participate/support-civicrm
 
 While I do my best to provide volunteer support for this extension, please
 consider financially contributing to support or development of this extension
 if you can.
 
-Commercial support via Coop SymbioTIC: <https://www.symbiotic.coop>
+Commercial support via Coop SymbioTIC:  
+https://www.symbiotic.coop
 
-Or you can send me the equivalent of a beer: <https://www.bidon.ca/en/paypal>
+Or you can send me the equivalent of a beer:  
+https://www.bidon.ca/en/paypal
 
 License
 =======
@@ -171,13 +173,13 @@ See LICENSE.txt for details.
 (C) 2014 Mathieu Lutfy <mathieu@bidon.ca>
 
 Includes code based on "kproject"  
-http://drupal.org/project/kproject  
+https://drupal.org/project/kproject  
 https://redmine.koumbit.net/projects/kproject
 
-(C) 2008-2011 Yann Rocq
+(C) 2008-2011 Yann Rocq  
 (C) 2008-2011 Samuel Vanhove
 
 Bundles the "tinybutstrong" library and the "openbts" plugin, distributed
-under the terms of the GNU Lesser General public license (LGPL).
-http://www.tinybutstrong.com/
+under the terms of the GNU Lesser General public license (LGPL).  
+http://www.tinybutstrong.com/  
 http://www.tinybutstrong.com/support.php#licence
