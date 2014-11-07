@@ -5,8 +5,8 @@
 </div>
 
 <div class="crm-section crm-timetrack-general-section">
-  <div class="label">{$form.invoice_title.label}</div>
-  <div class="content">{$form.invoice_title.html}</div>
+  <div class="label">{$form.title.label}</div>
+  <div class="content">{$form.title.html}</div>
   <div class="clear"></div>
 </div>
 
@@ -23,8 +23,8 @@
 </div>
 
 <div class="crm-section crm-timetrack-general-section">
-  <div class="label">{$form.invoice_date.label}</div>
-  <div class="content">{include file="CRM/common/jcalendar.tpl" elementName=invoice_date}</div>
+  <div class="label">{$form.created_date.label}</div>
+  <div class="content">{include file="CRM/common/jcalendar.tpl" elementName=created_date}</div>
   <div class="clear"></div>
 </div>
 
@@ -59,14 +59,14 @@
   </thead>
   <tbody>
     {foreach item=task key=foo from=$invoice_tasks}
-      {assign var="label" value='task_'|cat:$foo|cat:'_label'}
+      {assign var="title" value='task_'|cat:$foo|cat:'_title'}
       {assign var="hours" value='task_'|cat:$foo|cat:'_hours'}
       {assign var="hoursbilled" value='task_'|cat:$foo|cat:'_hours_billed'}
       {assign var="unit" value='task_'|cat:$foo|cat:'_unit'}
       {assign var="cost" value='task_'|cat:$foo|cat:'_cost'}
       {assign var="amount" value='task_'|cat:$foo|cat:'_amount'}
       <tr>
-        <td>{$form.$label.html}</td>
+        <td>{$form.$title.html}</td>
         <td>{$form.$hours.html}</td>
         <td>{$form.$hoursbilled.html}</td>
         <td>{$form.$unit.html}</td>

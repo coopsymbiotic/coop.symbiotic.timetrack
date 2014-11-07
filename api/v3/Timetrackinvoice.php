@@ -17,11 +17,23 @@ function civicrm_api3_timetrackinvoice_get($params) {
 
   $sqlparams = array();
 
+  // XXX: assuming cases only have 1 client contact.
   $sql = 'SELECT ko.koid as invoice_id, ko.title, c.id as case_id, c.subject as case_subject,
-                 ko.state, ko.ledger_order_id, ko.ledger_bill_id, ko.hours_billed, ko.paid
+                 ko.state, ko.ledger_order_id, ko.ledger_bill_id, ko.hours_billed, ko.paid, ko.created_date,
+                 ccont.contact_id
             FROM korder as ko
            INNER JOIN civicrm_case as c on (c.id = ko.case_id)
+           LEFT JOIN civicrm_case_contact as ccont on (ccont.case_id = c.id)
            WHERE 1=1 ';
+
+  if ($invoice_id = CRM_Utils_Array::value('invoice_id', $params)) {
+    $sql .= ' AND ko.koid = %1';
+    $sqlparams[1] = array($invoice_id, 'Positive');
+  }
+  elseif ($invoice_id = CRM_Utils_Array::value('id', $params)) {
+    $sql .= ' AND ko.koid = %1';
+    $sqlparams[1] = array($invoice_id, 'Positive');
+  }
 
   if ($case_id = CRM_Utils_Array::value('case_id', $params)) {
     $sql .= ' AND c.id = %2';
@@ -33,14 +45,20 @@ function civicrm_api3_timetrackinvoice_get($params) {
     $sql .= " AND (c.subject LIKE '{$title}%' OR ko.title LIKE '{$title}%')";
   }
 
+  // FIXME: should respect API options groupby
+  $sql .= ' ORDER BY created_date DESC';
+
   $dao = CRM_Core_DAO::executeQuery($sql, $sqlparams);
 
   while ($dao->fetch()) {
     $invoice = array(
+      'invoice_id' => $dao->id,
+      'created_date' => $dao->created_date,
       'title' => $dao->title,
       'case_subject' => $dao->case_subject,
       'invoice_id' => $dao->invoice_id,
       'case_id' => $dao->case_id,
+      'contact_id' => $dao->contact_id,
       'state' => $dao->state,
       'paid' => $dao->paid,
       'hours_billed' => $dao->hours_billed,

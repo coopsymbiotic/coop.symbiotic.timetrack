@@ -35,6 +35,7 @@ function civicrm_api3_timetrackinvoicelineitem_get($params) {
 
   while ($dao->fetch()) {
     $line = array(
+      'order_line_id' => $dao->id,
       'order_id' => $dao->order_id,
       'title' => $dao->title,
       'invoice_id' => $dao->invoice_id,
@@ -44,7 +45,7 @@ function civicrm_api3_timetrackinvoicelineitem_get($params) {
     );
 
     // Calculate the time of included punches
-    $dao2 = CRM_Core_DAO::executeQuery('SELECT sum(duration) as total FROM kpunch WHERE order_line_id = %1', array(
+    $dao2 = CRM_Core_DAO::executeQuery('SELECT sum(duration) as total FROM kpunch WHERE korder_line_id = %1', array(
       1 => array($dao->id, 'Positive'),
     ));
 
@@ -55,7 +56,7 @@ function civicrm_api3_timetrackinvoicelineitem_get($params) {
     $lineitems[] = $line;
   }
 
-  return civicrm_api3_create_success($invoices, $params, 'timetrackinvoicelineitem');
+  return civicrm_api3_create_success($lineitems, $params, 'timetrackinvoicelineitem');
 }
 
 /**

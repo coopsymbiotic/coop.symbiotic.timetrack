@@ -14,8 +14,6 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Contact_Form_Task {
    * @access public
    */
   function preProcess() {
-    // CRM_Contact_Form_Task_EmailCommon::preProcessFromAddress($this);
-
     parent::preProcess();
   }
 
@@ -42,60 +40,35 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Contact_Form_Task {
 
     CRM_Utils_System::setTitle(ts('New invoice for %1', array(1 => $contact['display_name'])));
 
-    $this->addElement('text', 'client_name', ts('Client'))->freeze();
     $this->defaults['client_name'] = $contact['display_name'];
-
-    $this->addElement('text', 'invoice_title', ts('Invoice title'));
-    $this->defaults['invoice_title'] = $contact['display_name'] . ' ' . substr($period_end, 0, 10);
-
-    $this->addElement('text', 'invoice_period_start', ts('From'));
+    $this->defaults['title'] = $contact['display_name'] . ' ' . substr($period_end, 0, 10);
     $this->defaults['invoice_period_start'] = $period_start;
-
-    $this->addElement('text', 'invoice_period_end', ts('To'));
     $this->defaults['invoice_period_end'] = $period_end;
-
-    $this->addDate('invoice_date', ts('Invoice date'), TRUE);
-    $this->defaults['invoice_date'] = date('m/d/Y');
-
-    $this->add('text', 'ledger_order_id', ts('Ledger order ID'), 'size="7"', FALSE);
+    $this->defaults['created_date'] = date('m/d/Y');
     $this->defaults['ledger_order_id'] = '';
-
-    $this->add('text', 'ledger_bill_id', ts('Ledger invoice ID'), 'size="7"', TRUE);
     $this->defaults['ledger_invoice_id'] = '';
 
     $tasks = $this->getBillingPerTasks();
 
     foreach ($tasks as $key => $val) {
-      $this->addElement('text', 'task_' . $key . '_label');
-      $this->addElement('text', 'task_' . $key . '_hours')->freeze();
-      $this->addElement('text', 'task_' . $key . '_hours_billed');
-      $this->addElement('text', 'task_' . $key . '_unit');
-      $this->addElement('text', 'task_' . $key . '_cost');
-      $this->addElement('text', 'task_' . $key . '_amount');
-
-      $this->defaults['task_' . $key . '_label'] = $val['title'];
+      $this->defaults['task_' . $key . '_title'] = $val['title'];
       $this->defaults['task_' . $key . '_hours'] = $this->getTotalHours($val['punches'], 'duration');
       $this->defaults['task_' . $key . '_hours_billed'] = $this->getTotalHours($val['punches'], 'duration_rounded');
       $this->defaults['task_' . $key . '_unit'] = ts('hour'); // FIXME
-      $this->defaults['task_' . $key . '_cost'] = 85; // FIXME
+      $this->defaults['task_' . $key . '_cost'] = CRM_Timetrack_Form_Invoice::DEFAULT_HOURLY_RATE; // FIXME
 
       // This gets recalculated in JS on page load / change.
       $this->defaults['task_' . $key . '_amount'] = $this->defaults['task_' . $key . '_hours_billed'] * $this->defaults['task_' . $key . '_cost'];
     }
 
-    for ($key = 0; $key < 5; $key++) {
-      $this->addElement('text', 'task_extra' . $key . '_label');
-      $this->addElement('text', 'task_extra' . $key . '_hours_billed');
-      $this->addElement('text', 'task_extra' . $key . '_unit');
-      $this->addElement('text', 'task_extra' . $key . '_cost');
-      $this->addElement('text', 'task_extra' . $key . '_amount');
-
+    for ($key = 0; $key < CRM_Timetrack_Form_Invoice::EXTRA_LINES; $key++) {
       $tasks['extra' . $key] = array(
         'title' => '',
         'punches' => array(),
       );
     }
 
+    CRM_Timetrack_Form_InvoiceCommon::buildForm($this, $tasks);
     $this->addDefaultButtons(ts('Save'));
 
     $smarty->assign('invoice_tasks', $tasks);
@@ -117,11 +90,13 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Contact_Form_Task {
 
     $tasks = $this->getBillingPerTasks();
 
+    // TODO: remove code duplication / use InvoiceCommon's postProcess.
+
     foreach ($tasks as $key => $val) {
       $total_hours_billed += $params['task_' . $key . '_hours_billed'];
     }
 
-    for ($key = 0; $key < 5; $key++) {
+    for ($key = 0; $key < CRM_Timetrack_Form_Invoice::EXTRA_LINES; $key++) {
       $total_hours_billed += $params['task_extra' . $key . '_hours_billed'];
     }
 
@@ -130,7 +105,7 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Contact_Form_Task {
     // defined in timetrack.php).
     $result = civicrm_api3('Timetrackinvoice', 'create', array(
       'case_id' => $case_id,
-      'title' => $params['invoice_title'],
+      'title' => $params['title'],
       'state' => 3, // FIXME, expose to UI, pseudoconstant, etc.
       'ledger_order_id' => $params['ledger_order_id'],
       'ledger_bill_id' => $params['ledger_bill_id'],
@@ -138,6 +113,11 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Contact_Form_Task {
     ));
 
     $order_id = $result['id'];
+
+    CRM_Core_DAO::executeQuery('UPDATE korder SET created_date = %1 WHERE koid = %2', array(
+      1 => $params['created_date'],
+      2 => order_id,
+    ));
 
     // Known tasks, extracted from the punches being billed.
     foreach ($tasks as $key => $val) {
@@ -162,13 +142,13 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Contact_Form_Task {
     }
 
     // Extra tasks, no punches assigned.
-    for ($key = 0; $key < 5; $key++) {
+    for ($key = 0; $key < CRM_Timetrack_Form_Invoice::EXTRA_LINES; $key++) {
       // FIXME: not sure what to consider sufficient to charge an 'extra' line.
       // Assuming that if there is a 'cost' value, it's enough to charge.
       if ($params['task_extra' . $key . '_cost']) {
         $result = civicrm_api3('Timetrackinvoicelineitem', 'create', array(
           'order_id' => $order_id,
-          'title' => $params['task_extra' . $key . '_label'],
+          'title' => $params['task_extra' . $key . '_title'],
           'hours_billed' => $params['task_extra' . $key . '_hours_billed'],
           'cost' => $params['task_extra' . $key . '_cost'],
           'unit' => $params['task_extra' . $key . '_unit'],
@@ -176,7 +156,7 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Contact_Form_Task {
       }
     }
 
-    CRM_Core_Session::setStatus(ts('The order #%1 has been created.', array(1 => $order_id)), '', 'success');
+    CRM_Core_Session::setStatus(ts('The order #%1 has been saved.', array(1 => $order_id)), '', 'success');
   }
 
   /**

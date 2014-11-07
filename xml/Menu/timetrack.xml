@@ -7,6 +7,12 @@
     <access_arguments>access CiviCRM</access_arguments>
   </item>
   <item>
+    <path>civicrm/timetrack/invoice</path>
+    <page_callback>CRM_Timetrack_Form_Invoice</page_callback>
+    <title>Invoice</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+  <item>
     <path>civicrm/timetrack/invoice/generate</path>
     <page_callback>CRM_Timetrack_Page_GenerateInvoice</page_callback>
     <title>Generate invoice</title>
