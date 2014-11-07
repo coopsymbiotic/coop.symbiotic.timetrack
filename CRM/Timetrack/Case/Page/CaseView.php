@@ -5,8 +5,13 @@ class CRM_Timetrack_Case_Page_CaseView {
 
   }
 
+  /**
+   * Implements hook_civicrm_caseSummary().
+   */
   function caseSummary($case_id) {
     $summary = array();
+
+    CRM_Core_Resources::singleton()->addStyleFile('ca.bidon.timetrack', 'css/crm-timetrack-case-page-caseview.css');
 
     $result = civicrm_api3('CustomValue', 'get', array(
       'entity_id' => $case_id,
@@ -21,35 +26,53 @@ class CRM_Timetrack_Case_Page_CaseView {
 
       if ($kcontract_nid) {
         $actions = array(
-          CRM_Utils_System::href(ts('Add punch'), 'civicrm/timetrack/punch/', array('reset' => 1, 'cid' => $case_id, 'action' => 'create')),
-          CRM_Utils_System::href(ts('View punches'), 'node/' . $kcontract_nid . '/punches'),
-          CRM_Utils_System::href(ts('View punches (experimental)'), 'civicrm/contact/search/custom', array('csid' => 16, 'case_id' => $case_id, 'force' => 1, 'crmSID' => '6_d')),
-          // CRM_Utils_System::href(ts('View billing'), 'node/' . $kcontract_nid . '/kbpill'),
+          array(
+            'label' => ts('Add punch'),
+            'url' => CRM_Utils_System::url('civicrm/timetrack/punch/', array('reset' => 1, 'cid' => $case_id, 'action' => 'create')),
+            'classes' => 'icon add-icon',
+          ),
+          array(
+            'label' => ts('View/invoice punches (experimental)'),
+            'url' => CRM_Utils_System::url('civicrm/contact/search/custom', array('csid' => 16, 'case_id' => $case_id, 'force' => 1, 'crmSID' => '6_d')),
+            'classes' => 'icon search-icon',
+          ),
+          // ts('View billing') => CRM_Utils_System::url('node/' . $kcontract_nid . '/kbpill'),
+          array(
+            'label' => ts('Invoice other items'),
+            'url' => CRM_Utils_System::url('civicrm/timetrack/invoice', array('case_id' => $case_id, 'reset' => 1)),
+            'classes' => 'icon add-icon',
+          ),
         );
 
-        $summary['kproject'] = array(
-          'label' => ts('Kproject:'),
-          'value' => implode(', ', $actions),
+        $actions_html = '';
+
+        foreach ($actions as $key => $action) {
+          $actions_html .= "<a href='{$action['url']}' class='button'><span><div class='{$action['classes']}'></div>{$action['label']}</span></a>";
+        }
+
+        $summary['timetrack_actions'] = array(
+          'label' => ts('Time tracking:'),
+          'value' => '<div>' . $actions_html . '</div>',
         );
 
-        $summary['billing_status'] = array(
+        $summary['timetrack_billing_status'] = array(
           'label' => ts('Billing status'),
           'value' => ts('%1 unbilled hour(s)', array(1 => CRM_Timetrack_Utils::roundUpSeconds($this->getUnbilledHours($case_id)))),
         );
 
-        $summary['ktasks'] = array(
+        $summary['timetrack_tasks'] = array(
           'label' => '',
           'value' => '<div id="crm-timetrack-caseview-tasks" class="crm-accordion-wrapper"><div class="crm-accordion-header">Tasks</div><div class="crm-accordion-body">' . kproject_tasks_list($node) . '</div></div>',
         );
 
-        $summary['kinvoices'] = array(
+        $summary['timetrack_invoices'] = array(
           'label' => '',
           'value' => $this->getListOfInvoice($case_id),
         );
       }
     }
     else {
-      $summary['kproject'] = array(
+      $summary['timetrack_warning'] = array(
         'label' => ts('Kproject:'),
         'value' => '<strong>None found. Either you need to add the node_id of the kcontract in the custom field of this case, or you need to create a <a href="/node/add/kcontract">new kcontract</a>.</strong>',
       );
@@ -72,6 +95,7 @@ class CRM_Timetrack_Case_Page_CaseView {
       'invoiced_pct' => ts('% invoiced'),
       'ledger_id' => ts('Ledger ID'),
       'state' => ts('Status'),
+      'generate' => ts('Generate'),
     );
 
     $smarty->assign('timetrack_headers', $headers);
@@ -87,12 +111,13 @@ class CRM_Timetrack_Case_Page_CaseView {
       $included_hours = CRM_Timetrack_Utils::roundUpSeconds($invoice['total_included'], 1);
 
       $rows[] = array(
-        'title' => CRM_Utils_System::href($invoice['title'], 'node/' . $invoice['invoice_id'] . '/edit'),
+        'title' => CRM_Utils_System::href($invoice['title'], 'civicrm/timetrack/invoice', array('invoice_id' => $invoice['invoice_id'])),
         'total' => $included_hours,
         'invoiced' => $invoice['hours_billed'], // already in hours
         'invoiced_pct' => ($included_hours > 0 ? round($invoice['hours_billed'] / $included_hours * 100, 2) : 0) . '%',
         'state' => $invoice['state'],
         'ledger_id' => $invoice['ledger_bill_id'],
+        'generate' => CRM_Utils_System::href(ts('Generate'), 'civicrm/timetrack/invoice/generate', array('invoice_id' => $invoice['invoice_id'])),
       );
     }
 
