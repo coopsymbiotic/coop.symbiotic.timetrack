@@ -18,7 +18,7 @@ function civicrm_api3_timetrackinvoice_get($params) {
   $sqlparams = array();
 
   // XXX: assuming cases only have 1 client contact.
-  $sql = 'SELECT ko.id as invoice_id, ko.title, c.id as case_id, c.subject as case_subject,
+  $sql = 'SELECT ko.id, ko.id as invoice_id, ko.title, c.id as case_id, c.subject as case_subject,
                  ko.state, ko.ledger_order_id, ko.ledger_bill_id, ko.hours_billed, ko.paid, ko.created_date,
                  ccont.contact_id
             FROM korder as ko
