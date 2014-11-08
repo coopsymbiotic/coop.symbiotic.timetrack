@@ -44,6 +44,10 @@ class CRM_Timetrack_Form_InvoiceCommon {
     // If editing an existing invoice.
     $invoice_id = CRM_Utils_Array::value('invoiceid', $params);
 
+    // This is mostly important for updating the line items.
+    // because we don't know if the task ID is for a new lineitem, or update.
+    $action = ($invoice_id ? 'update' : 'create');
+
     foreach ($tasks as $key => $val) {
       $total_hours_billed += $params['task_' . $key . '_hours_billed'];
     }
@@ -66,8 +70,7 @@ class CRM_Timetrack_Form_InvoiceCommon {
     ));
 
     $order_id = $result['id'];
-dsm($order_id, 'oid');
-return;
+
     $params['created_date'] = date('Ymd', strtotime($params['created_date']));
 
     CRM_Core_DAO::executeQuery('UPDATE korder SET created_date = %1 WHERE id = %2', array(
@@ -82,6 +85,7 @@ return;
       }
 
       $result = civicrm_api3('Timetrackinvoicelineitem', 'create', array(
+        'id' => ($action == 'create' ? NULL : $key),
         'order_id' => $order_id,
         'title' => $params['task_' . $key . '_title'],
         'hours_billed' => $params['task_' . $key . '_hours_billed'],
