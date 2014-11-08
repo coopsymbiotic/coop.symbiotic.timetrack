@@ -68,7 +68,7 @@ class CRM_Timetrack_Form_Invoice extends CRM_Core_Form {
       }
 
       foreach ($this->_tasksdata as $key => $val) {
-        $defaults['task_' . $key . '_label'] = $val['title'];
+        $defaults['task_' . $key . '_title'] = $val['title'];
         $defaults['task_' . $key . '_hours'] = $val['hours'];
         $defaults['task_' . $key . '_hours_billed'] = $val['hours_billed'];
         $defaults['task_' . $key . '_unit'] = ts('hour'); // FIXME
