@@ -64,7 +64,8 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
         'alias' => 'punch',
         'fields' => array(
           'pid' => array(
-            'title' => ts('#ID'),
+            'name' => 'id',
+            'title' => ts('Punch ID'),
             'default' => TRUE,
             'type' => CRM_Utils_Type::T_INT,
           ),

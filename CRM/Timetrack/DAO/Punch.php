@@ -93,7 +93,7 @@ class CRM_Timetrack_DAO_Punch extends CRM_Core_DAO
    *
    * @var int unsigned
    */
-  public $pid;
+  public $id;
   /**
    * Author of the punch.
    *
@@ -170,7 +170,7 @@ class CRM_Timetrack_DAO_Punch extends CRM_Core_DAO
     if (!(self::$_fields)) {
       self::$_fields = array(
         'timetrack_punch_id' => array(
-          'name' => 'pid',
+          'name' => 'id',
           'type' => CRM_Utils_Type::T_INT,
           'title' => ts('Timetrack Punch ID') ,
           'required' => true,
@@ -250,7 +250,7 @@ class CRM_Timetrack_DAO_Punch extends CRM_Core_DAO
   {
     if (!(self::$_fieldKeys)) {
       self::$_fieldKeys = array(
-        'pid' => 'timetrack_punch_id',
+        'id' => 'timetrack_punch_id',
         'uid' => 'uid',
         'nid' => 'nid',
         'begin' => 'begin',

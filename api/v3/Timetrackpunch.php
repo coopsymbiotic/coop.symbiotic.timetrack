@@ -19,22 +19,28 @@ function civicrm_api3_timetrackpunch_get($params) {
     1 => array($params['id'], 'Positive'),
   );
 
-  $sql = 'SELECT *
+  // TODO: when ktask references a kcontract, which will reference a case,
+  // we should be able to clean this up.
+  $sql = 'SELECT kpunch.*, bc.entity_id as case_id
             FROM kpunch
-           WHERE pid = %1';
+            LEFT JOIN ktask on (ktask.nid = kpunch.nid)
+            LEFT JOIN civicrm_value_infos_base_contrats_1 bc ON (bc.kproject_node_2 = ktask.parent)
+           WHERE kpunch.id = %1';
 
   $dao = CRM_Core_DAO::executeQuery($sql, $sqlparams);
 
   while ($dao->fetch()) {
     // TODO: add missing fields, parent IDs?
     $punches[] = array(
-      'id' => $dao->pid,
+      'id' => $dao->id,
       'activity_id' => $dao->nid,
       'contact_id' => $dao->uid,
+      'case_id' => $dao->case_id,
       'begin' => $dao->begin,
       'duration' => $dao->duration,
       'comment' => $dao->comment,
-      'order_reference' => $dao->order_reference,
+      'korder_id' => $dao->korder_id,
+      'korder_line_id' => $dao->korder_line_id,
     );
   }
 
@@ -59,7 +65,7 @@ function _civicrm_api3_timetrackpunch_get_spec(&$params) {
   $params['task_is_deleted']['api.default'] = 0;
 
   $params['comment']['title'] = 'Punch comment';
-  $params['pid']['title'] = 'Punch ID';
+  $params['id']['title'] = 'Punch ID';
 }
 
 /**
@@ -82,7 +88,6 @@ function civicrm_api3_timetrackpunch_setvalue($params) {
   $result = FALSE;
 
   $object = new CRM_Timetrack_DAO_Punch();
-  $object->pid = $id;
   $object->id = $id;
 
   if ($object->find(TRUE)) {
@@ -90,7 +95,7 @@ function civicrm_api3_timetrackpunch_setvalue($params) {
     // has a primary field 'id'.
 
     if ($field == 'comment') {
-      CRM_Core_DAO::executeQuery('UPDATE kpunch SET comment = %1 WHERE pid = %2', array(
+      CRM_Core_DAO::executeQuery('UPDATE kpunch SET comment = %1 WHERE id = %2', array(
         1 => array($value, 'String'),
         2 => array($id, 'Positive')
       ));
@@ -100,7 +105,7 @@ function civicrm_api3_timetrackpunch_setvalue($params) {
     elseif ($field == 'begin') {
       $value = strtotime($value);
 
-      CRM_Core_DAO::executeQuery('UPDATE kpunch SET begin = %1 WHERE pid = %2', array(
+      CRM_Core_DAO::executeQuery('UPDATE kpunch SET begin = %1 WHERE id = %2', array(
         1 => array($value, 'Positive'), // FIXME convert to string when field is fixed
         2 => array($id, 'Positive')
       ));

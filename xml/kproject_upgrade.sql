@@ -1,29 +1,37 @@
+-- Rename the table primary key fields to just "id". More DAO-friendly.
+-- TODO: do the same for ktask, kcontract.
+ALTER TABLE kpunch change pid id int(10) unsigned not null auto_increment;
+ALTER TABLE korder change koid id int(10) unsigned not null auto_increment;
+
 -- order_reference was a varchar(512), but should always reference a number.
+-- nb: we trash/move the contents of this column to 'korder_id' later on.
 alter table kpunch change order_reference order_reference int(10) unsigned null;
 
--- move node information into the korder
+-- Move node information into the korder
 alter table korder add column title varchar(255) default '';
 alter table korder add column created_date timestamp NULL DEFAULT NULL;
 alter table korder add column modified_date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP;
 update korder left join node on (node.nid = korder.nid) set korder.title = node.title, korder.created_date = from_unixtime(node.created), korder.modified_date = from_unixtime(node.changed);
 
--- until we drop the nid/vid completely:
-alter table korder drop key nid_vid;
-alter table korder drop key vid;
+-- Until we drop the nid/vid completely, remove the keys on those fields:
+ALTER TABLE korder DROP key nid_vid;
+ALTER TABLE korder DROP key vid;
 
--- set korder as innodb so that we can reference it with foreign keys
-ALTER TABLE korder ENGINE=InnoDB;
-
--- add line reference in kpunch
+-- Make sure that all tables are InnoDB. Important for foreign keys.
 ALTER TABLE kpunch ENGINE=InnoDB;
+ALTER TABLE korder ENGINE=InnoDB;
+ALTER TABLE ktask ENGINE=InnoDB;
+ALTER TABLE kcontract ENGINE=InnoDB;
+
+-- Add line reference in kpunch
 ALTER TABLE kpunch add korder_id int(10) unsigned DEFAULT NULL;
 ALTER TABLE kpunch add korder_line_id int(10) unsigned DEFAULT NULL;
-ALTER TABLE kpunch add CONSTRAINT `FK_kpunch_korder_id` FOREIGN KEY (`korder_id`) REFERENCES `korder` (`koid`) ON DELETE SET NULL;
+ALTER TABLE kpunch add CONSTRAINT `FK_kpunch_korder_id` FOREIGN KEY (`korder_id`) REFERENCES `korder` (`id`) ON DELETE SET NULL;
 ALTER TABLE kpunch add CONSTRAINT `FK_kpunch_korder_line_id` FOREIGN KEY (`korder_line_id`) REFERENCES `korder_line` (`id`) ON DELETE SET NULL;
 
 -- The kpunch rows were referencing the nid of korders.
--- This updates the new korder_id field, which refers to the korder.koid instead.
-UPDATE kpunch, node, korder SET kpunch.korder_id = korder.koid WHERE node.nid = kpunch.order_reference and korder.nid = node.nid;
+-- This updates the new korder_id field, which refers to the korder.id instead.
+UPDATE kpunch, node, korder SET kpunch.korder_id = korder.id WHERE node.nid = kpunch.order_reference and korder.nid = node.nid;
 
 -- Add reference to civicrm_case.id in korder
 -- (previously, it would refer to the nid of the contract)
@@ -48,5 +56,5 @@ CREATE TABLE `korder_line` (
   `unit` varchar(15) COLLATE utf8_unicode_ci DEFAULT '',
   PRIMARY KEY (`id`),
   KEY `order_id` (`order_id`),
-  CONSTRAINT `FK_korder_line_order_id` FOREIGN KEY (`order_id`) REFERENCES `korder` (`koid`) ON DELETE CASCADE
+  CONSTRAINT `FK_korder_line_order_id` FOREIGN KEY (`order_id`) REFERENCES `korder` (`id`) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

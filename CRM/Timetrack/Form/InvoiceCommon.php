@@ -62,10 +62,11 @@ class CRM_Timetrack_Form_InvoiceCommon {
     ));
 
     $order_id = $result['id'];
-
+dsm($order_id, 'oid');
+return;
     $params['created_date'] = date('Ymd', strtotime($params['created_date']));
 
-    CRM_Core_DAO::executeQuery('UPDATE korder SET created_date = %1 WHERE koid = %2', array(
+    CRM_Core_DAO::executeQuery('UPDATE korder SET created_date = %1 WHERE id = %2', array(
       1 => array($params['created_date'], 'Timestamp'),
       2 => array($order_id, 'Positive'),
     ));
@@ -89,7 +90,7 @@ class CRM_Timetrack_Form_InvoiceCommon {
       // Assign punches to line item / order.
       if (! empty($val['punches'])) {
         foreach ($val['punches'] as $pkey => $pval) {
-          CRM_Core_DAO::executeQuery('UPDATE kpunch SET korder_id = %1, korder_line_id = %2 WHERE pid = %3', array(
+          CRM_Core_DAO::executeQuery('UPDATE kpunch SET korder_id = %1, korder_line_id = %2 WHERE id = %3', array(
             1 => array($order_id, 'Positive'),
             2 => array($line_item_id, 'Positive'),
             3 => array($pval['pid'], 'Positive'),

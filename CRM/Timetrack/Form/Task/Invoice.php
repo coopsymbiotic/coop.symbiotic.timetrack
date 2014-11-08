@@ -114,7 +114,7 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Contact_Form_Task {
 
     $order_id = $result['id'];
 
-    CRM_Core_DAO::executeQuery('UPDATE korder SET created_date = %1 WHERE koid = %2', array(
+    CRM_Core_DAO::executeQuery('UPDATE korder SET created_date = %1 WHERE id = %2', array(
       1 => $params['created_date'],
       2 => order_id,
     ));
@@ -133,7 +133,7 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Contact_Form_Task {
 
       // Assign punches to line item / order.
       foreach ($val['punches'] as $pkey => $pval) {
-        CRM_Core_DAO::executeQuery('UPDATE kpunch SET korder_id = %1, korder_line_id = %2 WHERE pid = %3', array(
+        CRM_Core_DAO::executeQuery('UPDATE kpunch SET korder_id = %1, korder_line_id = %2 WHERE id = %3', array(
           1 => array($order_id, 'Positive'),
           2 => array($line_item_id, 'Positive'),
           3 => array($pval['pid'], 'Positive'),
@@ -174,7 +174,7 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Contact_Form_Task {
             LEFT JOIN korder as invoice_civireport ON (invoice_civireport.nid = kpunch.order_reference)
             LEFT JOIN civicrm_value_infos_base_contrats_1 as cval ON (cval.kproject_node_2 = kt.parent)
             LEFT JOIN civicrm_case ON (civicrm_case.id = cval.entity_id)
-            WHERE kpunch.pid = %1";
+            WHERE kpunch.id = %1";
 
     return CRM_Core_DAO::singleValueQuery($sql, array(
       1 => array($pid, 'Positive'),
@@ -183,19 +183,19 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Contact_Form_Task {
 
   function getPeriodStart() {
     $ids = $this->getPunchIds();
-    return CRM_Core_DAO::singleValueQuery("SELECT FROM_UNIXTIME(MIN(begin)) as begin FROM kpunch WHERE pid IN (" . implode(',', $ids) . ")");
+    return CRM_Core_DAO::singleValueQuery("SELECT FROM_UNIXTIME(MIN(begin)) as begin FROM kpunch WHERE id IN (" . implode(',', $ids) . ")");
   }
 
   function getPeriodEnd() {
     $ids = $this->getPunchIds();
-    return CRM_Core_DAO::singleValueQuery("SELECT FROM_UNIXTIME(MAX(begin)) as begin FROM kpunch WHERE pid IN (" . implode(',', $ids) . ")");
+    return CRM_Core_DAO::singleValueQuery("SELECT FROM_UNIXTIME(MAX(begin)) as begin FROM kpunch WHERE id IN (" . implode(',', $ids) . ")");
   }
 
   function getBillingPerTasks() {
     $tasks = array();
 
     $ids = $this->getPunchIds();
-    $dao = CRM_Core_DAO::executeQuery("SELECT n.nid, n.title, p.pid, p.begin, p.duration, p.comment FROM kpunch p LEFT JOIN node n ON (n.nid = p.nid) WHERE pid IN (" . implode(',', $ids) . ")");
+    $dao = CRM_Core_DAO::executeQuery("SELECT n.nid, n.title, p.id as pid, p.begin, p.duration, p.comment FROM kpunch p LEFT JOIN node n ON (n.nid = p.nid) WHERE kpunch.id IN (" . implode(',', $ids) . ")");
 
     while ($dao->fetch()) {
       if (! isset($tasks[$dao->nid])) {

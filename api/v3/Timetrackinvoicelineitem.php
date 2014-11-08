@@ -13,7 +13,7 @@
  */
 function civicrm_api3_timetrackinvoicelineitem_get($params) {
   $options = array();
-  $invoices = array();
+  $lineitems = array();
 
   $sqlparams = array();
 
@@ -53,7 +53,7 @@ function civicrm_api3_timetrackinvoicelineitem_get($params) {
       $line['total_included'] = $dao2->total;
     }
 
-    $lineitems[] = $line;
+    $lineitems[$dao->id] = $line;
   }
 
   return civicrm_api3_create_success($lineitems, $params, 'timetrackinvoicelineitem');

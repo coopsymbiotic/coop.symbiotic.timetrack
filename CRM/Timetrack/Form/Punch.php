@@ -19,7 +19,7 @@ class CRM_Timetrack_Form_Punch extends CRM_Core_Form {
               FROM kpunch
               LEFT JOIN ktask on (ktask.nid = kpunch.nid)
               LEFT JOIN civicrm_value_infos_base_contrats_1 as bc on (bc.kproject_node_2 = ktask.parent)
-             WHERE pid = %1';
+             WHERE kpunch.id = %1';
 
     $params = array(
       1 => array($punch_id, 'Positive'),
@@ -136,7 +136,7 @@ class CRM_Timetrack_Form_Punch extends CRM_Core_Form {
     $duration = $values['duration'] * 60 * 60;
 
     if ($this->_pid) {
-      $dao = CRM_Core_DAO::executeQuery('UPDATE kpunch SET begin = %1, duration = %2, comment = %3, nid = %4, uid = %5 WHERE pid = %6', array(
+      $dao = CRM_Core_DAO::executeQuery('UPDATE kpunch SET begin = %1, duration = %2, comment = %3, nid = %4, uid = %5 WHERE id = %6', array(
         1 => array($begin, 'Positive'), // FIXME date mysql
         2 => array($duration, 'Integer'),
         3 => array($values['comment'], 'String'),

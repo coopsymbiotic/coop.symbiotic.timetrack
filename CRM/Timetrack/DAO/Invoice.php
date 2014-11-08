@@ -93,7 +93,7 @@ class CRM_Timetrack_DAO_Invoice extends CRM_Core_DAO
    *
    * @var int unsigned
    */
-  public $koid;
+  public $id;
   /**
    * Invoice title, short description.
    *
@@ -176,7 +176,7 @@ class CRM_Timetrack_DAO_Invoice extends CRM_Core_DAO
     if (!(self::$_fields)) {
       self::$_fields = array(
         'timetrack_invoice_id' => array(
-          'name' => 'koid',
+          'name' => 'id',
           'type' => CRM_Utils_Type::T_INT,
           'title' => ts('Timetrack Invoice ID') ,
           'required' => true,
@@ -254,7 +254,7 @@ class CRM_Timetrack_DAO_Invoice extends CRM_Core_DAO
   {
     if (!(self::$_fieldKeys)) {
       self::$_fieldKeys = array(
-        'koid' => 'timetrack_invoice_id',
+        'id' => 'timetrack_invoice_id',
         'title' => 'title',
         'case_id' => 'case_id',
         'node_reference' => 'node_reference',

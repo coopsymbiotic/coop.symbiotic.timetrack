@@ -18,7 +18,7 @@ function civicrm_api3_timetrackinvoice_get($params) {
   $sqlparams = array();
 
   // XXX: assuming cases only have 1 client contact.
-  $sql = 'SELECT ko.koid as invoice_id, ko.title, c.id as case_id, c.subject as case_subject,
+  $sql = 'SELECT ko.id as invoice_id, ko.title, c.id as case_id, c.subject as case_subject,
                  ko.state, ko.ledger_order_id, ko.ledger_bill_id, ko.hours_billed, ko.paid, ko.created_date,
                  ccont.contact_id
             FROM korder as ko
@@ -27,11 +27,11 @@ function civicrm_api3_timetrackinvoice_get($params) {
            WHERE 1=1 ';
 
   if ($invoice_id = CRM_Utils_Array::value('invoice_id', $params)) {
-    $sql .= ' AND ko.koid = %1';
+    $sql .= ' AND ko.id = %1';
     $sqlparams[1] = array($invoice_id, 'Positive');
   }
   elseif ($invoice_id = CRM_Utils_Array::value('id', $params)) {
-    $sql .= ' AND ko.koid = %1';
+    $sql .= ' AND ko.id = %1';
     $sqlparams[1] = array($invoice_id, 'Positive');
   }
 
@@ -52,6 +52,7 @@ function civicrm_api3_timetrackinvoice_get($params) {
 
   while ($dao->fetch()) {
     $invoice = array(
+      'id' => $dao->id,
       'invoice_id' => $dao->id,
       'created_date' => $dao->created_date,
       'title' => $dao->title,
@@ -75,7 +76,7 @@ function civicrm_api3_timetrackinvoice_get($params) {
       $invoice['total_included'] = $dao2->total;
     }
 
-    $invoices[] = $invoice;
+    $invoices[$dao->id] = $invoice;
   }
 
   return civicrm_api3_create_success($invoices, $params, 'timetrackinvoice');

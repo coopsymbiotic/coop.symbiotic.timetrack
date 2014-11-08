@@ -7,7 +7,7 @@
   <add>1.0</add>
   <log>true</log>
   <field>
-    <name>pid</name>
+    <name>id</name>
     <uniqueName>timetrack_punch_id</uniqueName>
     <title>Timetrack Punch ID</title>
     <type>int unsigned</type>
@@ -16,7 +16,7 @@
     <add>1.0</add>
   </field>
   <primaryKey>
-     <name>pid</name>
+     <name>id</name>
      <autoincrement>true</autoincrement>
   </primaryKey>
   <field>
