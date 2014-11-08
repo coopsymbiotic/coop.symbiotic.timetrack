@@ -41,6 +41,9 @@ class CRM_Timetrack_Form_InvoiceCommon {
     $params = $form->exportValues();
     $total_hours_billed = 0;
 
+    // If editing an existing invoice.
+    $invoice_id = CRM_Utils_Array::value('invoiceid', $params);
+
     foreach ($tasks as $key => $val) {
       $total_hours_billed += $params['task_' . $key . '_hours_billed'];
     }
@@ -53,6 +56,7 @@ class CRM_Timetrack_Form_InvoiceCommon {
     // and the DB layer explicitely ignores timestamps (there is a trigger
     // defined in timetrack.php).
     $result = civicrm_api3('Timetrackinvoice', 'create', array(
+      'id' => $invoice_id,
       'case_id' => $case_id,
       'title' => $params['title'],
       'state' => 3, // FIXME, expose to UI, pseudoconstant, etc.
