@@ -67,6 +67,10 @@ They provide a general idea of the start/end work period on a specific issue.
 The "punch" in kproject is kept as-is in CiviCRM, as a custom entity.
 It provides granular information on the work done.
 
+The "order" in kproject becomes an "invoice" in CiviCRM. We deprecated the
+idea of tracking 'work orders'. The task estimates should be seen as the
+work orders.
+
 For reference:
 https://www.drupal.org/project/kproject
 
@@ -122,8 +126,7 @@ Tasks and punches:
 
 * Convert the tasks to case activities (including the start/end dates, estimate,
   task category, lead and state).
-* UI to add new/edit punches, linked to an activity.
-* UI for billing of punches, creating new invoices (c.f. 'korder' sub-module of kproject).
+* Convert the contracts (kcontract) to be linked to civicrm_case, instead of node.
 
 Invoices:
 
