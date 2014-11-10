@@ -72,7 +72,7 @@ class CRM_Timetrack_Form_Invoice extends CRM_Core_Form {
         $defaults['task_' . $key . '_hours'] = $val['hours'];
         $defaults['task_' . $key . '_hours_billed'] = $val['hours_billed'];
         $defaults['task_' . $key . '_unit'] = ts('hour'); // FIXME
-        $defaults['task_' . $key . '_cost'] = self::DEFAULT_HOURLY_RATE; // FIXME
+        $defaults['task_' . $key . '_cost'] = (isset($val['cost']) ? $val['cost'] : self::DEFAULT_HOURLY_RATE); // FIXME
         $defaults['task_' . $key . '_amount'] = $defaults['task_' . $key . '_hours_billed'] * $defaults['task_' . $key . '_cost'];
       }
     }
