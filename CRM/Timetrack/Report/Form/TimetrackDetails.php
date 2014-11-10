@@ -164,7 +164,7 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
               LEFT JOIN ktask ON (ktask.nid = punch_civireport.nid)
               LEFT JOIN node as task_civireport ON (task_civireport.nid = ktask.nid)
               LEFT JOIN kcontract ON (kcontract.nid = ktask.parent)
-              LEFT JOIN korder as invoice_civireport ON (invoice_civireport.nid = punch_civireport.order_reference)
+              LEFT JOIN korder as invoice_civireport ON (invoice_civireport.id = punch_civireport.korder_id)
               LEFT JOIN civicrm_value_infos_base_contrats_1 as cval ON (cval.kproject_node_2 = ktask.parent)
               LEFT JOIN civicrm_case as case_civireport ON (case_civireport.id = cval.entity_id)';
   }
