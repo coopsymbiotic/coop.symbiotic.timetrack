@@ -21,14 +21,26 @@ function civicrm_api3_timetrackinvoicelineitem_get($params) {
             FROM korder_line
            WHERE 1=1';
 
+  // TODO: we should deprecate references to "order", and use only "invoice".
+  // except that the 'create' API kind of depends on it, until we rename the DAO..
   if ($order_id = CRM_Utils_Array::value('order_id', $params)) {
     $sql .= ' AND order_id = %1';
     $sqlparams[1] = array($order_id, 'Positive');
   }
 
+  if ($invoice_id = CRM_Utils_Array::value('invoice_id', $params)) {
+    $sql .= ' AND order_id = %1';
+    $sqlparams[1] = array($invoice_id, 'Positive');
+  }
+
   if ($order_line_id = CRM_Utils_Array::value('order_line_id', $params)) {
     $sql .= ' AND id = %2';
     $sqlparams[2] = array($order_line_id, 'Positive');
+  }
+
+  if ($invoice_line_id = CRM_Utils_Array::value('invoice_line_id', $params)) {
+    $sql .= ' AND id = %2';
+    $sqlparams[2] = array($invoice_line_id, 'Positive');
   }
 
   $dao = CRM_Core_DAO::executeQuery($sql, $sqlparams);

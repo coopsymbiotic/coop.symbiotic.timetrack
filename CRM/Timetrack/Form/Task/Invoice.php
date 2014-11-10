@@ -114,9 +114,11 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Contact_Form_Task {
 
     $order_id = $result['id'];
 
+    $params['created_date'] = date('Ymd', strtotime($params['created_date']));
+
     CRM_Core_DAO::executeQuery('UPDATE korder SET created_date = %1 WHERE id = %2', array(
-      1 => $params['created_date'],
-      2 => order_id,
+      1 => array($params['created_date'], 'Timestamp'),
+      2 => array($order_id, 'Positive'),
     ));
 
     // Known tasks, extracted from the punches being billed.
@@ -195,7 +197,7 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Contact_Form_Task {
     $tasks = array();
 
     $ids = $this->getPunchIds();
-    $dao = CRM_Core_DAO::executeQuery("SELECT n.nid, n.title, p.id as pid, p.begin, p.duration, p.comment FROM kpunch p LEFT JOIN node n ON (n.nid = p.nid) WHERE kpunch.id IN (" . implode(',', $ids) . ")");
+    $dao = CRM_Core_DAO::executeQuery("SELECT n.nid, n.title, p.id as pid, p.begin, p.duration, p.comment FROM kpunch p LEFT JOIN node n ON (n.nid = p.nid) WHERE p.id IN (" . implode(',', $ids) . ")");
 
     while ($dao->fetch()) {
       if (! isset($tasks[$dao->nid])) {
