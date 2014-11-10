@@ -32,7 +32,7 @@ class CRM_Timetrack_Case_Page_CaseView {
             'classes' => 'icon add-icon',
           ),
           array(
-            'label' => ts('View/invoice punches (experimental)'),
+            'label' => ts('View/invoice punches'),
             'url' => CRM_Utils_System::url('civicrm/contact/search/custom', array('csid' => 16, 'case_id' => $case_id, 'force' => 1, 'crmSID' => '6_d')),
             'classes' => 'icon search-icon',
           ),
