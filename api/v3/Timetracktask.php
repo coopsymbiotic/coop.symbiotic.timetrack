@@ -94,6 +94,10 @@ function civicrm_api3_timetracktask_getcount($params) {
 function civicrm_api3_timetracktask_create($params) {
   $task = new CRM_Timetrack_DAO_Task();
 
+  if (! empty($params['task_id']) && empty($params['id'])) {
+    $params['id'] = $params['task_id'];
+  }
+
   $task->copyValues($params);
   $task->save();
 

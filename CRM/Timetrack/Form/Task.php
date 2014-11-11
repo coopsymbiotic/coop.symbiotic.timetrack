@@ -63,8 +63,7 @@ class CRM_Timetrack_Form_Task extends CRM_Core_Form {
       CRM_Utils_System::setTitle(ts('New task for %1', array(1 => $case_title)));
     }
 
-    $this->add('hidden', 'cid', $this->_caseid);
-    $this->add('hidden', 'tid', $this->_taskid);
+    $this->add('hidden', 'task_id', $this->_taskid);
 
     // TODO: should be an auto-complete / select2
     $this->add('select', 'case_id', ts('Case'), $projects, TRUE);
@@ -95,47 +94,26 @@ class CRM_Timetrack_Form_Task extends CRM_Core_Form {
   }
 
   function postProcess() {
-    $values = $this->exportValues();
+    $params = $this->exportValues();
     $buttonName = $this->controller->getButtonName();
 
-    CRM_Core_Session::setStatus(ts('This does not do anything yet.'), '', 'success');
-
-return;
-
-    // TODO save values, convert mysql date to timestamps..
-    // TODO move out to API Timetrackpunch.create
-
-    $begin = strtotime($values['begin']);
-    $duration = $values['duration'] * 60 * 60;
-
-    if ($this->_taskid) {
-      $dao = CRM_Core_DAO::executeQuery('UPDATE kpunch SET begin = %1, duration = %2, comment = %3, nid = %4, uid = %5 WHERE id = %6', array(
-        1 => array($begin, 'Positive'), // FIXME date mysql
-        2 => array($duration, 'Integer'),
-        3 => array($values['comment'], 'String'),
-        4 => array($values['activity_id'], 'Positive'),
-        5 => array($values['contact_id'], 'Positive'),
-        6 => array($this->_taskid, 'Positive'),
-      ));
-      CRM_Core_Session::setStatus(ts('The punch has been updated.'), '', 'success');
+    // TODO: fix mysql/unix timestamps
+    if (! empty($params['begin'])) {
+      $params['begin'] = strtotime($params['begin']);
     }
-    else {
-      $dao = CRM_Core_DAO::executeQuery('INSERT INTO kpunch (begin, duration, comment, nid, uid) VALUES (%1, %2, %3, %4, %5)', array(
-        1 => array($begin, 'Positive'), // FIXME date mysql
-        2 => array($duration, 'Integer'),
-        3 => array($values['comment'], 'String'),
-        4 => array($values['activity_id'], 'Positive'),
-        5 => array($values['contact_id'], 'Positive'),
-      ));
-      CRM_Core_Session::setStatus(ts('The punch has been saved.'), '', 'success');
+    if (! empty($params['end'])) {
+      $params['end'] = strtotime($params['end']);
     }
+
+    $result = civicrm_api3('Timetracktask', 'create', $params);
+    CRM_Core_Session::setStatus(ts('The task #%1 has been saved.', array(1 => $result['id'])), '', 'success');
 
     if ($buttonName == $this->getButtonName('next')) {
-      CRM_Core_Session::setStatus(ts('You can add another punch.'), '', 'info');
+      CRM_Core_Session::setStatus(ts('You can create another task.'), '', 'info');
       $session = CRM_Core_Session::singleton();
       $session->replaceUserContext(
         CRM_Utils_System::url(
-          'civicrm/timetrack/punch',
+          'civicrm/timetrack/task',
           'reset=1&action=add&cid=' . $this->_caseid
         )
       );
