@@ -28,7 +28,12 @@ class CRM_Timetrack_Case_Page_CaseView {
         $actions = array(
           array(
             'label' => ts('Add punch'),
-            'url' => CRM_Utils_System::url('civicrm/timetrack/punch/', array('reset' => 1, 'cid' => $case_id, 'action' => 'create')),
+            'url' => CRM_Utils_System::url('civicrm/timetrack/punch', array('reset' => 1, 'cid' => $case_id, 'action' => 'create')),
+            'classes' => 'icon add-icon',
+          ),
+          array(
+            'label' => ts('Add task'),
+            'url' => CRM_Utils_System::url('civicrm/timetrack/task', array('reset' => 1, 'cid' => $case_id, 'action' => 'create')),
             'classes' => 'icon add-icon',
           ),
           array(
@@ -62,7 +67,7 @@ class CRM_Timetrack_Case_Page_CaseView {
 
         $summary['timetrack_tasks'] = array(
           'label' => '',
-          'value' => '<div id="crm-timetrack-caseview-tasks" class="crm-accordion-wrapper"><div class="crm-accordion-header">Tasks</div><div class="crm-accordion-body">' . kproject_tasks_list($node) . '</div></div>',
+          'value' => $this->getListOfTasks($case_id),
         );
 
         $summary['timetrack_invoices'] = array(
@@ -79,6 +84,73 @@ class CRM_Timetrack_Case_Page_CaseView {
     }
 
     return $summary;
+  }
+
+  function getListOfTasks($case_id) {
+    $smarty = CRM_Core_Smarty::singleton();
+
+    $smarty->assign('timetrack_header_idcss', 'caseview-tasks');
+    $smarty->assign('timetrack_header_title', ts('Tasks', array('domain' => 'ca.bidon.timetrack')));
+
+    // FIXME ts() domain.
+    $headers = array(
+      'title' => ts('Task'),
+      'estimate' => ts('Estimate'),
+      'total_included' => ts('Total punches'),
+      'percent_done' => ts('% done'),
+      'state' => ts('Status'),
+      'begin' => ts('Begin'),
+      'end' => ts('end'),
+    );
+
+    $smarty->assign('timetrack_headers', $headers);
+
+    $rows = array();
+
+    $total = array(
+      'title' => ts('Total'),
+      'estimate' => 0,
+      'total_included' => 0,
+      'percent' => '',
+      'state' => '',
+      'begin' => '',
+      'end' => '',
+    );
+
+    $result = civicrm_api3('Timetracktask', 'get', array(
+      'case_id' => $case_id,
+      'option.limit' => 1000,
+    ));
+
+    foreach ($result['values'] as $task) {
+      $included_hours = CRM_Timetrack_Utils::roundUpSeconds($task['total_included'], 1);
+      $percent_done = '';
+
+      if ($task['estimate']) {
+        $percent_done = round($included_hours / $task['estimate'] * 100) . '%';
+      }
+
+      $rows[] = array(
+        'title' => CRM_Utils_System::href($task['title'], 'civicrm/timetrack/task', array('tid' => $task['task_id'])),
+        'estimate' => $task['estimate'],
+        'total_included' => $included_hours,
+        'percent_done' => $percent_done,
+        'state' => $task['state'], // FIXME show pseudoconstant
+        'begin' => substr($task['begin'], 0, 10), // TODO format date l10n
+        'end' => substr($task['end'], 0, 10), // TODO format date l10n
+      );
+
+      $total['estimate'] += $task['estimate'];
+      $total['total_included'] += $task['total_included'];
+    }
+
+    $total['total_included'] = CRM_Timetrack_Utils::roundUpSeconds($total['total_included'], 1);
+    $total['percent_done'] = ($total['estimate'] ? round($total['total_included'] / $total['estimate'] * 100) : '');
+
+    $rows[] = $total;
+
+    $smarty->assign('timetrack_rows', $rows);
+    return $smarty->fetch('CRM/Timetrack/Page/Snippets/AccordionTable.tpl');
   }
 
   function getListOfInvoice($case_id) {

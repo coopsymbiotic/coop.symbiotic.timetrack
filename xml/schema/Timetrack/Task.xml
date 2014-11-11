@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8" ?>
+
+<table>
+  <base>CRM/Timetrack</base>
+  <class>Task</class>
+  <name>ktask</name>
+  <add>1.0</add>
+  <log>true</log>
+  <field>
+    <name>id</name>
+    <uniqueName>timetrack_task_id</uniqueName>
+    <title>Timetrack Task ID</title>
+    <type>int unsigned</type>
+    <required>true</required>
+    <comment>Task Id</comment>
+    <add>1.0</add>
+  </field>
+  <primaryKey>
+     <name>id</name>
+     <autoincrement>true</autoincrement>
+  </primaryKey>
+  <field>
+    <name>case_id</name>
+    <type>int unsigned</type>
+    <required>true</required>
+    <add>1.0</add>
+    <comment>Case to which this task is associated.</comment>
+  </field>
+  <index>
+    <name>index_case_id</name>
+    <fieldName>case_id</fieldName>
+    <add>1.0</add>
+  </index>
+  <field>
+    <name>activity_id</name>
+    <type>int unsigned</type>
+    <required>true</required>
+    <add>1.0</add>
+    <comment>Activity to which this task is associated.</comment>
+  </field>
+  <index>
+    <name>index_activity_id</name>
+    <fieldName>activity_id</fieldName>
+    <add>1.0</add>
+  </index>
+  <field>
+    <name>lead</name>
+    <type>int unsigned</type>
+    <required>true</required>
+    <add>1.0</add>
+    <comment>Task lead.</comment>
+  </field>
+  <field>
+    <name>begin</name>
+    <type>int unsigned</type>
+    <required>true</required>
+    <add>1.0</add>
+    <comment>Start (planned or actual) of the task.</comment>
+  </field>
+  <field>
+    <name>end</name>
+    <type>int unsigned</type>
+    <required>false</required>
+    <add>1.0</add>
+    <comment>End (planned or actual) of the task.</comment>
+  </field>
+  <field>
+    <name>estimate</name>
+    <type>int unsigned</type>
+    <required>false</required>
+    <add>1.0</add>
+    <comment>Estimate (in hours) of the task.</comment>
+  </field>
+  <field>
+    <name>state</name>
+    <type>int unsigned</type>
+    <size>FOUR</size>
+    <required>false</required>
+    <add>1.0</add>
+    <comment>Task status.</comment>
+  </field>
+  <field>
+    <name>title</name>
+    <type>varchar</type>
+    <length>255</length>
+    <required>true</required>
+    <add>1.0</add>
+    <comment>Task title, short description.</comment>
+  </field>
+</table>

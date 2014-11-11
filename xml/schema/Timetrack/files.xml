@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <tables xmlns:xi="http://www.w3.org/2001/XInclude">
+  <xi:include href="Task.xml" parse="xml" />
   <xi:include href="Punch.xml" parse="xml" />
   <xi:include href="Invoice.xml" parse="xml" />
   <xi:include href="InvoiceLineitem.xml" parse="xml" />

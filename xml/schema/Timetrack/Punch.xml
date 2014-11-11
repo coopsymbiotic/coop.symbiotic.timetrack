@@ -32,15 +32,16 @@
     <add>1.0</add>
   </index>
   <field>
-    <name>nid</name>
+    <name>ktask_id</name>
     <type>int unsigned</type>
     <required>true</required>
+    <onDelete>SET NULL</onDelete>
     <add>1.0</add>
-    <comment>Author of the punch.</comment>
+    <comment>Task associated to the punch (FK to ktask).</comment>
   </field>
   <index>
-    <name>index_nid</name>
-    <fieldName>nid</fieldName>
+    <name>index_ktask_id</name>
+    <fieldName>ktask_id</fieldName>
     <add>1.0</add>
   </index>
   <field>

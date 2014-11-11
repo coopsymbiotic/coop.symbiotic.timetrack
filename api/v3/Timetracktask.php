@@ -18,16 +18,21 @@ function civicrm_api3_timetracktask_get($params) {
   // _civicrm_api3_contact_get_supportanomalies($params, $options);
   // $contacts = _civicrm_api3_get_using_query_object('contact', $params, $options);
 
-  $sqlparams = array(
-    1 => array('ktask', 'String'),
-  );
+  $sqlparams = array();
 
-  $sql = 'SELECT tn.nid as task_id, tn.title as subject, c.id as case_id, c.subject as case_subject
-            FROM node as tn
-           INNER JOIN ktask as kt on (kt.nid = tn.nid)
-           INNER JOIN civicrm_value_infos_base_contrats_1 as cv on (cv.kproject_node_2 = kt.parent)
-           INNER JOIN civicrm_case as c on (c.id = cv.entity_id)
-           WHERE type = %1';
+  $sql = 'SELECT kt.*, c.subject as case_subject
+            FROM ktask as kt
+           INNER JOIN civicrm_case as c on (c.id = kt.case_id)
+           WHERE 1=1 ';
+
+  if ($task_id = CRM_Utils_Array::value('task_id', $params)) {
+    $sql .= ' AND kt.id = %2';
+    $sqlparams[2] = array($task_id, 'Positive');
+  }
+  elseif ($task_id = CRM_Utils_Array::value('id', $params)) {
+    $sql .= ' AND kt.id = %2';
+    $sqlparams[2] = array($task_id, 'Positive');
+  }
 
   if ($case_id = CRM_Utils_Array::value('case_id', $params)) {
     $sql .= ' AND c.id = %2';
@@ -39,15 +44,36 @@ function civicrm_api3_timetracktask_get($params) {
     $sql .= " AND (c.subject LIKE '{$subject}%' OR tn.title LIKE '{$subject}%')";
   }
 
+  // TODO: should be more flexible
+  $sql .= ' ORDER BY kt.title ASC';
+
   $dao = CRM_Core_DAO::executeQuery($sql, $sqlparams);
 
   while ($dao->fetch()) {
-    $tasks[] = array(
-      'subject' => $dao->subject,
-      'case_subject' => $dao->case_subject,
-      'task_id' => $dao->task_id,
+    $t = array(
+      'id' => $dao->id,
+      'task_id' => $dao->id,
       'case_id' => $dao->case_id,
+      'title' => $dao->title,
+      'case_subject' => $dao->case_subject,
+      'estimate' => $dao->estimate,
+      'total_included' => 0,
+      'state' => $dao->state,
+      'begin' => ($dao->begin ? date('Y-m-d', $dao->begin) : NULL), // TODO: convert to mysql datetime
+      'end' => ($dao->end ? date('Y-m-d', $dao->end) : NULL), // TODO: convert.
+      'lead' => $dao->lead,
     );
+
+    // Calculate the time of included punches
+    $dao2 = CRM_Core_DAO::executeQuery('SELECT sum(duration) as total FROM kpunch WHERE ktask_id = %1', array(
+      1 => array($dao->id, 'Positive'),
+    ));
+
+    if ($dao2->fetch()) {
+      $t['total_included'] = $dao2->total;
+    }
+
+    $tasks[$dao->id] = $t;
   }
 
   return civicrm_api3_create_success($tasks, $params, 'timetracktask');
@@ -60,6 +86,24 @@ function civicrm_api3_timetracktask_get($params) {
 function civicrm_api3_timetracktask_getcount($params) {
   $tasks = civicrm_api3_timetracktask_get($params);
   return count($tasks['values']);
+}
+
+/**
+ * Create a new task.
+ */
+function civicrm_api3_timetracktask_create($params) {
+  $task = new CRM_Timetrack_DAO_Task();
+
+  $task->copyValues($params);
+  $task->save();
+
+  if (is_null($task)) {
+    return civicrm_api3_create_error('Entity not created (Timetracktask create)');
+  }
+
+  $values = array();
+  _civicrm_api3_object_to_array($task, $values[$task->id]);
+  return civicrm_api3_create_success($values, $params, NULL, 'create', $task);
 }
 
 /**
