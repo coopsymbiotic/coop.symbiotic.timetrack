@@ -124,9 +124,8 @@ the two, by putting the node ID of the contract in a specific custom field.
 
 Tasks and punches:
 
-* Convert the tasks to case activities (including the start/end dates, estimate,
-  task category, lead and state).
 * Convert the contracts (kcontract) to be linked to civicrm_case, instead of node.
+* Punches should refer to the contact_id, instead of Drupal uid.
 
 Invoices:
 
@@ -136,6 +135,11 @@ Invoices:
 * Add a "public note" field, for a text to add on the invoice sent to the client?
 * Add a "private note" field, for internal notes? (not shown on the final invoice)
 * Rename the "hours_billed" in the DB to just "qty".
+
+Misc:
+
+* Convert all unix timestamp fields to mysql datetime (ex: task begin/end, punch begin).
+* Config UI for the invoice template file (currently the path of the template is hardcoded).
 
 General assumptions that might need fixing:
 
