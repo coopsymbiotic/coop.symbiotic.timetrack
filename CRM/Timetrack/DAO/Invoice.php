@@ -214,7 +214,7 @@ class CRM_Timetrack_DAO_Invoice extends CRM_Core_DAO
         'ledger_bill_id' => array(
           'name' => 'ledger_bill_id',
           'type' => CRM_Utils_Type::T_INT,
-          'required' => false,
+          'required' => true,
         ) ,
         'hours_billed' => array(
           'name' => 'hours_billed',
