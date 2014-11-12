@@ -23,6 +23,7 @@ function civicrm_api3_timetracktask_get($params) {
   $sql = 'SELECT kt.*, c.subject as case_subject
             FROM ktask as kt
            INNER JOIN civicrm_case as c on (c.id = kt.case_id)
+           INNER JOIN kcontract as kc on (c.id = kc.case_id)
            WHERE 1=1 ';
 
   if ($task_id = CRM_Utils_Array::value('task_id', $params)) {
@@ -39,9 +40,26 @@ function civicrm_api3_timetracktask_get($params) {
     $sqlparams[2] = array($case_id, 'Positive');
   }
 
+  if ($alias = CRM_Utils_Array::value('alias', $params)) {
+    $parts = explode('/', $alias);
+
+    if (count($parts) == 1) {
+      $sql .= " AND kc.alias = %3";
+      $sqlparams[3] = array($parts[0], 'String');
+    }
+    elseif (count($parts) == 2) {
+      $title = CRM_Utils_Type::escape($parts[1], 'String');
+      $sql .= " AND kc.alias = %3 AND kt.title LIKE '{$title}%'";
+      $sqlparams[3] = array($parts[0], 'String');
+    }
+    else {
+      return civicrm_api3_create_error('Alias had an invalid syntax. Expected foo/bar, where foo is the client alias, and bar is a word part of the task title.');
+    }
+  }
+
   if ($subject = CRM_Utils_Array::value('subject', $params)) {
     $subject = CRM_Utils_Type::escape($subject, 'String');
-    $sql .= " AND (c.subject LIKE '{$subject}%' OR tn.title LIKE '{$subject}%')";
+    $sql .= " AND (c.subject LIKE '{$subject}%' OR kt.title LIKE '{$subject}%')";
   }
 
   // TODO: should be more flexible
