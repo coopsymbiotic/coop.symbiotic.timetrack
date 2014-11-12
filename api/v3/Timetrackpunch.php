@@ -17,12 +17,9 @@ function civicrm_api3_timetrackpunch_get($params) {
 
   $sqlparams = array();
 
-  // TODO: when ktask references a kcontract, which will reference a case,
-  // we should be able to clean this up.
-  $sql = 'SELECT kpunch.*, bc.entity_id as case_id
+  $sql = 'SELECT kpunch.*, ktask.title as task_title, ktask.case_id
             FROM kpunch
             LEFT JOIN ktask on (ktask.nid = kpunch.nid)
-            LEFT JOIN civicrm_value_infos_base_contrats_1 bc ON (bc.kproject_node_2 = ktask.parent)
            WHERE 1=1 ';
 
   if (! empty($params['id'])) {
@@ -44,11 +41,13 @@ function civicrm_api3_timetrackpunch_get($params) {
   $dao = CRM_Core_DAO::executeQuery($sql, $sqlparams);
 
   while ($dao->fetch()) {
-    // TODO: add missing fields, parent IDs?
     $punches[] = array(
       'id' => $dao->id,
-      'activity_id' => $dao->nid,
+      'ktask_id' => $dao->ktask_id,
+      'task_title' => $dao->task_title,
+      'activity_id' => $dao->ktask_id, // FIXME is this used?
       'contact_id' => $dao->uid,
+      'uid' => $dao->uid,
       'case_id' => $dao->case_id,
       'begin' => $dao->begin,
       'duration' => $dao->duration,
@@ -78,8 +77,16 @@ function civicrm_api3_timetrackpunch_getcount($params) {
 function _civicrm_api3_timetrackpunch_get_spec(&$params) {
   $params['task_is_deleted']['api.default'] = 0;
 
-  $params['comment']['title'] = 'Punch comment';
   $params['id']['title'] = 'Punch ID';
+  $params['uid']['title'] = 'User ID of the punch author';
+  $params['ktask_id']['title'] = 'Task ID';
+  $params['begin']['title'] = 'Punch begin';
+  $params['duration']['title'] = 'Punch duration';
+  $params['comment']['title'] = 'Punch comment';
+  $params['korder_id']['title'] = 'Invoice ID';
+  $params['korder_line_id']['title'] = 'Invoice line ID';
+  $params['billable_intern']['title'] = 'Is punch billable internally?';
+  $params['billable_client']['title'] = 'Is punch billable to the client?';
 }
 
 /**
