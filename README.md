@@ -138,6 +138,7 @@ Invoices:
 
 Misc:
 
+* Bot integration (merge kpirc into bot_kproject?).
 * Convert all unix timestamp fields to mysql datetime (ex: task begin/end, punch begin).
 * Config UI for the invoice template file (currently the path of the template is hardcoded).
 
