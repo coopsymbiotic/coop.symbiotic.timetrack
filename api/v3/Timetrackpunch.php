@@ -15,9 +15,7 @@ function civicrm_api3_timetrackpunch_get($params) {
   $options = array();
   $punches = array();
 
-  $sqlparams = array(
-    1 => array($params['id'], 'Positive'),
-  );
+  $sqlparams = array();
 
   // TODO: when ktask references a kcontract, which will reference a case,
   // we should be able to clean this up.
@@ -25,7 +23,23 @@ function civicrm_api3_timetrackpunch_get($params) {
             FROM kpunch
             LEFT JOIN ktask on (ktask.nid = kpunch.nid)
             LEFT JOIN civicrm_value_infos_base_contrats_1 bc ON (bc.kproject_node_2 = ktask.parent)
-           WHERE kpunch.id = %1';
+           WHERE 1=1 ';
+
+  if (! empty($params['id'])) {
+    $sqlparams[1] = array($params['id'], 'Positive');
+    $sql .= ' AND kpunch.id = %1';
+  }
+
+  if (! empty($params['uid'])) {
+    $sqlparams[2] = array($params['uid'], 'Positive');
+    $sql .= ' AND kpunch.uid = %2';
+  }
+
+  // Used to find an open punch.
+  if (! empty($params['duration'])) {
+    $sqlparams[3] = array($params['duration'], 'Integer');
+    $sql .= ' AND kpunch.duration = %3';
+  }
 
   $dao = CRM_Core_DAO::executeQuery($sql, $sqlparams);
 
@@ -66,6 +80,71 @@ function _civicrm_api3_timetrackpunch_get_spec(&$params) {
 
   $params['comment']['title'] = 'Punch comment';
   $params['id']['title'] = 'Punch ID';
+}
+
+/**
+ * Create a new punch.
+ */
+function civicrm_api3_timetrackpunch_create($params) {
+  $punch = new CRM_Timetrack_DAO_Punch();
+
+  if (! empty($params['punch_id']) && empty($params['id'])) {
+    $params['id'] = $params['punch_id'];
+  }
+
+  if (empty($params['begin'])) {
+    // TODO: should be mysql datetime
+    $params['begin'] = time();
+  }
+  else {
+    // TODO: allow other values? like -5m?
+    $params['begin'] = strtotime($params['begin']);
+  }
+
+  // No duration means that we are punching in (not punched out yet).
+  if (empty($params['duration'])) {
+    $params['duration'] = -1;
+  }
+
+  $punch->copyValues($params);
+  $punch->save();
+
+  if (is_null($punch)) {
+    return civicrm_api3_create_error('Entity not created (Timetrackpunch create)');
+  }
+
+  $values = array();
+  _civicrm_api3_object_to_array($punch, $values[$punch->id]);
+  return civicrm_api3_create_success($values, $params, NULL, 'create', $punch);
+}
+
+/**
+ * Punch out
+ */
+function civicrm_api3_timetrackpunch_punchout($params) {
+  if (empty($params['uid'])) {
+    return civicrm_api3_create_error('You must specify the user to punch out.');
+  }
+
+  $result = civicrm_api3('Timetrackpunch', 'getsingle', array(
+    'uid' => $params['uid'],
+    'duration' => -1,
+  ));
+
+  $punch = new CRM_Timetrack_DAO_Punch();
+  $punch->copyValues($result);
+
+  $punch->duration = time() - $punch->begin;
+
+  if (! empty($params['comment'])) {
+    $punch->comment = $params['comment'];
+  }
+
+  $punch->save();
+
+  $values = array();
+  _civicrm_api3_object_to_array($punch, $values[$punch->id]);
+  return civicrm_api3_create_success($values, $params, NULL, 'punchout', $punch);
 }
 
 /**
