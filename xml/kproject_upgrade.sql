@@ -15,12 +15,20 @@ ALTER TABLE ktask ENGINE=InnoDB;
 ALTER TABLE kcontract ENGINE=InnoDB;
 
 --
+-- kcontract
+--
+
+--
 -- TODO: Create a 'case' for each 'contract'.
 -- NB: keep the nid/case_id association somewhere (currently in a custom field).
 -- Try to respect the project status, open/close dates.
 --
 
--- ...
+ALTER TABLE kcontract ADD `case_id` int(10) unsigned default NULL;
+ALTER TABLE kcontract ADD constraint FK_case_id foreign key (`case_id`) references `civicrm_case` (`id`) on delete cascade;
+
+-- UPDATE kcontract, civicrm_value_infos_base_contrats_1 set kcontract.case_id = civicrm_value_infos_base_contrats_1.entity_id where civicrm_value_infos_base_contrats_1.kproject_node_2 = kcontract.nid and kcontract.case_id is null;
+
 
 --
 -- ktask
@@ -76,7 +84,8 @@ UPDATE korder
   LEFT JOIN node on (node.nid = korder.nid)
   SET korder.title = node.title,
       korder.created_date = from_unixtime(node.created),
-      korder.modified_date = from_unixtime(node.changed);
+      korder.modified_date = from_unixtime(node.changed)
+  WHERE korder.title IS NULL;
 
 -- Until we drop the nid/vid completely, remove the keys on those fields:
 ALTER TABLE korder DROP key nid_vid;
@@ -125,7 +134,7 @@ ALTER TABLE kpunch add CONSTRAINT `FK_kpunch_korder_line_id` FOREIGN KEY (`korde
 
 -- The kpunch rows were referencing the nid of korders.
 -- This updates the new korder_id field, which refers to the korder.id instead.
-UPDATE kpunch, node, korder SET kpunch.korder_id = korder.id WHERE node.nid = kpunch.order_reference and korder.nid = node.nid;
+UPDATE kpunch, node, korder SET kpunch.korder_id = korder.id WHERE node.nid = kpunch.order_reference and korder.nid = node.nid and kpunch.korder_id is NULL;
 
 --
 -- TODO: cleanup
