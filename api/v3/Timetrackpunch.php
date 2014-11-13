@@ -17,9 +17,8 @@ function civicrm_api3_timetrackpunch_get($params) {
 
   $sqlparams = array();
 
-  $sql = 'SELECT kpunch.*, ktask.title as task_title, ktask.case_id
+  $sql = 'SELECT kpunch.*
             FROM kpunch
-            LEFT JOIN ktask on (ktask.nid = kpunch.nid)
            WHERE 1=1 ';
 
   if (! empty($params['id'])) {
@@ -41,10 +40,9 @@ function civicrm_api3_timetrackpunch_get($params) {
   $dao = CRM_Core_DAO::executeQuery($sql, $sqlparams);
 
   while ($dao->fetch()) {
-    $punches[] = array(
+    $p = array(
       'id' => $dao->id,
       'ktask_id' => $dao->ktask_id,
-      'task_title' => $dao->task_title,
       'activity_id' => $dao->ktask_id, // FIXME is this used?
       'contact_id' => $dao->uid,
       'uid' => $dao->uid,
@@ -55,6 +53,8 @@ function civicrm_api3_timetrackpunch_get($params) {
       'korder_id' => $dao->korder_id,
       'korder_line_id' => $dao->korder_line_id,
     );
+
+    $punches[$dao->id] = $p;
   }
 
   return civicrm_api3_create_success($punches, $params, 'timetrackpunch');
