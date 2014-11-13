@@ -105,7 +105,8 @@ function civicrm_api3_timetrackpunch_create($params) {
   }
   else {
     // TODO: allow other values? like -5m?
-    $params['begin'] = strtotime($params['begin']);
+    // NB: right now, this is a timestamp.
+    // $params['begin'] = $params['begin'];
   }
 
   // No duration means that we are punching in (not punched out yet).
