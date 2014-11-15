@@ -155,6 +155,30 @@ class CRM_Timetrack_DAO_Invoice extends CRM_Core_DAO
    */
   public $modified_date;
   /**
+   * Date of the deposit, payment received for an invoice.
+   *
+   * @var timestamp
+   */
+  public $deposit_date;
+  /**
+   * Reference for the deposit, usually the cheque or wire transfer reference.
+   *
+   * @var string
+   */
+  public $deposit_reference;
+  /**
+   * Additional information regarding the invoice, to be shown on the invoice.
+   *
+   * @var text
+   */
+  public $details_public;
+  /**
+   * Additional information regarding the invoice, not shown on the invoice.
+   *
+   * @var text
+   */
+  public $details_private;
+  /**
    * class constructor
    *
    * @access public
@@ -239,6 +263,32 @@ class CRM_Timetrack_DAO_Invoice extends CRM_Core_DAO
           'required' => false,
           'default' => 'CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP',
         ) ,
+        'deposit_date' => array(
+          'name' => 'deposit_date',
+          'type' => CRM_Utils_Type::T_TIMESTAMP,
+          'title' => ts('Deposit Date') ,
+          'required' => false,
+        ) ,
+        'deposit_reference' => array(
+          'name' => 'deposit_reference',
+          'type' => CRM_Utils_Type::T_STRING,
+          'title' => ts('Deposit Reference') ,
+          'required' => false,
+          'maxlength' => 255,
+          'size' => CRM_Utils_Type::HUGE,
+        ) ,
+        'details_public' => array(
+          'name' => 'details_public',
+          'type' => CRM_Utils_Type::T_TEXT,
+          'title' => ts('Details Public') ,
+          'required' => false,
+        ) ,
+        'details_private' => array(
+          'name' => 'details_private',
+          'type' => CRM_Utils_Type::T_TEXT,
+          'title' => ts('Details Private') ,
+          'required' => false,
+        ) ,
       );
     }
     return self::$_fields;
@@ -265,6 +315,10 @@ class CRM_Timetrack_DAO_Invoice extends CRM_Core_DAO
         'paid' => 'paid',
         'created_date' => 'created_date',
         'modified_date' => 'modified_date',
+        'deposit_date' => 'deposit_date',
+        'deposit_reference' => 'deposit_reference',
+        'details_public' => 'details_public',
+        'details_private' => 'details_private',
       );
     }
     return self::$_fieldKeys;
