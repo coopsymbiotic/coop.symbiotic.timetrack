@@ -90,4 +90,33 @@
     <default>CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP</default>
     <comment>Time of creation of the invoice.</comment>
   </field>
+  <field>
+    <name>deposit_date</name>
+    <type>timestamp</type>
+    <required>false</required>
+    <add>1.0</add>
+    <comment>Date of the deposit, payment received for an invoice.</comment>
+  </field>
+  <field>
+    <name>deposit_reference</name>
+    <type>varchar</type>
+    <length>255</length>
+    <required>false</required>
+    <add>1.0</add>
+    <comment>Reference for the deposit, usually the cheque or wire transfer reference.</comment>
+  </field>
+  <field>
+    <name>details_public</name>
+    <type>text</type>
+    <required>false</required>
+    <add>1.0</add>
+    <comment>Additional information regarding the invoice, to be shown on the invoice.</comment>
+  </field>
+  <field>
+    <name>details_private</name>
+    <type>text</type>
+    <required>false</required>
+    <add>1.0</add>
+    <comment>Additional information regarding the invoice, not shown on the invoice.</comment>
+  </field>
 </table>

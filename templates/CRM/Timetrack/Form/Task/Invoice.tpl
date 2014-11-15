@@ -77,6 +77,36 @@
   </tbody>
 </table>
 
+<div class="crm-section crm-timetrack-general-section">
+  <div class="label">{$form.deposit_date.label}</div>
+  <div class="content">{include file="CRM/common/jcalendar.tpl" elementName=deposit_date}</div>
+  <div class="clear"></div>
+</div>
+
+<div class="crm-section crm-timetrack-general-section">
+  <div class="label">{$form.state.label}</div>
+  <div class="content">{$form.state.html}</div>
+  <div class="clear"></div>
+</div>
+
+<div class="crm-section crm-timetrack-general-section">
+  <div class="label">{$form.deposit_reference.label}</div>
+  <div class="content">{$form.deposit_reference.html}</div>
+  <div class="clear"></div>
+</div>
+
+<div class="crm-section crm-timetrack-general-section">
+  <div class="label">{$form.details_public.label}</div>
+  <div class="content">{$form.details_public.html}</div>
+  <div class="clear"></div>
+</div>
+
+<div class="crm-section crm-timetrack-general-section">
+  <div class="label">{$form.details_private.label}</div>
+  <div class="content">{$form.details_private.html}</div>
+  <div class="clear"></div>
+</div>
+
 <div class="crm-buttons">
   {$form.buttons.html}
 </div>

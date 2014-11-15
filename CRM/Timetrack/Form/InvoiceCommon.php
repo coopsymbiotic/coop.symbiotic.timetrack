@@ -31,6 +31,13 @@ class CRM_Timetrack_Form_InvoiceCommon {
       $form->addElement('text', 'task_' . $key . '_cost');
       $form->addElement('text', 'task_' . $key . '_amount');
     }
+
+    $status = array_merge(array('' => ts('- select -')), CRM_Timetrack_PseudoConstant::getInvoiceStatuses());
+    $form->add('select', 'state', ts('Status'), $status);
+    $form->addDate('deposit_date', ts('Deposit date'));
+    $form->add('text', 'deposit_reference', ts('Deposit reference'));
+    $form->add('textarea', 'details_public', ts('Notes for the client'));
+    $form->add('textarea', 'details_private', ts('Internal notes'));
   }
 
   /**
@@ -56,6 +63,8 @@ class CRM_Timetrack_Form_InvoiceCommon {
       $total_hours_billed += $params['task_extra' . $key . '_hours_billed'];
     }
 
+    $params['deposit_date'] = date('Ymd', strtotime($params['deposit_date']));
+
     // NB: created_date can't be set manually becase it is a timestamp
     // and the DB layer explicitely ignores timestamps (there is a trigger
     // defined in timetrack.php).
@@ -67,6 +76,10 @@ class CRM_Timetrack_Form_InvoiceCommon {
       'ledger_order_id' => $params['ledger_order_id'],
       'ledger_bill_id' => $params['ledger_bill_id'],
       'hours_billed' => $total_hours_billed,
+      'deposit_date' => $params['deposit_date'],
+      'deposit_reference' => $params['deposit_reference'],
+      'details_public' => $params['details_public'],
+      'details_private' => $params['details_private'],
     ));
 
     $order_id = $result['id'];

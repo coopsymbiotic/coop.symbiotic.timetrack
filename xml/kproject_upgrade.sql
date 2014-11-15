@@ -79,6 +79,10 @@ UPDATE kpunch, ktask SET kpunch.ktask_id = ktask.id WHERE kpunch.nid = ktask.nid
 ALTER table korder ADD column title varchar(255) default '';
 ALTER table korder ADD column created_date timestamp NULL DEFAULT NULL;
 ALTER table korder ADD column modified_date timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP on update CURRENT_TIMESTAMP;
+ALTER table korder ADD column deposit_date timestamp NULL DEFAULT NULL COMMENT 'Date of the deposit, payment received for an invoice.';
+ALTER table korder ADD column deposit_reference varchar(255) DEFAULT '' COMMENT 'Reference for the deposit, usually the cheque or wire transfer reference.';
+ALTER table korder ADD column details_public text COMMENT 'Additional information regarding the invoice, to be shown on the invoice.';
+ALTER table korder ADD column details_private text COMMENT 'Additional information regarding the invoice, not shown on the invoice.';
 
 UPDATE korder
   LEFT JOIN node on (node.nid = korder.nid)
