@@ -139,12 +139,15 @@ Invoices:
 Misc:
 
 * Bot integration (merge kpirc into bot_kproject?).
+* Implement "case merge" hook.
 * Convert all unix timestamp fields to mysql datetime (ex: task begin/end, punch begin).
 * Config UI for the invoice template file (currently the path of the template is hardcoded).
+* Invoicing has some redundancy with CiviAccounts. Would be neat to integrate all that together.
 
 General assumptions that might need fixing:
 
 * Assuming that cases have only 1 client contact, ex: api/v3/Timetrackinvoice.php get.
+* The system mostly works in hours. All durations displayed are usually in hours (as opposed to days).
 
 Support
 =======
