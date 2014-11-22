@@ -6,8 +6,9 @@
  * @see http://wiki.civicrm.org/confluence/display/CRMDOC43/QuickForm+Reference
  */
 class CRM_Timetrack_Form_Task extends CRM_Core_Form {
-  public $_caseid;
-  public $_taskid;
+  protected $_caseid;
+  protected $_taskid;
+  protected $_taskdata;
 
   function preProcess() {
     $this->_caseid = CRM_Utils_Request::retrieve('cid', 'Integer', $this, FALSE, NULL);
