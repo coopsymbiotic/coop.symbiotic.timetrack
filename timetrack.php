@@ -137,6 +137,50 @@ function timetrack_civicrm_buildForm($formName, &$form) {
 }
 
 /**
+ * Implements hook_civicrm_validateForm().
+ *
+ */
+function timetrack_civicrm_validateForm($formName, &$fields, &$files, &$form, &$errors) {
+  $formName = str_replace('CRM_', 'CRM_Timetrack_', $formName);
+  $parts = explode('_', $formName);
+  $filename = dirname(__FILE__) . '/' . implode('/', $parts) . '.php';
+
+  if (file_exists($filename)) {
+    require_once $filename;
+    $foo = new $formName;
+
+    if (method_exists($foo, 'validateForm')) {
+      $foo->validateForm($fields, $files, $form, $errors);
+    }
+  }
+}
+
+/**
+ * Implements hook_civicrm_postProcess().
+ *
+ * "This hook is invoked when a CiviCRM form is submitted. If the module has injected
+ * any form elements, this hook should save the values in the database.
+ * This hook is not called when using the API, only when using the regular
+ * forms. If you want to have an action that is triggered no matter if it's a
+ * form or an API, use the pre and post hooks instead."
+ * http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_postProcess
+ */
+function timetrack_civicrm_postProcess($formName, &$form) {
+  $formName = str_replace('CRM_', 'CRM_Timetrack_', $formName);
+  $parts = explode('_', $formName);
+  $filename = dirname(__FILE__) . '/' . implode('/', $parts) . '.php';
+
+  if (file_exists($filename)) {
+    require_once $filename;
+    $foo = new $formName;
+
+    if (method_exists($foo, 'postProcess')) {
+      $foo->postProcess($form);
+    }
+  }
+}
+
+/**
  * Implements hook_civicrm_pageRun() is a completely overkill way.
  * Searches for an override class named after the initial $formName
  * and calls its buildForm().
