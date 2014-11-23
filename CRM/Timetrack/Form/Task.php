@@ -20,6 +20,15 @@ class CRM_Timetrack_Form_Task extends CRM_Core_Form {
         'task_id' => $this->_taskid,
       ));
 
+      if ($this->_taskdata['lead']) {
+        $contact = civicrm_api3('Contact', 'getsingle', array(
+          'id' => $this->_taskdata['lead'],
+          'return.display_name' => 1,
+        ));
+
+        $this->_taskdata['leadautocomplete'] = $contact['display_name'];
+      }
+
       $this->_caseid = $this->_taskdata['case_id'];
     }
 
@@ -70,11 +79,12 @@ class CRM_Timetrack_Form_Task extends CRM_Core_Form {
     $this->add('select', 'case_id', ts('Case'), $projects, TRUE);
 
     $this->add('text', 'title', ts('Title'), NULL, TRUE);
-    $this->add('text', 'state', ts('Status'), NULL, TRUE);
+    $this->add('select', 'state', ts('Status'), CRM_Timetrack_PseudoConstant::getTaskStatuses(), TRUE);
     $this->addDate('begin', ts('Start'));
     $this->addDate('end', ts('End'));
     $this->add('text', 'estimate', ts('Estimate'));
-    $this->add('text', 'lead', ts('Lead'));
+    $this->add('text', 'leadautocomplete', ts('Lead'));
+    $this->add('hidden', 'lead');
 
     $this->addButtons(array(
       array(
@@ -108,6 +118,8 @@ class CRM_Timetrack_Form_Task extends CRM_Core_Form {
 
     $result = civicrm_api3('Timetracktask', 'create', $params);
     CRM_Core_Session::setStatus(ts('The task #%1 has been saved.', array(1 => $result['id'])), '', 'success');
+
+    parent::postProcess();
 
     if ($buttonName == $this->getButtonName('next')) {
       CRM_Core_Session::setStatus(ts('You can create another task.'), '', 'info');
