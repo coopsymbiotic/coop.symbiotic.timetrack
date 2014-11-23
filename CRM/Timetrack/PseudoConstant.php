@@ -16,4 +16,18 @@ class CRM_Timetrack_PseudoConstant extends CRM_Core_PseudoConstant {
       6 => ts('Legacy', array('domain' => 'ca.bidon.timetrack')),
     );
   }
+
+  /**
+   * Returns a list of statuses for tasks.
+   * TODO: should be option values.
+   */
+  static function getTaskStatuses() {
+    return array(
+      5 => ts('New'), // FIXME: kproject legacy..
+      1 => ts('Open'),
+      2 => ts('Stalled'),
+      3 => ts('Resolved'),
+      4 => ts('Rejected'),
+    );
+  }
 }
