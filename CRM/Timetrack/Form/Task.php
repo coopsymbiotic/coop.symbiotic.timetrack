@@ -132,12 +132,15 @@ class CRM_Timetrack_Form_Task extends CRM_Core_Form {
       );
     }
     else {
-      // FIXME? This kind of redirects randomly..
-      $session = CRM_Core_Session::singleton();
-      CRM_Utils_System::redirect($session->popUserContext());
-    }
+      $contact_id = CRM_Core_DAO::singleValueQuery('select contact_id from civicrm_case_contact where case_id = %1 limit 1', array(
+        1 => array($this->_caseid, 'Positive'),
+      ));
 
-    parent::postProcess();
+      CRM_Utils_System::redirect(CRM_Utils_System::url(
+        'civicrm/contact/view/case',
+        'reset=1&action=view&context=case&id=' . $this->_caseid . '&cid=' . $contact_id
+      ));
+    }
   }
 
   /**
