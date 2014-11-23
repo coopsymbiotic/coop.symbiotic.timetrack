@@ -49,8 +49,13 @@ class CRM_Timetrack_Case_Page_CaseView {
       );
 
       $summary['timetrack_billing_status'] = array(
-        'label' => ts('Billing status'),
+        'label' => ts('Billing status:'),
         'value' => ts('%1 unbilled hour(s)', array(1 => CRM_Timetrack_Utils::roundUpSeconds($this->getUnbilledHours($case_id)))),
+      );
+
+      $summary['timetrack_irc_alias'] = array(
+        'label' => ts('IRC alias:'),
+        'value' => ($dao->alias ? $dao->alias : ts('n/a')),
       );
 
       $summary['timetrack_tasks'] = array(
