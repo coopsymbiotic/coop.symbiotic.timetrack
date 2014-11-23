@@ -46,9 +46,9 @@
   <field>
     <name>lead</name>
     <type>int unsigned</type>
-    <required>true</required>
+    <required>false</required>
     <add>1.0</add>
-    <comment>Task lead.</comment>
+    <comment>Task lead (contact ID).</comment>
   </field>
   <field>
     <name>begin</name>
