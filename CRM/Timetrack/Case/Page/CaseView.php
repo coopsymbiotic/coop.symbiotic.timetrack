@@ -1,10 +1,6 @@
 <?php
 
 class CRM_Timetrack_Case_Page_CaseView {
-  function pageRun(&$page) {
-
-  }
-
   /**
    * Implements hook_civicrm_caseSummary().
    */
