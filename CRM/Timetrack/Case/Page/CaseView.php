@@ -64,9 +64,11 @@ class CRM_Timetrack_Case_Page_CaseView {
       );
     }
     else {
+      // TODO: we should probably have a way to enable/disable timetracking per case type.
+      // so that if we don't find any info, it's perfectly normal to have an option to edit.
       $summary['timetrack_warning'] = array(
         'label' => ts('Timetrack:'),
-        'value' => '<strong>None found. Either you need to add the node_id of the kcontract in the custom field of this case, or you need to create a <a href="/node/add/kcontract">new kcontract</a>.</strong>',
+        'value' => 'No timetracking information was found for this case.',
       );
     }
 
