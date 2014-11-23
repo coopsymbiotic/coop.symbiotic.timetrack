@@ -83,6 +83,8 @@ class CRM_Timetrack_Case_Page_CaseView {
     $smarty->assign('timetrack_header_idcss', 'caseview-tasks');
     $smarty->assign('timetrack_header_title', ts('Tasks', array('domain' => 'ca.bidon.timetrack')));
 
+    $taskStatuses = CRM_Timetrack_PseudoConstant::getTaskStatuses();
+
     // FIXME ts() domain.
     $headers = array(
       'title' => ts('Task'),
@@ -126,7 +128,7 @@ class CRM_Timetrack_Case_Page_CaseView {
         'estimate' => $task['estimate'],
         'total_included' => $included_hours,
         'percent_done' => $percent_done,
-        'state' => $task['state'], // FIXME show pseudoconstant
+        'state' => $taskStatuses[$task['state']],
         'begin' => substr($task['begin'], 0, 10), // TODO format date l10n
         'end' => substr($task['end'], 0, 10), // TODO format date l10n
       );
