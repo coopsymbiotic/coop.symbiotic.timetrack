@@ -51,11 +51,9 @@ class CRM_Timetrack_Utils {
 
     $tasks = array('' => ts('- select -'));
 
-    $sql = 'SELECT ktask_node.title, ktask_node.nid
-              FROM civicrm_value_infos_base_contrats_1 as bc
-              LEFT JOIN ktask as kt ON (kt.parent = bc.kproject_node_2)
-              LEFT JOIN node as ktask_node ON (ktask_node.nid = kt.nid)
-             WHERE bc.entity_id = %1';
+    $sql = 'SELECT id, title
+              FROM ktask
+             WHERE case_id = %1';
 
     $params = array(
       1 => array($case_id, 'Positive'),
@@ -64,7 +62,7 @@ class CRM_Timetrack_Utils {
     $dao = CRM_Core_DAO::executeQuery($sql, $params);
 
     while ($dao->fetch()) {
-      $tasks[$dao->nid] = $dao->title;
+      $tasks[$dao->id] = $dao->title;
     }
 
     return $tasks;
