@@ -168,14 +168,9 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Contact_Form_Task {
   function getCaseID() {
     $pid = $this->_contactIds[0];
 
-    $sql = "SELECT civicrm_case.id as case_id
+    $sql = "SELECT case_id
             FROM kpunch
-            LEFT JOIN ktask kt ON (kt.nid = kpunch.nid)
-            LEFT JOIN node as task_civireport ON (task_civireport.nid = kt.nid)
-            LEFT JOIN kcontract ON (kcontract.nid = kt.parent)
-            LEFT JOIN korder as invoice_civireport ON (invoice_civireport.nid = kpunch.order_reference)
-            LEFT JOIN civicrm_value_infos_base_contrats_1 as cval ON (cval.kproject_node_2 = kt.parent)
-            LEFT JOIN civicrm_case ON (civicrm_case.id = cval.entity_id)
+            LEFT JOIN ktask kt ON (kt.id = kpunch.ktask_id)
             WHERE kpunch.id = %1";
 
     return CRM_Core_DAO::singleValueQuery($sql, array(
@@ -197,18 +192,18 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Contact_Form_Task {
     $tasks = array();
 
     $ids = $this->getPunchIds();
-    $dao = CRM_Core_DAO::executeQuery("SELECT n.nid, n.title, p.id as pid, p.begin, p.duration, p.comment FROM kpunch p LEFT JOIN node n ON (n.nid = p.nid) WHERE p.id IN (" . implode(',', $ids) . ")");
+    $dao = CRM_Core_DAO::executeQuery("SELECT p.id, ktask.title, ktask.id, p.begin, p.duration, p.comment FROM kpunch p LEFT JOIN ktask ON (ktask.id = p.ktask_id) WHERE p.id IN (" . implode(',', $ids) . ")");
 
     while ($dao->fetch()) {
       if (! isset($tasks[$dao->nid])) {
-        $tasks[$dao->nid] = array(
+        $tasks[$dao->ktask_id] = array(
           'title' => $dao->title,
           'punches' => array(),
         );
       }
 
-      $tasks[$dao->nid]['punches'][] = array(
-        'pid' => $dao->pid,
+      $tasks[$dao->ktask_id]['punches'][] = array(
+        'pid' => $dao->id,
         'begin' => $dao->begin,
         'duration' => CRM_Timetrack_Utils::roundUpSeconds($dao->duration, 1),
         'duration_rounded' => CRM_Timetrack_Utils::roundUpSeconds($dao->duration),
