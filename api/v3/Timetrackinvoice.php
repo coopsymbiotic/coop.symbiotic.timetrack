@@ -18,8 +18,10 @@ function civicrm_api3_timetrackinvoice_get($params) {
   $sqlparams = array();
 
   // XXX: assuming cases only have 1 client contact.
-  $sql = 'SELECT ko.id, ko.id as invoice_id, ko.title, c.id as case_id, c.subject as case_subject,
+  $sql = 'SELECT ko.id, ko.id as invoice_id, ko.state, ko.title, ko.deposit_date,
+                 ko.deposit_reference, ko.details_public, ko.details_private,
                  ko.state, ko.ledger_order_id, ko.ledger_bill_id, ko.hours_billed, ko.paid, ko.created_date,
+                 c.id as case_id, c.subject as case_subject,
                  ccont.contact_id
             FROM korder as ko
            INNER JOIN civicrm_case as c on (c.id = ko.case_id)
@@ -65,6 +67,10 @@ function civicrm_api3_timetrackinvoice_get($params) {
       'hours_billed' => $dao->hours_billed,
       'ledger_order_id' => $dao->ledger_order_id, // TODO: deprecate. not used.
       'ledger_bill_id' => $dao->ledger_bill_id,
+      'deposit_date' => $dao->deposit_date,
+      'deposit_reference' => $dao->deposit_reference,
+      'details_public' => $dao->details_public,
+      'details_private' => $dao->details_private,
     );
 
     // Calculate the time of included punches
