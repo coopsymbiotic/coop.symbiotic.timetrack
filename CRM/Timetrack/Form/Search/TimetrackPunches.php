@@ -65,16 +65,25 @@ class CRM_Timetrack_Form_Search_TimetrackPunches implements CRM_Contact_Form_Sea
 
     $this->setTitle(ts('List of punches for %1', array(1 => $result['subject'])));
 
-    // Punch status
+    // Punch filters
+    // NB: ktask select must not be named 'task' or it will conflict with the 'task' select in the results.
     $form->addElement('hidden', 'case_id', $this->case_id);
 
     $form->addDate('start_date', ts('Punch start date'), FALSE, array('formatType' => 'custom', 'id' => 'date_start'));
     $form->addDate('end_date', ts('Punch end date'), FALSE, array('formatType' => 'custom', 'id' => 'date_end'));
-    $form->addElement('select', 'state', ts('Invoice status'), array_merge(array('' => ts('- select -')), CRM_Timetrack_PseudoConstant::getInvoiceStatuses()));
+
+    $tasks = CRM_Timetrack_Utils::getActivitiesForCase($this->case_id);
+    $tasks[''] = ts('- select -');
+
+    $form->add('select', 'ktask', ts('Task'), $tasks);
+    $form->add('text', 'comment', ts('Comment'), FALSE);
+    $form->add('select', 'state', ts('Invoice status'), array_merge(array('' => ts('- select -')), CRM_Timetrack_PseudoConstant::getInvoiceStatuses()));
 
     array_push($elements, 'case_id');
     array_push($elements, 'start_date');
     array_push($elements, 'end_date');
+    array_push($elements, 'ktask');
+    array_push($elements, 'comment');
     array_push($elements, 'state');
 
     $form->assign('elements', $elements);
@@ -193,6 +202,10 @@ class CRM_Timetrack_Form_Search_TimetrackPunches implements CRM_Contact_Form_Sea
       else {
         $clauses[] = 'korder.state = ' . intval($this->_formValues['state']);
       }
+    }
+
+    if (! empty($this->_formValues['ktask'])) {
+      $clauses[] = 'kpunch.ktask_id = ' . CRM_Utils_Type::escape($this->_formValues['ktask'], 'Positive');
     }
 
     if (! empty($this->_formValues['case_id'])) {
