@@ -192,10 +192,10 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Contact_Form_Task {
     $tasks = array();
 
     $ids = $this->getPunchIds();
-    $dao = CRM_Core_DAO::executeQuery("SELECT p.id, ktask.title, ktask.id, p.begin, p.duration, p.comment FROM kpunch p LEFT JOIN ktask ON (ktask.id = p.ktask_id) WHERE p.id IN (" . implode(',', $ids) . ")");
+    $dao = CRM_Core_DAO::executeQuery("SELECT p.id, p.ktask_id, ktask.title, p.begin, p.duration, p.comment FROM kpunch p LEFT JOIN ktask ON (ktask.id = p.ktask_id) WHERE p.id IN (" . implode(',', $ids) . ")");
 
     while ($dao->fetch()) {
-      if (! isset($tasks[$dao->nid])) {
+      if (! isset($tasks[$dao->ktask_id])) {
         $tasks[$dao->ktask_id] = array(
           'title' => $dao->title,
           'punches' => array(),
