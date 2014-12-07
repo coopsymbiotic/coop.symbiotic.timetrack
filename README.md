@@ -117,32 +117,33 @@ doubt, unzip the .odt file and inspect it with a text editor.
 Status & Todo
 =============
 
-WARNING: this extension is highly experimental. At the moment, it still relies
-heavily on a patched version of kproject. You still need to create a new 'contract'
-from the kproject UI (node/add/kcontract), then create a Case in CiviCRM, and link
-the two, by putting the node ID of the contract in a specific custom field.
+WARNING: this extension is highly experimental. I am trying to provide an
+upgrade path from users of kproject, but not between experimental releases
+of this extension. Below is a short list of things that need fixing.
 
 Tasks and punches:
 
-* Convert the contracts (kcontract) to be linked to civicrm_case, instead of node.
-* Punches should refer to the contact_id, instead of Drupal uid.
+* [rc] Script to convert the contracts (kcontract) to be linked to civicrm_case, instead of node.
+* [rc] Punches should refer to the contact_id, instead of Drupal uid.
+* [wishlist] Punching in a 'new' task should change it to 'open'.
+* [wishlist] Quick punch form, not linked to a specific case.
 
 Invoices:
 
-* Add JS to recalculate row-totals automatically (qty*unit)
-* Have a way to list the punch details for a task? (popup?)
-* Have a per-task default cost (hourly fee), currently hardcoded.
-* Add a "public note" field, for a text to add on the invoice sent to the client?
-* Add a "private note" field, for internal notes? (not shown on the final invoice)
-* Rename the "hours_billed" in the DB to just "qty".
+* [rc] Add JS to recalculate row-totals automatically (qty*unit)
+* [rc] Rename the "hours_billed" in the DB to just "qty".
+* [important] Have a per-task default cost (hourly fee), currently hardcoded.
+* [wishlist] Have a way to list the punches specific to a task? (popup?)
+* [wishlist] Add a "public note" field, for a text to add on the invoice sent to the client?
+* [wishlist] Add a "private note" field, for internal notes? (not shown on the final invoice)
 
 Misc:
 
-* Bot integration (merge kpirc into bot_kproject?).
-* Implement "case merge" hook.
-* Convert all unix timestamp fields to mysql datetime (ex: task begin/end, punch begin).
-* Config UI for the invoice template file (currently the path of the template is hardcoded).
-* Invoicing has some redundancy with CiviAccounts. Would be neat to integrate all that together.
+* [rc] Implement "case merge" hook.
+* [rc] Convert all unix timestamp fields to mysql datetime (ex: task begin/end, punch begin).
+* [important] Config UI for the invoice template file (currently the path of the template is hardcoded).
+* [wishlist] Bot integration (merge kpirc into bot_kproject?).
+* [wishlist] Invoicing has some redundancy with CiviAccounts. Would be neat to integrate all that together.
 
 General assumptions that might need fixing:
 
