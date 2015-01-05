@@ -15,23 +15,16 @@ class CRM_Timetrack_Form_Punch extends CRM_Core_Form {
    * Returns the case ID associated with a punch. Useful when editing a punch.
    */
   function getCaseIdFromPunchId($punch_id) {
-    $sql = 'SELECT bc.entity_id
+    $sql = 'SELECT ktask.case_id
               FROM kpunch
               LEFT JOIN ktask on (ktask.nid = kpunch.nid)
-              LEFT JOIN civicrm_value_infos_base_contrats_1 as bc on (bc.kproject_node_2 = ktask.parent)
              WHERE kpunch.id = %1';
 
     $params = array(
       1 => array($punch_id, 'Positive'),
     );
 
-    $dao = CRM_Core_DAO::executeQuery($sql, $params);
-
-    if ($dao->fetch()) {
-      return $dao->entity_id;
-    }
-
-    return NULL;
+    return CRM_Core_DAO::singleValueQuery($sql, $params);
   }
 
   function preProcess() {
