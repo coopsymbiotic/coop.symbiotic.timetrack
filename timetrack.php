@@ -263,3 +263,33 @@ function timetrack_civicrm_triggerInfo(&$info, $tableName) {
     'sql' => "\nSET NEW.created_date = CURRENT_TIMESTAMP;\n",
   );
 }
+
+/**
+ * Implements hook_civicrm_alterAPIPermissions().
+ */
+function timetrack_civicrm_alterAPIPermissions($entity, $action, &$params, &$permissions) {
+  // FIXME: should be using:
+  // 'CiviCase: access my cases and activities' ?
+  // .. or some custom permission?
+
+  $permissions['timetrackpunch'] = array(
+    'get' => array(
+      'access CiviCRM',
+    ),
+    'create' => array(
+      'access CiviCRM',
+    ),
+    'punchout' => array(
+      'access CiviCRM',
+    ),
+  );
+
+  $permissions['timetracktask'] = array(
+    'get' => array(
+      'access CiviCRM',
+    ),
+    'create' => array(
+      'access CiviCRM',
+    ),
+  );
+}
