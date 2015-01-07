@@ -93,20 +93,155 @@ function _civicrm_api3_timetrackpunch_get_spec(&$params) {
  * Create a new punch.
  */
 function civicrm_api3_timetrackpunch_create($params) {
+  static $caseStatuses = NULL;
+
+  $extra_comments = array();
   $punch = new CRM_Timetrack_DAO_Punch();
 
+  // uid params is mandatory
+  if (empty($params['uid'])) {
+    return civicrm_api3_create_error('uid is mandatory (Timetrackpunch create)');
+  }
+
+  // Validate the task/case
+  $task = NULL;
+
+  if (! empty($params['ktask_id'])) {
+    // Fetch the task by ID.
+    $task = civicrm_api3('Timetracktask', 'getsingle', array(
+      'id' => $params['ktask_id'],
+    ));
+  }
+  elseif (! empty($params['alias'])) {
+    // Fetch the task by alias.
+    $result = civicrm_api3('Timetracktask', 'get', array(
+      'alias' => $params['alias'],
+    ));
+
+    if ($result['count'] > 1) {
+      $choices = array();
+      foreach ($result['values'] as $v) {
+        $choices[$v['id']] = $v['title'];
+      }
+
+      return civicrm_api3_create_error(ts('Did you mean one of: %1', array(1 => implode('; ', $choices))));
+    }
+    elseif ($result['count'] == 1) {
+      $task = array_shift($result['values']);
+      $params['ktask_id'] = $task['id'];
+    }
+    else {
+      return civicrm_api3_create_error(ts('No tasks found for alias: %1', array(1 => $params['alias'])));
+    }
+  }
+
+  if (empty($params['ktask_id'])) {
+    return civicrm_api3_create_error('ktask_id is mandatory (Timetrackpunch create)');
+  }
+
+  if (! isset($caseStatuses)) {
+    $result = civicrm_api3('OptionValue', 'get', array(
+      'option_group_name' => 'case_status',
+      'grouping' => 'Opened',
+      'is_active' => 1,
+    ));
+
+    foreach ($result['values'] as $v) {
+      $caseStatuses[] = $v['value'];
+    }
+  }
+
+  $result = civicrm_api3('Case', 'getsingle', array(
+    'id' => $task['case_id'],
+  ));
+
+  if (! in_array($result['status_id'], $caseStatuses)) {
+    return civicrm_api3_create_error(ts('Cannot punch in this case (%1), it is not open.', array(1 => $result['title'])));
+  }
+
+  // Alias punch_id to 'id'.
   if (! empty($params['punch_id']) && empty($params['id'])) {
     $params['id'] = $params['punch_id'];
   }
 
-  if (empty($params['begin'])) {
+  // Handle begin time, if specified.
+  if (! empty($params['begin'])) {
+    $begin = timetrack_convert_punch_start_to_timestamp($params['begin']);
+
+    if ($begin === FALSE) {
+      return civicrm_api3_create_error(ts('Begin time format error (%1). Choose from 00:00, 0m, 0min, 0h, 0hour.', array(1 => $params['begin'])));
+    }
+
+    if ($begin > time()) {
+      return civicrm_api3_create_error(ts('Error: Cannot start punch later than now.'));
+    }
+
+    // Check to see if the user is already punched in.
+    $result = civicrm_api3('Timetrackpunch', 'get', array(
+      'duration' => -1,
+      'uid' => $params['uid'],
+    ));
+
+    if ($result['count'] > 0) {
+      $previous_punch = $result['values'][0];
+
+      if ($start < $previous_punch['begin']) {
+        return civicrm_api3_create_error(ts('Error: Trying to set end of previous punch before it began (%1).', array(1 => date('Y-m-d h:i:s', $previous_punch['begin']))));
+      }
+      else {
+        // Adjust the end of the previous punch.
+        $previous_punch['duration'] = $start - $previous_punch['begin'] - 1;
+        $result = civicrm_api('Timetrackpunch', 'create', $previous_punch);
+
+        // FIXME: t() / language
+        $extra_comments[] = t('punched out of !task (!comment), worked !duration hours.', array(
+          '!task' => $result['case_subject'] . ' / ' . $result['ktask_title'],
+          '!duration' => CRM_Timetrack_Utils::roundUpSeconds($previous_punch['duration'], 1),
+          '!comment' => $previous_punch['comment'],
+        ), array('langcode' => $lang));
+      }
+    }
+
+    // Check for overlapping punches.
+    $test_punch = array(
+      'id' => $task['id'],
+      'uid' => $params['uid'],
+      'begin' => $begin,
+      'duration' => time() - $begin,
+    );
+
+    // FIXME: needs more testing.
+    if (! $valid = timetrack_punch_validate($test_punch)) {
+      return civicrm_api3_create_error(ts('Invalid punch: %1', array(1 => $valid)));
+    }
+
+    $params['begin'] = $begin;
+  }
+  else {
     // TODO: should be mysql datetime
     $params['begin'] = time();
   }
-  else {
-    // TODO: allow other values? like -5m?
-    // NB: right now, this is a timestamp.
-    // $params['begin'] = $params['begin'];
+
+  // Check if need to un-punch (semi-redundant with previous check, if begin was provided).
+  $result = civicrm_api3('Timetrackpunch', 'get', array(
+    'duration' => -1,
+    'uid' => $params['uid'],
+  ));
+
+  if ($result['count'] > 0) {
+    $punchoutres = civicrm_api3('Timetrackpunch', 'punchout', array(
+      'uid' => $params['uid'],
+    ));
+
+    $punchout_punch = array_shift($punchoutres['values']);
+
+    // FIXME: ts() / language
+
+    $extra_comments[] = t('and punched out of !task (!comment), worked !duration hours.', array(
+      '!task' => $punchout_punch['case_subject'] . ' / ' . $punchout_punch['ktask_title'],
+      '!duration' => CRM_Timetrack_Utils::roundUpSeconds($punchout_punch['duration'], 1),
+      '!comment' => $punchout_punch['comment'],
+    ), array('langcode' => $lang));
   }
 
   // No duration means that we are punching in (not punched out yet).
@@ -114,15 +249,26 @@ function civicrm_api3_timetrackpunch_create($params) {
     $params['duration'] = -1;
   }
 
+  // May be added by the API, and will cause SQL errors.
+  unset($params['version']);
+  unset($params['debug']);
+
   $punch->copyValues($params);
   $punch->save();
 
   if (is_null($punch)) {
-    return civicrm_api3_create_error('Entity not created (Timetrackpunch create)');
+    return civicrm_api3_create_error('Entity not created (Timetrackpunch create) ' . implode(';', $extra_comments));
   }
 
   $values = array();
   _civicrm_api3_object_to_array($punch, $values[$punch->id]);
+
+  // Fetch task title
+  $task = civicrm_api3('Timetracktask', 'getsingle', array('id' => $params['ktask_id']));
+  $values[$punch->id]['ktask_title'] = $task['title'];
+  $values[$punch->id]['case_subject'] = $task['case_subject'];
+  $values[$punch->id]['extra_comments'] = implode(';', $extra_comments);
+
   return civicrm_api3_create_success($values, $params, NULL, 'create', $punch);
 }
 
@@ -152,6 +298,12 @@ function civicrm_api3_timetrackpunch_punchout($params) {
 
   $values = array();
   _civicrm_api3_object_to_array($punch, $values[$punch->id]);
+
+  // Fetch task title
+  $task = civicrm_api3('Timetracktask', 'getsingle', array('id' => $punch->ktask_id));
+  $values[$punch->id]['ktask_title'] = $task['title'];
+  $values[$punch->id]['case_subject'] = $task['case_subject'];
+
   return civicrm_api3_create_success($values, $params, NULL, 'punchout', $punch);
 }
 
@@ -209,4 +361,90 @@ function civicrm_api3_timetrackpunch_setvalue($params) {
   }
 
   return civicrm_api3_create_error("error assigning $field=$value for $entity (id=$id)");
+}
+
+/**
+ * Converts a time string of specific format to a timestamp.
+ * TODO: move to BAO
+ *
+ * Copied from kpirc.module.
+ *
+ * Acceptable time formats:
+ * 00[m|min|h|hour] - Time minus specified length
+ * 00[h|:]00 - Exact time today
+ *
+ * @return
+ *   A timestamp or FALSE if the string is not formatted correctly
+ */
+function timetrack_convert_punch_start_to_timestamp($time_to_convert = NULL) {
+  if ($time_to_convert === NULL) {
+    return time();
+  }
+
+  if (preg_match("/^[0-9][0-9]?[h:][0-9]{2}\z/i", $time_to_convert)) {
+    // absolute time (00:00)
+
+    $time_to_convert = str_replace(array('h', 'H'), ':', $time_to_convert);
+
+    // Converts time (00:00) to timestamp of the same time today,
+    // or FALSE if format is incorrect.
+    return strtotime($time_to_convert);
+  }
+  elseif (preg_match("/^[0-9]*(m|min|minute)s?\z/i", $time_to_convert)) {
+    // relative time in minutes (000m)
+    $minutes = (int) $time_to_convert;
+
+    return strtotime(date('Y-m-d H:i:s') . '-' . $minutes . ' minutes');
+  }
+  elseif (preg_match("/^[0-9]*(h|hour)s?\z/i", $time_to_convert)) {
+    // relative time in hours (000h)
+    $hours = (int) $time_to_convert;
+
+    return strtotime(date('Y-m-d H:i:s') . '-' . $hours . ' hours');
+  }
+  else {
+    // format error
+    return FALSE;
+  }
+}
+
+/**
+ * Validates that the punch can be safely added to the database.
+ *
+ * TODO: move to BAO. Use CiviCRM DB API.
+ * Copied from kpirc.module.
+ *
+ * @param Array $punch
+ *   An array containing the punch properties as they are to be written.
+ *
+ * @return
+ *   TRUE if the entry is valid, an error message otherwise.
+ */
+function timetrack_punch_validate($punch) {
+  $query = 'SELECT * FROM {kpunch} k ' .
+           'WHERE k.ktask_id = :ktaskid AND k.uid = :uid ' .
+           'AND ( ' .
+           '(:begin >= k.begin AND :begin <= (k.begin + k.duration)) ' .
+           'OR (:end >= k.begin AND :end <= (k.begin + k.duration)) ' .
+           'OR ((k.begin >= :begin) AND (k.begin <= :end))' .
+           ') ORDER BY k.id DESC';
+
+  $args = array(
+    ':ktaskid' => $punch['ktask_id'],
+    ':uid' => $punch['uid'],
+    ':begin' => $punch['begin'],
+    ':end'   => $punch['begin'] + $punch['duration'],
+  );
+
+  $result = db_query($query, $args);
+
+  if ($record = $result->fetchObject()) {
+    $node = node_load($record->nid);
+
+    return t('Error: Overlapping with punch @pid (@comment) on @taskname id=@taskid',
+      array('@pid' => $record->id, '@comment' => $record->comment, '@taskname' => $record->title, '@taskid' => $record->ktask_id));
+  }
+  else {
+    return TRUE;
+  }
 }
