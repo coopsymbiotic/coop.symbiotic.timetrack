@@ -351,6 +351,17 @@ function civicrm_api3_timetrackpunch_setvalue($params) {
 
       $result = TRUE;
     }
+    elseif ($field == 'duration') {
+      // assume we are setting as hours
+      $value = intval($value * 60 * 60);
+
+      CRM_Core_DAO::executeQuery('UPDATE kpunch SET duration = %1 WHERE id = %2', array(
+        1 => array($value, 'Positive'),
+        2 => array($id, 'Positive'),
+      ));
+
+      $result = TRUE;
+    }
   }
 
   $object->free();

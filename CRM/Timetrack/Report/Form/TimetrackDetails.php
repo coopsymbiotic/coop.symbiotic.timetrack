@@ -84,6 +84,12 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
             'default' => TRUE,
             'type' => CRM_Utils_Type::T_FLOAT,
           ),
+          'duration_rounded' => array(
+            'title' => ts('Duration (rounded, h)'),
+            'default' => TRUE,
+            'type' => CRM_Utils_Type::T_FLOAT,
+            'dbAlias' => 'duration', // we round later
+          ),
           'comment' => array(
             'title' => ts('Comment'),
             'default' => TRUE,
@@ -267,8 +273,8 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
 
       // Keep the plain/orig values for the statistics().
       if (! empty($row['punch_duration'])) {
-        $row['punch_duration_plain'] = $row['punch_duration'];
-        $row['punch_duration'] = sprintf('%.2f', CRM_Timetrack_Utils::roundUpSeconds($row['punch_duration']));
+        $row['punch_duration_rounded'] = sprintf('%.2f', CRM_Timetrack_Utils::roundUpSeconds($row['punch_duration']));
+        $row['punch_duration'] = sprintf('%.2f', CRM_Timetrack_Utils::roundUpSeconds($row['punch_duration'], 1));
       }
 
       // TODO: This should only be allowed in certain circumstances (admins, punch owner?)
@@ -306,8 +312,8 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
     $total_hours_rounded = 0;
 
     foreach ($rows as $r) {
-      $total_seconds_orig += $r['punch_duration_plain'];
-      $total_hours_rounded += $r['punch_duration_orig'];
+      $total_seconds_orig += $r['punch_duration'];
+      $total_hours_rounded += $r['punch_duration_rounded'];
     }
 
     $statistics['counts']['totaltime'] = array(
