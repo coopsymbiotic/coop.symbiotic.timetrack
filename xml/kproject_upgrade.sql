@@ -44,6 +44,7 @@ ALTER TABLE ktask drop key nid_vid, drop key vid;
 ALTER TABLE ktask drop key drop key vid;
 
 ALTER table ktask ADD column title varchar(255) default '';
+ALTER table ktask CHANGE estimate estimate int(11) default null;
 
 UPDATE ktask, node, civicrm_value_infos_base_contrats_1
    SET ktask.case_id = civicrm_value_infos_base_contrats_1.entity_id,
