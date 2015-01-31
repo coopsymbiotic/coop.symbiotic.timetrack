@@ -62,8 +62,18 @@ function civicrm_api3_timetracktask_get($params) {
     $sql .= " AND (c.subject LIKE '{$subject}%' OR kt.title LIKE '{$subject}%')";
   }
 
-  // TODO: should be more flexible
-  $sql .= ' ORDER BY kt.title ASC';
+  // FIXME: Am I overly paranoid? How do we validate the sort to avoid sql injections?
+  if (! empty($params['sort'])) {
+    if (preg_match('/^[_\s,\.0-9A-Za-z]+$/', $params['sort'])) {
+      $sql .= ' ORDER BY ' . $params['sort'];
+    }
+    else {
+      return civicrm_api3_create_error('Suspicious sort option: ' . $params['sort']);
+    }
+  }
+  else {
+    $sql .= ' ORDER BY kt.title ASC';
+  }
 
   $dao = CRM_Core_DAO::executeQuery($sql, $sqlparams);
 
@@ -94,7 +104,7 @@ function civicrm_api3_timetracktask_get($params) {
     $tasks[$dao->id] = $t;
   }
 
-  return civicrm_api3_create_success($tasks, $params, 'timetracktask');
+  return civicrm_api3_create_success($tasks, $params);
 }
 
 /**

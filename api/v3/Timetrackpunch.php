@@ -30,11 +30,46 @@ function civicrm_api3_timetrackpunch_get($params) {
     $sqlparams[2] = array($params['uid'], 'Positive');
     $sql .= ' AND kpunch.uid = %2';
   }
+  elseif (! empty($params['contact_id'])) {
+    $sqlparams[2] = array($params['contact_id'], 'Positive');
+    $sql .= ' AND kpunch.uid = %2'; // FIXME ix when we fix kpunch.user_id
+  }
+  elseif (! empty($params['contact_ids'])) {
+    $t = array();
+
+    // This is used mainly by the timeline JS viewer, but we support drush as well.
+    if (! is_array($params['contact_ids'])) {
+      $params['contact_ids'] = explode(',', $params['contact_ids']);
+    }
+
+    foreach ($params['contact_ids'] as $i) {
+      $i = trim($i);
+
+      if (CRM_Utils_Type::validate($i, 'Positive')) {
+        $t[] = $i;
+      }
+    }
+
+    if (! empty($t)) {
+      $sql .= ' AND kpunch.uid IN (' . implode($t, ',') . ')';
+    }
+  }
 
   // Used to find an open punch.
   if (! empty($params['duration'])) {
     $sqlparams[3] = array($params['duration'], 'Integer');
     $sql .= ' AND kpunch.duration = %3';
+  }
+
+  // FIXME: Using the DAO would be much simpler!
+  if (! empty($params['filter.begin_low'])) {
+    $sqlparams[4] = array($params['filter.begin_low'], 'Timestamp');
+    $sql .= ' AND kpunch.begin >= UNIX_TIMESTAMP(%4)';
+  }
+
+  if (! empty($params['filter.begin_high'])) {
+    $sqlparams[5] = array($params['filter.begin_high'], 'Timestamp');
+    $sql .= ' AND kpunch.begin <= UNIX_TIMESTAMP(%5)';
   }
 
   $dao = CRM_Core_DAO::executeQuery($sql, $sqlparams);
@@ -46,7 +81,6 @@ function civicrm_api3_timetrackpunch_get($params) {
       'activity_id' => $dao->ktask_id, // FIXME is this used?
       'contact_id' => $dao->uid,
       'uid' => $dao->uid,
-      'case_id' => $dao->case_id,
       'begin' => $dao->begin,
       'duration' => $dao->duration,
       'comment' => $dao->comment,
@@ -91,6 +125,14 @@ function _civicrm_api3_timetrackpunch_get_spec(&$params) {
 
 /**
  * Create a new punch.
+ *
+ * Special parameters:
+ * skip_open_case_check : if true, will avoid checking if a case is open,
+ *  so that we can punch/edit in a closed case. Useful for when updating
+ *  data from a report, where the case might have been closed by then.
+ *
+ * skip_punched_in_check : do not check if the user is currently punched in,
+ *  so that we can punch/edit other punches, while being punched in.
  */
 function civicrm_api3_timetrackpunch_create($params) {
   static $caseStatuses = NULL;
@@ -139,24 +181,26 @@ function civicrm_api3_timetrackpunch_create($params) {
     return civicrm_api3_create_error('ktask_id is mandatory (Timetrackpunch create)');
   }
 
-  if (! isset($caseStatuses)) {
-    $result = civicrm_api3('OptionValue', 'get', array(
-      'option_group_name' => 'case_status',
-      'grouping' => 'Opened',
-      'is_active' => 1,
+  if (empty($params['skip_open_case_check'])) {
+    if (! isset($caseStatuses)) {
+      $result = civicrm_api3('OptionValue', 'get', array(
+        'option_group_name' => 'case_status',
+        'grouping' => 'Opened',
+        'is_active' => 1,
+      ));
+
+      foreach ($result['values'] as $v) {
+        $caseStatuses[] = $v['value'];
+      }
+    }
+
+    $result = civicrm_api3('Case', 'getsingle', array(
+      'id' => $task['case_id'],
     ));
 
-    foreach ($result['values'] as $v) {
-      $caseStatuses[] = $v['value'];
+    if (! in_array($result['status_id'], $caseStatuses)) {
+      return civicrm_api3_create_error(ts('Cannot punch in this case (%1), it is not open.', array(1 => $result['title'])));
     }
-  }
-
-  $result = civicrm_api3('Case', 'getsingle', array(
-    'id' => $task['case_id'],
-  ));
-
-  if (! in_array($result['status_id'], $caseStatuses)) {
-    return civicrm_api3_create_error(ts('Cannot punch in this case (%1), it is not open.', array(1 => $result['title'])));
   }
 
   // Alias punch_id to 'id'.
@@ -169,7 +213,7 @@ function civicrm_api3_timetrackpunch_create($params) {
     $begin = timetrack_convert_punch_start_to_timestamp($params['begin']);
 
     if ($begin === FALSE) {
-      return civicrm_api3_create_error(ts('Begin time format error (%1). Choose from 00:00, 0m, 0min, 0h, 0hour.', array(1 => $params['begin'])));
+      return civicrm_api3_create_error(ts('Begin time format error (%1). Choose from 00:00, YYYY-MM-DD 00:00, 0m, 0min, 0h, 0hour.', array(1 => $params['begin'])));
     }
 
     if ($begin > time()) {
@@ -177,42 +221,46 @@ function civicrm_api3_timetrackpunch_create($params) {
     }
 
     // Check to see if the user is already punched in.
-    $result = civicrm_api3('Timetrackpunch', 'get', array(
-      'duration' => -1,
-      'uid' => $params['uid'],
-    ));
+    if (empty($params['skip_punched_in_check'])) {
+      $result = civicrm_api3('Timetrackpunch', 'get', array(
+        'duration' => -1,
+        'uid' => $params['uid'],
+      ));
 
-    if ($result['count'] > 0) {
-      $previous_punch = $result['values'][0];
+      if ($result['count'] > 0) {
+        $previous_punch = $result['values'][0];
 
-      if ($start < $previous_punch['begin']) {
-        return civicrm_api3_create_error(ts('Error: Trying to set end of previous punch before it began (%1).', array(1 => date('Y-m-d h:i:s', $previous_punch['begin']))));
-      }
-      else {
-        // Adjust the end of the previous punch.
-        $previous_punch['duration'] = $start - $previous_punch['begin'] - 1;
-        $result = civicrm_api('Timetrackpunch', 'create', $previous_punch);
+        if ($start < $previous_punch['begin']) {
+          return civicrm_api3_create_error(ts('Error: Trying to set end of previous punch before it began (%1).', array(1 => date('Y-m-d h:i:s', $previous_punch['begin']))));
+        }
+        else {
+          // Adjust the end of the previous punch.
+          $previous_punch['duration'] = $start - $previous_punch['begin'] - 1;
+          $result = civicrm_api('Timetrackpunch', 'create', $previous_punch);
 
-        // FIXME: t() / language
-        $extra_comments[] = t('punched out of !task (!comment), worked !duration hours.', array(
-          '!task' => $result['case_subject'] . ' / ' . $result['ktask_title'],
-          '!duration' => CRM_Timetrack_Utils::roundUpSeconds($previous_punch['duration'], 1),
-          '!comment' => $previous_punch['comment'],
-        ), array('langcode' => $lang));
+          // FIXME: t() / language
+          $extra_comments[] = t('punched out of !task (!comment), worked !duration hours.', array(
+            '!task' => $result['case_subject'] . ' / ' . $result['ktask_title'],
+            '!duration' => CRM_Timetrack_Utils::roundUpSeconds($previous_punch['duration'], 1),
+            '!comment' => $previous_punch['comment'],
+          ));
+        }
       }
     }
 
     // Check for overlapping punches.
-    $test_punch = array(
-      'id' => $task['id'],
-      'uid' => $params['uid'],
-      'begin' => $begin,
-      'duration' => time() - $begin,
-    );
+    if (empty($params['skip_overlap_check'])) {
+      $test_punch = array(
+        'id' => $task['id'],
+        'uid' => $params['uid'],
+        'begin' => $begin,
+        'duration' => time() - $begin,
+      );
 
-    // FIXME: needs more testing.
-    if (! $valid = timetrack_punch_validate($test_punch)) {
-      return civicrm_api3_create_error(ts('Invalid punch: %1', array(1 => $valid)));
+      // FIXME: needs more testing.
+      if (! $valid = timetrack_punch_validate($test_punch)) {
+        return civicrm_api3_create_error(ts('Invalid punch: %1', array(1 => $valid)));
+      }
     }
 
     $params['begin'] = $begin;
@@ -223,25 +271,27 @@ function civicrm_api3_timetrackpunch_create($params) {
   }
 
   // Check if need to un-punch (semi-redundant with previous check, if begin was provided).
-  $result = civicrm_api3('Timetrackpunch', 'get', array(
-    'duration' => -1,
-    'uid' => $params['uid'],
-  ));
-
-  if ($result['count'] > 0) {
-    $punchoutres = civicrm_api3('Timetrackpunch', 'punchout', array(
+  if (empty($params['skip_punched_in_check'])) {
+    $result = civicrm_api3('Timetrackpunch', 'get', array(
+      'duration' => -1,
       'uid' => $params['uid'],
     ));
 
-    $punchout_punch = array_shift($punchoutres['values']);
+    if ($result['count'] > 0) {
+      $punchoutres = civicrm_api3('Timetrackpunch', 'punchout', array(
+        'uid' => $params['uid'],
+      ));
 
-    // FIXME: ts() / language
+      $punchout_punch = array_shift($punchoutres['values']);
 
-    $extra_comments[] = t('and punched out of !task (!comment), worked !duration hours.', array(
-      '!task' => $punchout_punch['case_subject'] . ' / ' . $punchout_punch['ktask_title'],
-      '!duration' => CRM_Timetrack_Utils::roundUpSeconds($punchout_punch['duration'], 1),
-      '!comment' => $punchout_punch['comment'],
-    ), array('langcode' => $lang));
+      // FIXME: ts() / language
+
+      $extra_comments[] = t('and punched out of !task (!comment), worked !duration hours.', array(
+        '!task' => $punchout_punch['case_subject'] . ' / ' . $punchout_punch['ktask_title'],
+        '!duration' => CRM_Timetrack_Utils::roundUpSeconds($punchout_punch['duration'], 1),
+        '!comment' => $punchout_punch['comment'],
+      ));
+    }
   }
 
   // No duration means that we are punching in (not punched out yet).
@@ -269,7 +319,7 @@ function civicrm_api3_timetrackpunch_create($params) {
   $values[$punch->id]['case_subject'] = $task['case_subject'];
   $values[$punch->id]['extra_comments'] = implode(';', $extra_comments);
 
-  return civicrm_api3_create_success($values, $params, NULL, 'create', $punch);
+  return civicrm_api3_create_success($values, $params);
 }
 
 /**
@@ -392,7 +442,11 @@ function timetrack_convert_punch_start_to_timestamp($time_to_convert = NULL) {
     return time();
   }
 
-  if (preg_match("/^[0-9][0-9]?[h:][0-9]{2}\z/i", $time_to_convert)) {
+  if ((strlen($time_to_convert) == 16 || strlen($time_to_convert) == 19) && CRM_Utils_Rule::dateTime($time_to_convert)) {
+    // Date time: YYYY-MM-DD 00:00:00 or YYYY-MM-DD 00:00
+    return strtotime($time_to_convert);
+  }
+  elseif (preg_match("/^[0-9][0-9]?[h:][0-9]{2}\z/i", $time_to_convert)) {
     // absolute time (00:00)
 
     $time_to_convert = str_replace(array('h', 'H'), ':', $time_to_convert);
@@ -458,4 +512,26 @@ function timetrack_punch_validate($punch) {
   else {
     return TRUE;
   }
+}
+
+/**
+ * Deletes an existing Email
+ *
+ * @param array $params
+ *
+ * @example EmailDelete.php Standard Delete Example
+ *
+ * @return boolean
+ *   | error  true if successfull, error otherwise
+ * {@getfields email_delete}
+ */
+function civicrm_api3_timetrackpunch_delete($params) {
+  CRM_Utils_Type::validate($params['id'], 'Positive');
+
+  $dao = new CRM_Timetrack_DAO_Punch();
+  $dao->id = $params['id'];
+
+  $dao->delete();
+
+  return TRUE;
 }

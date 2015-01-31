@@ -13,6 +13,18 @@
     <access_arguments>access CiviCRM</access_arguments>
   </item>
   <item>
+    <path>civicrm/timetrack/timeline</path>
+    <page_callback>CRM_Timetrack_Page_Timeline</page_callback>
+    <title>Timeline</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+  <item>
+    <path>civicrm/timetrack/timeline-data</path>
+    <page_callback>CRM_Timetrack_Page_TimelineData</page_callback>
+    <title>Timeline data</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+  <item>
     <path>civicrm/timetrack/invoice</path>
     <page_callback>CRM_Timetrack_Form_Invoice</page_callback>
     <title>Invoice</title>
