@@ -195,3 +195,9 @@ Bundles the "tinybutstrong" library and the "openbts" plugin, distributed
 under the terms of the GNU Lesser General public license (LGPL).  
 http://www.tinybutstrong.com/  
 http://www.tinybutstrong.com/support.php#licence
+
+Bundles the "dhtmlxscheduler" library, distributed under the terms of the
+GNU General Public License v2. (c) Dinamenta UAB  
+http://dhtmlx.com/docs/products/dhtmlxScheduler/  
+https://github.com/DHTMLX/scheduler/  
+https://github.com/DHTMLX/scheduler/blob/master/license.txt
