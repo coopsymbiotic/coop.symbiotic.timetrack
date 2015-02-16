@@ -66,12 +66,12 @@
       {assign var="cost" value='task_'|cat:$foo|cat:'_cost'}
       {assign var="amount" value='task_'|cat:$foo|cat:'_amount'}
       <tr>
-        <td>{$form.$title.html}</td>
-        <td>{$form.$hours.html}</td>
-        <td>{$form.$hoursbilled.html}</td>
-        <td>{$form.$unit.html}</td>
-        <td>{$form.$cost.html}</td>
-        <td>{$form.$amount.html}</td>
+        <td class="crm-timetrack-lineitem-title">{$form.$title.html}</td>
+        <td class="crm-timetrack-lineitem-hours">{$form.$hours.html}</td>
+        <td class="crm-timetrack-lineitem-hoursbilled">{$form.$hoursbilled.html}</td>
+        <td class="crm-timetrack-lineitem-unit">{$form.$unit.html}</td>
+        <td class="crm-timetrack-lineitem-cost">{$form.$cost.html}</td>
+        <td class="crm-timetrack-lineitem-amount">{$form.$amount.html}</td>
       </tr>
     {/foreach}
   </tbody>

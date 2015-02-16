@@ -163,7 +163,6 @@ Tasks and punches:
 
 Invoices:
 
-* [rc] Add JS to recalculate row-totals automatically (qty*unit)
 * [rc] Rename the "hours_billed" in the DB to just "qty".
 * [important] Have a per-task default cost (hourly fee), currently hardcoded.
 * [wishlist] Have a way to list the punches specific to a task? (popup?)

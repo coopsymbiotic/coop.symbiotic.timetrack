@@ -32,6 +32,8 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Contact_Form_Task {
     $this->defaults = array();
     $smarty = CRM_Core_Smarty::singleton();
 
+    CRM_Core_Resources::singleton()->addScriptFile('ca.bidon.timetrack', 'js/task-invoice.js');
+
     $case_id = $this->getCaseID();
     $client_id = CRM_Timetrack_Utils::getCaseContact($case_id);
     $contact = civicrm_api3('Contact', 'getsingle', array('id' => $client_id));
