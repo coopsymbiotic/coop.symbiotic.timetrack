@@ -14,6 +14,12 @@ has been invoied or not). The extension can generate invoices in OpenDocument
 
 Timetrack also includes reports and new APIs to manipulate the punches.
 
+Here are a few screenshots:
+
+* https://www.bidon.ca/files/timetrack/timetrack-timeline.gif (warning: 2.5 MB)
+* https://www.bidon.ca/files/timetrack/timetrack-week.jpg
+* https://www.bidon.ca/files/timetrack/timetrack-search-inline-edit.gif (400 KB)
+
 To download the latest version of this module:  
 https://github.com/mlutfy/ca.bidon.timetrack
 
@@ -134,6 +140,11 @@ how you entered the text. Type the tokens all at once. If you have to delete
 a typo, restart from the beginning. Otherwise, the template engine might not
 be able to recognize the token, such as: "[t.<span>title</span>]". If in
 doubt, unzip the .odt file and inspect it with a text editor.
+
+Timetrack APIs
+==============
+
+TODO: needs documentation. See the 'api/v3' directory of this extension.
 
 Status & Todo
 =============
