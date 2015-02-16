@@ -380,10 +380,8 @@ function civicrm_api3_timetrackpunch_setvalue($params) {
   $object->id = $id;
 
   if ($object->find(TRUE)) {
-    // FIXME: should have used CRM_Core_DAO::setFieldValue(), but it assumes that the table
-    // has a primary field 'id'.
-
     if ($field == 'comment') {
+      // TODO: this could probably just use the general $dao as in the 'else' below.
       CRM_Core_DAO::executeQuery('UPDATE kpunch SET comment = %1 WHERE id = %2', array(
         1 => array($value, 'String'),
         2 => array($id, 'Positive')
@@ -411,6 +409,10 @@ function civicrm_api3_timetrackpunch_setvalue($params) {
       ));
 
       $result = TRUE;
+    }
+    elseif ($field == 'ktask_id') {
+      $object->$field = $value;
+      $result = $object->save();
     }
   }
 
