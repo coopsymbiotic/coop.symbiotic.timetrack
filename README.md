@@ -19,6 +19,7 @@ Here are a few screenshots:
 * https://www.bidon.ca/files/timetrack/timetrack-timeline.gif (warning: 2.5 MB)
 * https://www.bidon.ca/files/timetrack/timetrack-week.jpg
 * https://www.bidon.ca/files/timetrack/timetrack-search-inline-edit.gif (400 KB)
+* https://www.bidon.ca/files/timetrack/timetrack-search-inline-edit2.gif (600 KB)
 
 To download the latest version of this module:  
 https://github.com/mlutfy/ca.bidon.timetrack
