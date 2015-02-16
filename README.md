@@ -20,13 +20,17 @@ https://github.com/mlutfy/ca.bidon.timetrack
 Status
 ======
 
-This extension is not usable out of the box. It still piggy-backs on a few
-features from "kproject" (see "History").
+This extension is mostly usable out of the box, but has not been widely tested,
+and lacks documentation on more advanced features (invoicing, IRC punching).
+
+I have still not finished fixing the database schema. The upgrade path from
+kproject (see 'History') needs some tweaking as well (ex: to create cases for
+each 'contract').
 
 Requirements
 ============
 
-- CiviCRM >= 4.4 (previous versions untested)
+- CiviCRM >= 4.5
 
 Installation
 ============
@@ -73,6 +77,23 @@ work orders.
 
 For reference:
 https://www.drupal.org/project/kproject
+
+Punching using an IRC bot
+=========================
+
+The following assumes you have a general knowledge of IRC and bots.
+
+IRC punching is done using the CiviCRM API. This extension provides
+basic entities for 'Timetracktask', 'Timetrackpunch', etc.
+
+The following module make it easier to run an IRC bot:
+https://www.drupal.org/sandbox/bgm/1957132
+
+This is a submodule for the Drupal bot:
+https://www.drupal.org/project/bot
+
+TODO: our kpirc.module from kproject needs to be bundled in bot_kproject,
+which probably needs to be renamed, and/or bundled in ktimetrack.
 
 Invoicing
 =========
@@ -139,6 +160,7 @@ Invoices:
 
 Misc:
 
+* [rc] Create install.sql file for the basic schema.
 * [rc] Implement "case merge" hook.
 * [rc] Convert all unix timestamp fields to mysql datetime (ex: task begin/end, punch begin).
 * [important] Config UI for the invoice template file (currently the path of the template is hardcoded).
