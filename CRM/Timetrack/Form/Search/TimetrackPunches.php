@@ -91,6 +91,12 @@ class CRM_Timetrack_Form_Search_TimetrackPunches implements CRM_Contact_Form_Sea
     // FIXME: this disables ./Contact/Form/Search.php from doing: $this->addClass('crm-ajax-selection-form');
     // because the ajax selection doesn't work on non-contacts (always returns 0 items).
     $form->set('component_mode', 999);
+
+    // FIXME: deprecated starting CiviCRM 4.6
+    CRM_Core_Region::instance('page-header')->add(array(
+      'template' => 'CRM/common/crmeditable.tpl',
+      'weight' => 100,
+    ));
   }
 
   function setDefaultValues() {
@@ -295,12 +301,38 @@ class CRM_Timetrack_Form_Search_TimetrackPunches implements CRM_Contact_Form_Sea
     $row['duration'] = CRM_Timetrack_Utils::roundUpSeconds($row['duration'], 1);
     $row['duration_rounded'] = CRM_Timetrack_Utils::roundUpSeconds($row['duration_rounded']);
 
+    // Keep a cache of tasks for each case_id
+    // TODO: in 4.6, we won't need this, thanks to CRM-15759
+    // which can lookup option values when necessary (i.e. if the user clicks a field).
+    static $task_cache = array();
+    $case_id = $row['case_id'];
+
+    if (! isset($task_cache[$case_id])) {
+      $task_cache[$case_id] = array();
+
+      $result = civicrm_api3('Timetracktask', 'get', array(
+        'case_id' => $case_id,
+        'option.limit' => 1000,
+      ));
+
+      foreach ($result['values'] as $key => $val) {
+        $task_cache[$case_id][$key] = $val['title'];
+      }
+    }
+
+    // Allow user to edit punch duration, comment and task type.
+    $row['duration'] = "<div class='crm-entity' data-entity='Timetrackpunch' data-id='{$row['pid']}'><div class='crm-editable' data-field='duration'>" . $row['duration'] . '</div></div>';
+    $row['comment'] = "<div class='crm-entity' data-entity='Timetrackpunch' data-id='{$row['pid']}'><div class='crm-editable' data-field='comment'>" . $row['comment'] . '</div></div>';
+
+    $options = json_encode($task_cache[$case_id]);
+    $row['task'] = "<div class='crm-entity' data-entity='Timetrackpunch' data-id='{$row['pid']}'><div class='crm-editable' data-field='ktask_id' data-type='select' data-options='$options'>" . $row['task'] . '</div></div>';
+
     if (! empty($row['case_subject'])) {
-      $contact_id = CRM_Timetrack_Utils::getCaseContact($row['case_id']);
+      $contact_id = CRM_Timetrack_Utils::getCaseContact($case_id);
 
       $row['case_subject'] = CRM_Utils_System::href($row['case_subject'], 'civicrm/contact/view/case', array(
         'reset' => 1,
-        'id' => $row['case_id'],
+        'id' => $case_id,
         'cid' => $contact_id,
         'action' => 'view',
         'context' => 'case',
