@@ -87,6 +87,10 @@ class CRM_Timetrack_Form_Search_TimetrackPunches implements CRM_Contact_Form_Sea
     array_push($elements, 'state');
 
     $form->assign('elements', $elements);
+
+    // FIXME: this disables ./Contact/Form/Search.php from doing: $this->addClass('crm-ajax-selection-form');
+    // because the ajax selection doesn't work on non-contacts (always returns 0 items).
+    $form->set('component_mode', 999);
   }
 
   function setDefaultValues() {
