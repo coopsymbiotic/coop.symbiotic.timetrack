@@ -24,6 +24,9 @@ ALTER TABLE kcontract ENGINE=InnoDB;
 -- Try to respect the project status, open/close dates.
 --
 
+ALTER TABLE kcontract DROP KEY `nid_vid`;
+ALTER TABLE kcontract DROP KEY `vid`;
+
 ALTER TABLE kcontract ADD `case_id` int(10) unsigned default NULL;
 ALTER TABLE kcontract ADD constraint FK_case_id foreign key (`case_id`) references `civicrm_case` (`id`) on delete cascade;
 
