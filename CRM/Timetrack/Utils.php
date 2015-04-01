@@ -32,37 +32,40 @@ class CRM_Timetrack_Utils {
   }
 
   /**
+   * Returns an array of all case+activities.
+   * TODO: we should add an option to restrict using contract relations.
+   */
+  static function getCaseActivityTypes($add_select = TRUE) {
+    return self::getActivitiesForCase(0, $add_select);
+  }
+
+  /**
    * Returns a list of activities for a case.
    * Mostly an API wrapper / transition mechanism.
    *
    * @param Int $case_id
    * @returns Array List of activities, keyed by activity ID.
    */
-  static function getActivitiesForCase($case_id) {
-    // TODO: for when we convert ktasks->activities
-    // TODO: filter out reserved activities (open, change status, etc).
-/*
-    $result = civicrm_api3('Case', 'getsingle', array(
-      'id' => $case_id,
-    ));
+  static function getActivitiesForCase($case_id, $add_select = TRUE) {
+    $tasks = array();
 
-    return $result['activities'];
-*/
-
-    $tasks = array('' => ts('- select -'));
-
-    $sql = 'SELECT id, title
-              FROM ktask
-             WHERE case_id = %1';
+    if ($add_select) {
+      $tasks = array('' => ts('- select -'));
+    }
 
     $params = array(
-      1 => array($case_id, 'Positive'),
+      'option.limit' => 0,
+      'sort' => 'case_subject ASC, title ASC',
     );
 
-    $dao = CRM_Core_DAO::executeQuery($sql, $params);
+    if ($case_id) {
+      $params['case_id'] = $case_id;
+    }
 
-    while ($dao->fetch()) {
-      $tasks[$dao->id] = $dao->title;
+    $result = civicrm_api3('Timetracktask', 'get', $params);
+
+    foreach ($result['values'] as $key => $val) {
+      $tasks[$key] = $val['case_subject'] . ' > ' . $val['title'];
     }
 
     return $tasks;

@@ -62,13 +62,23 @@ class CRM_Timetrack_Form_Punch extends CRM_Core_Form {
         $defaults['duration'] = round($defaults['duration'] / 60 / 60, 2);
       }
     }
+    else {
+      // Default begin time to now.
+      $defaults['begin'] = date('Y-m-d H:i:s');
+
+      // Default to current user.
+      $session = CRM_Core_Session::singleton();
+      $defaults['contact_id'] = $session->get('ufID');
+    }
 
     return $defaults;
   }
 
   function buildQuickForm() {
-    $projects = CRM_Timetrack_Utils::getOpenCases();
-    $tasks = CRM_Timetrack_Utils::getActivitiesForCase($this->_cid);
+    // If new punch from Case, limit tasks to that case, otherwise show all tasks when editing.
+    $limit_case = ($this->_pid ? 0 : $this->_cid);
+    $tasks = CRM_Timetrack_Utils::getActivitiesForCase($limit_case);
+
     $users = CRM_Timetrack_Utils::getUsers();
     $case_title = CRM_Timetrack_Utils::getCaseSubject($this->_cid);
 
@@ -81,10 +91,6 @@ class CRM_Timetrack_Form_Punch extends CRM_Core_Form {
 
     $this->add('hidden', 'cid', $this->_cid);
     $this->add('hidden', 'pid', $this->_pid);
-
-    // TODO: the activity should probably be an auto-complete including the Case+Activity
-    // because currently this does not allow us to change the Case associated with a punch.
-    $this->add('select', 'case_id', ts('Case'), $projects);
 
     $this->add('select', 'activity_id', ts('Activity'), $tasks);
     $this->add('select', 'contact_id', ts('Contact'), $users);

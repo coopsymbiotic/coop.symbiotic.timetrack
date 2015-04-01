@@ -22,17 +22,15 @@ class CRM_Timetrack_Page_Timeline extends CRM_Core_Page {
       'label' => $contact['display_name'],
     );
 
-    // Get info on cases (contracts)
+    // Get info on cases (contracts) and possible tasks.
+    // then reformat the array for the format required by timeline.
     $tasks = array();
-    $result = civicrm_api3('Timetracktask', 'get', array(
-      'option.limit' => 1000,
-      'sort' => 'case_subject ASC, title ASC',
-    ));
+    $tmp = CRM_Timetrack_Utils::getCaseActivityTypes();
 
-    foreach ($result['values'] as $key => $val) {
+    foreach ($tmp as $key => $val) {
       $tasks[] = array(
-        'key' => $val['id'],
-        'label' => $val['case_subject'] . ' > ' . $val['title'],
+        'key' => $key,
+        'label' => $val,
       );
     }
 
