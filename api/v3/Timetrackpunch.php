@@ -148,13 +148,7 @@ function civicrm_api3_timetrackpunch_create($params) {
   // Validate the task/case
   $task = NULL;
 
-  if (! empty($params['ktask_id'])) {
-    // Fetch the task by ID.
-    $task = civicrm_api3('Timetracktask', 'getsingle', array(
-      'id' => $params['ktask_id'],
-    ));
-  }
-  elseif (! empty($params['alias'])) {
+  if (! empty($params['alias'])) {
     // Fetch the task by alias.
     $result = civicrm_api3('Timetracktask', 'get', array(
       'alias' => $params['alias'],
