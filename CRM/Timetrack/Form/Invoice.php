@@ -118,7 +118,7 @@ class CRM_Timetrack_Form_Invoice extends CRM_Core_Form {
   }
 
   function postProcess() {
-    $order_id = CRM_Timetrack_Form_InvoiceCommon::postProcess($this, $this->_tasksdata);
+    $order_id = CRM_Timetrack_Form_InvoiceCommon::postProcess($this, $this->_caseid, $this->_tasksdata);
 
     CRM_Core_Session::setStatus(ts('The order #%1 has been saved.', array(1 => $order_id)), '', 'success');
     parent::postProcess();

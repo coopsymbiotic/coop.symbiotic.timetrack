@@ -44,7 +44,7 @@ class CRM_Timetrack_Form_InvoiceCommon {
    *
    * Returns the order_id that was created/updated.
    */
-  static function postProcess(&$form, $tasks) {
+  static function postProcess(&$form, $case_id, $tasks) {
     $params = $form->exportValues();
     $total_hours_billed = 0;
 
@@ -68,19 +68,32 @@ class CRM_Timetrack_Form_InvoiceCommon {
     // NB: created_date can't be set manually becase it is a timestamp
     // and the DB layer explicitely ignores timestamps (there is a trigger
     // defined in timetrack.php).
-    $result = civicrm_api3('Timetrackinvoice', 'create', array(
+    $apiparams = array(
       'id' => $invoice_id,
       'case_id' => $case_id,
       'title' => $params['title'],
       'state' => 3, // FIXME, expose to UI, pseudoconstant, etc.
       'ledger_order_id' => $params['ledger_order_id'],
       'ledger_bill_id' => $params['ledger_bill_id'],
-      'hours_billed' => $total_hours_billed,
-      'deposit_date' => $params['deposit_date'],
-      'deposit_reference' => $params['deposit_reference'],
-      'details_public' => $params['details_public'],
-      'details_private' => $params['details_private'],
-    ));
+    );
+
+    if ($params['deposit_date']) {
+      $apiparams['deposit_date'] = $params['deposit_date'];
+    }
+
+    if ($params['deposit_reference']) {
+      $apiparams['deposit_reference'] = $params['deposit_reference'];
+    }
+
+    if ($params['details_public']) {
+      $params['details_public'] = $params['details_public'];
+    }
+
+    if ($params['details_private']) {
+      $params['details_private'] = $params['details_private'];
+    }
+
+    $result = civicrm_api3('Timetrackinvoice', 'create', $params);
 
     $order_id = $result['id'];
 
