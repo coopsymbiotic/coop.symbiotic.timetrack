@@ -123,4 +123,27 @@ class CRM_Timetrack_Utils {
 
     return $users;
   }
+
+  /**
+   * Returns case status IDs that equal to 'open'.
+   */
+  static function getCaseOpenStatuses() {
+    static $cache = array();
+
+    if (! empty($cache)) {
+      return $cache;
+    }
+
+    $result = civicrm_api3('OptionValue', 'get', array(
+      'option_group_name' => 'case_status',
+      'grouping' => 'Opened',
+      'is_active' => 1,
+    ));
+
+    foreach ($result['values'] as $v) {
+      $cache[] = $v['value'];
+    }
+
+    return $cache;
+  }
 }

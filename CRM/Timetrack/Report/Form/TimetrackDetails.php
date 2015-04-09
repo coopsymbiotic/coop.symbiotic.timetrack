@@ -102,6 +102,12 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
             'operatorType' => CRM_Report_Form::OP_DATE,
             'type' => CRM_Utils_Type::T_DATE,
           ),
+          'uid' => array(
+            'title' => ts('User'),
+            'operatorType' => CRM_Report_Form::OP_SELECT,
+            'type' => CRM_Utils_Type::T_INT,
+            'options' => CRM_Timetrack_Utils::getUsers(),
+          ),
         ),
         'order_bys' => array(
           'begin' => array(
@@ -162,14 +168,22 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
     parent::select();
 
     // FIXME: remove when field has been converted to mysql date.
-    $this->_select = preg_replace('/punch_civireport.begin as punch_begin/', 'FROM_UNIXTIME(punch_civireport.begin) as punch_begin', $this->_select);
+    $this->_select = str_replace('punch_civireport.begin as punch_begin', 'FROM_UNIXTIME(punch_civireport.begin) as punch_begin', $this->_select);
+
+    // Replace the drupal uid by the civicrm contact display_name
+    $this->_select = str_replace('punch_civireport.uid as punch_uid', 'contact_civireport.display_name as punch_uid', $this->_select);
+
+    // Concat project and task, so that inline edit works better.
+    $this->_select = str_replace('task_civireport.title as task_title', "CONCAT(case_civireport.subject, ' > ', task_civireport.title) as task_title", $this->_select);
   }
 
   function from() {
     $this->_from = 'FROM kpunch as punch_civireport
               LEFT JOIN ktask as task_civireport ON (task_civireport.id = punch_civireport.ktask_id)
               LEFT JOIN korder as invoice_civireport ON (invoice_civireport.id = punch_civireport.korder_id)
-              LEFT JOIN civicrm_case as case_civireport ON (case_civireport.id = task_civireport.case_id)';
+              LEFT JOIN civicrm_case as case_civireport ON (case_civireport.id = task_civireport.case_id)
+              LEFT JOIN civicrm_uf_match as ufmatch_civireport ON (ufmatch_civireport.uf_id = punch_civireport.uid)
+              LEFT JOIN civicrm_contact as contact_civireport ON (contact_civireport.id = ufmatch_civireport.contact_id)';
   }
 
   /**
@@ -255,7 +269,20 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
   }
 
   function alterDisplay(&$rows) {
-    $crmEditable = array('punch_begin', 'punch_duration', 'punch_comment');
+    $crmEditable = array(
+      'punch_uid' => 'punch_uid',
+      'punch_begin' => 'punch_begin',
+      'punch_duration' => 'punch_duration',
+      'punch_comment' => 'punch_comment',
+      'task_title' => 'ktask_id',
+     );
+
+    // TODO: in 4.6, see CRM-15759
+    // and see also duplicate code in CRM/Timetrack/Form/Search/TimetrackPunches.php
+    $optionsCache = array(
+      'ktask_id' => json_encode(CRM_Timetrack_Utils::getActivitiesForCase(), JSON_HEX_APOS),
+      'punch_uid' => json_encode(CRM_Timetrack_Utils::getUsers(), JSON_HEX_APOS),
+    );
 
     foreach ($rows as &$row) {
       // Link the case subject to the case itself.
@@ -278,13 +305,24 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
       }
 
       // TODO: This should only be allowed in certain circumstances (admins, punch owner?)
-      foreach ($crmEditable as $f) {
-        $row[$f . '_orig'] = $row[$f];
-        $row[$f] = "<div class='crm-entity' data-entity='Timetrackpunch' data-id='{$row['punch_pid']}'><div class='crm-editable' data-field='{$f}'>" . $row[$f] . '</div></div>';
+      foreach ($crmEditable as $displayed => $dbfield) {
+        $row[$displayed . '_orig'] = $row[$displayed];
+
+        if (isset($optionsCache[$dbfield])) {
+          $row[$displayed] = "<div class='crm-entity' data-entity='Timetrackpunch' data-id='{$row['punch_pid']}'>"
+            . "<div class='crm-editable' data-field='{$dbfield}' data-type='select' data-options='" . $optionsCache[$dbfield] . "'>" . $row[$displayed] . '</div>'
+            . '</div>';
+        }
+        else {
+          $row[$displayed] = "<div class='crm-entity' data-entity='Timetrackpunch' data-id='{$row['punch_pid']}'>"
+            . "<div class='crm-editable' data-field='{$dbfield}'>" . $row[$displayed] . '</div>'
+            . '</div>';
+        }
       }
 
-      // Make punch ID link to the punch edit form
+      // Make punch ID link to the punch edit form (and add the crm-popup class).
       $row['punch_pid'] = CRM_Utils_System::href($row['punch_pid'], 'civicrm/timetrack/punch', array('reset' => 1, 'pid' => $row['punch_pid'], 'action' => 'edit'));
+      $row['punch_pid'] = str_replace('a href', 'a class="crm-popup" href', $row['punch_pid']);
     }
   }
 
@@ -312,13 +350,13 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
     $total_hours_rounded = 0;
 
     foreach ($rows as $r) {
-      $total_seconds_orig += $r['punch_duration'];
+      $total_seconds_orig += $r['punch_duration_orig'];
       $total_hours_rounded += $r['punch_duration_rounded'];
     }
 
     $statistics['counts']['totaltime'] = array(
       'title' => ts('Total Time'),
-      'value' => ts('%1 hours', array(1 => sprintf('%.2f', $total_seconds_orig / 60 / 60))),
+      'value' => ts('%1 hours', array(1 => sprintf('%.2f', $total_seconds_orig))),
       'type' => CRM_Utils_Type::T_STRING,
     );
 
@@ -346,7 +384,7 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
       'type' => CRM_Utils_Type::T_STRING,
     );
 
-    $avg_per_day = ($nb_days_worked > 0 ? $total_seconds_orig / $nb_days_worked / 60 / 60 : 0);
+    $avg_per_day = ($nb_days_worked > 0 ? $total_seconds_orig / $nb_days_worked : 0);
 
     $statistics['counts']['avgperday'] = array(
       'title' => ts('Average per day worked'),
@@ -358,6 +396,8 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
   }
 
   function getAllProjects() {
+    $caseStatuses = CRM_Timetrack_Utils::getCaseOpenStatuses();
+
     $projects = array(
       '' => ts('- select -'),
     );
@@ -366,6 +406,7 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
               FROM civicrm_case as c
               INNER JOIN civicrm_case_contact as cc ON (cc.case_id = c.id)
               INNER JOIN civicrm_contact as cont ON (cont.id = cc.contact_id)
+              WHERE c.status_id IN (' . implode(',', $caseStatuses) . ')
               ORDER BY cont.display_name ASC, c.subject ASC'; 
 
     $dao = CRM_Core_DAO::executeQuery($sql);

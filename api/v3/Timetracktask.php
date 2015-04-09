@@ -6,6 +6,10 @@
  *
  * @param  array  input parameters
  *
+ * Special parameters:
+ * skip_open_case_check : if true, will return all tasks, including those of
+ *  closed cases. Similar to Timetrackpunch.get().
+ *
  * @return array API Result Array
  * (@getfields timetracktasks_get}
  * @static void
@@ -60,6 +64,15 @@ function civicrm_api3_timetracktask_get($params) {
   if ($subject = CRM_Utils_Array::value('subject', $params)) {
     $subject = CRM_Utils_Type::escape($subject, 'String');
     $sql .= " AND (c.subject LIKE '{$subject}%' OR kt.title LIKE '{$subject}%')";
+  }
+
+  // By default, show only tasks for open cases.
+  if (empty($params['skip_open_case_check'])) {
+    $caseStatuses = CRM_Timetrack_Utils::getCaseOpenStatuses();
+
+    if (count($caseStatuses)) {
+      $sql .= ' AND c.status_id IN (' . implode(',', array_values($caseStatuses)) . ')';
+    }
   }
 
   // FIXME: Am I overly paranoid? How do we validate the sort to avoid sql injections?

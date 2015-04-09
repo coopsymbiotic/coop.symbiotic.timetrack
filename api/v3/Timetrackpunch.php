@@ -183,15 +183,7 @@ function civicrm_api3_timetrackpunch_create($params) {
 
   if (empty($params['skip_open_case_check'])) {
     if (! isset($caseStatuses)) {
-      $result = civicrm_api3('OptionValue', 'get', array(
-        'option_group_name' => 'case_status',
-        'grouping' => 'Opened',
-        'is_active' => 1,
-      ));
-
-      foreach ($result['values'] as $v) {
-        $caseStatuses[] = $v['value'];
-      }
+      $caseStatuses = CRM_Timetrack_Utils::getCaseOpenStatuses();
     }
 
     $result = civicrm_api3('Case', 'getsingle', array(
