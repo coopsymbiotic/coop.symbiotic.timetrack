@@ -52,6 +52,25 @@ class CRM_Timetrack_Form_Search_TimetrackPunches implements CRM_Contact_Form_Sea
     $this->$name = $value;
   }
 
+  /**
+   * Builds the list of tasks or actions that a searcher can perform on a result set.
+   *
+   * @param CRM_Core_Form_Search $form
+   * @return array
+   */
+  public function buildTaskList(CRM_Core_Form_Search $form) {
+    // [ML] If I understand correctly, this refers to the tasks we defined
+    // in hook_civicrm_searchTasks() ?
+    $tasks = array(
+      100 => ts('Invoice punches', array('domain' => 'ca.bidon.timetrack')),
+    );
+
+    return $tasks;
+  }
+
+  /**
+   *
+   */
   function buildForm(&$form) {
     // Needs to be set in the $form, so that we don't loose it after filter/task submit.
     $this->case_id = CRM_Utils_Request::retrieve('case_id', 'Integer', $form, FALSE, NULL);

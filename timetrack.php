@@ -221,29 +221,8 @@ function timetrack_civicrm_caseSummary($case_id) {
  * Implements hook_civicrm_searchTasks().
  */
 function timetrack_civicrm_searchTasks($objectType, &$tasks) {
+  // FIXME: how to define our own object?
   if ($objectType == 'contact') {
-    if (arg(3) == 'custom' && CRM_Utils_Array::value('csid', $_REQUEST)) {
-      $dao = CRM_Core_DAO::executeQuery(
-        "SELECT v.name
-           FROM civicrm_option_group g
-           LEFT JOIN civicrm_option_value v on (v.option_group_id = g.id)
-          WHERE g.name = 'custom_search' and v.value = %1", array(
-        1 => array(CRM_Utils_Array::value('csid', $_REQUEST), 'Positive')
-      ));
-
-      if ($dao->fetch()) {
-        if ($dao->name == 'CRM_Timetrack_Form_Search_TimetrackPunches') {
-          foreach ($tasks as $key => $val) {
-            // For some weird reason, item 15 (print contacts) must not be removed
-            // or we will run into a weird PHP error (!).
-            if ($key != 15) {
-              unset($tasks[$key]);
-            }
-          }
-        }
-      }
-    }
-
     $tasks[100] = array(
       'title' => ts('Invoice punches', array('domain' => 'ca.bidon.timetrack')),
       'class' => 'CRM_Timetrack_Form_Task_Invoice',
