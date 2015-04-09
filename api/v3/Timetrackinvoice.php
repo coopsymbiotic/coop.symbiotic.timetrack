@@ -106,7 +106,7 @@ function civicrm_api3_timetrackinvoice_create($params) {
   $invoice->copyValues($params);
   $invoice->save();
 
-  if (is_null($invoice)) {
+  if (is_null($invoice) || empty($invoice->id)) {
     return civicrm_api3_create_error('Entity not created (Timetrackinvoice create)');
   }
 
