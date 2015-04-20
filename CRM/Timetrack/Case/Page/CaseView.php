@@ -18,22 +18,26 @@ class CRM_Timetrack_Case_Page_CaseView {
         array(
           'label' => ts('Add punch'),
           'url' => CRM_Utils_System::url('civicrm/timetrack/punch', array('reset' => 1, 'cid' => $case_id, 'action' => 'create')),
-          'classes' => 'icon add-icon',
+          'classes' => 'icon ui-icon-plus',
         ),
         array(
           'label' => ts('Add task'),
           'url' => CRM_Utils_System::url('civicrm/timetrack/task', array('reset' => 1, 'cid' => $case_id, 'action' => 'create')),
-          'classes' => 'icon add-icon',
+          'classes' => 'icon ui-icon-circle-plus',
         ),
+      );
+
+      // These actions should not open in a popup, otherwise actions buttons are broken.
+      $actionsreg = array(
         array(
           'label' => ts('View/invoice punches'),
           'url' => CRM_Utils_System::url('civicrm/contact/search/custom', array('csid' => 16, 'case_id' => $case_id, 'force' => 1, 'crmSID' => '6_d')),
-          'classes' => 'icon search-icon',
+          'classes' => 'icon ui-icon-search',
         ),
         array(
           'label' => ts('Invoice other items'),
           'url' => CRM_Utils_System::url('civicrm/timetrack/invoice', array('case_id' => $case_id, 'reset' => 1)),
-          'classes' => 'icon add-icon',
+          'classes' => 'icon ui-icon-circle-plus',
         ),
       );
 
@@ -41,6 +45,10 @@ class CRM_Timetrack_Case_Page_CaseView {
 
       foreach ($actions as $key => $action) {
         $actions_html .= "<a href='{$action['url']}' class='button'><span><div class='{$action['classes']}'></div>{$action['label']}</span></a>";
+      }
+
+      foreach ($actionsreg as $key => $action) {
+        $actions_html .= "<a href='{$action['url']}' style='display: inline-block; padding-left: 1em;'><span><div class='{$action['classes']}'></div>{$action['label']}</span></a>";
       }
 
       $summary['timetrack_actions'] = array(
