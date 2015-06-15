@@ -1,6 +1,12 @@
 <?xml version="1.0"?>
 <menu>
   <item>
+    <path>civicrm/timetrack/case</path>
+    <page_callback>CRM_Timetrack_Form_CaseDetails</page_callback>
+    <title>Case Details</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
+  <item>
     <path>civicrm/timetrack/task</path>
     <page_callback>CRM_Timetrack_Form_Task</page_callback>
     <title>Task</title>

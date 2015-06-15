@@ -65,16 +65,6 @@ class CRM_Timetrack_Case_Page_CaseView {
         'label' => ts('IRC alias:'),
         'value' => ($dao->alias ? $dao->alias : ts('n/a')),
       );
-
-      $summary['timetrack_tasks'] = array(
-        'label' => '',
-        'value' => $this->getListOfTasks($case_id),
-      );
-
-      $summary['timetrack_invoices'] = array(
-        'label' => '',
-        'value' => $this->getListOfInvoice($case_id),
-      );
     }
     else {
       // TODO: we should probably have a way to enable/disable timetracking per case type.
@@ -84,6 +74,23 @@ class CRM_Timetrack_Case_Page_CaseView {
         'value' => 'No timetracking information was found for this case.',
       );
     }
+
+    $url = CRM_Utils_System::url('civicrm/timetrack/case', array('reset' => 1, 'cid' => $case_id));
+
+    $summary['timetrack_edit'] = array(
+      'label' => '',
+      'value' => "<div><a href='{$url}' class='crm-popup'><span><div class='icon ui-icon-pencil'></div>" . ts('Edit') . "</span></a></div>",
+    );
+
+    $summary['timetrack_tasks'] = array(
+      'label' => '',
+      'value' => $this->getListOfTasks($case_id),
+    );
+
+    $summary['timetrack_invoices'] = array(
+      'label' => '',
+      'value' => $this->getListOfInvoice($case_id),
+    );
 
     return $summary;
   }
