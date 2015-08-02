@@ -47,7 +47,9 @@ class CRM_Timetrack_Page_TimelineData extends CRM_Core_Page {
   }
 
   function handlePost() {
-    if (CRM_Utils_Request::retrieve('!nativeeditor_status', 'String', $this, FALSE, NULL, 'POST') == 'deleted') {
+    $action = CRM_Utils_Request::retrieve('!nativeeditor_status', 'String', $this, FALSE, NULL, 'POST');
+
+    if ($action == 'deleted') {
       $result = civicrm_api3('Timetrackpunch', 'delete', array(
         'id' => CRM_Utils_Request::retrieve('punch_id', 'Positive', $this, FALSE, NULL, 'POST'),
       ));
@@ -69,8 +71,10 @@ class CRM_Timetrack_Page_TimelineData extends CRM_Core_Page {
         'skip_overlap_check' => 1,
       );
 
-      if ($punch_id = CRM_Utils_Request::retrieve('punch_id', 'Positive', $this, FALSE, NULL, 'POST')) {
-        $params['punch_id'] = $punch_id;
+      if ($action == 'updated') {
+        if ($punch_id = CRM_Utils_Request::retrieve('punch_id', 'Positive', $this, TRUE, NULL, 'POST')) {
+          $params['punch_id'] = $punch_id;
+        }
       }
 
       $result = civicrm_api3('Timetrackpunch', 'create', $params);
