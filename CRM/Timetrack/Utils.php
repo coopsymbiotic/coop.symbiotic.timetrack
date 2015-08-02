@@ -32,6 +32,19 @@ class CRM_Timetrack_Utils {
   }
 
   /**
+   * For a given case_id, return the URL of the case (involves looking up the main contact_id of the case).
+   */
+  static function getCaseUrl($case_id) {
+    $contact_id = self::getCaseContact($case_id);
+
+    if (! $contact_id) {
+      CRM_Core_Error::fatal(ts('Could not find a contact for the case ID %1', array(1 => $case_id)));
+    }
+
+    return CRM_Utils_System::url('civicrm/contact/view/case', 'reset=1&id=' . $case_id . '&cid=' . $contact_id . '&action=view');
+  }
+
+  /**
    * Returns an array of all case+activities.
    * TODO: we should add an option to restrict using contract relations.
    */
@@ -74,7 +87,7 @@ class CRM_Timetrack_Utils {
   /**
    * Returns the case subject (contract name).
    */
-  function getCaseSubject($case_id) {
+  static function getCaseSubject($case_id) {
     $result = civicrm_api3('Case', 'getsingle', array(
       'id' => $case_id,
       'return.subject' => 1,
@@ -83,7 +96,7 @@ class CRM_Timetrack_Utils {
     return $result['subject'];
   }
 
-  function getOpenCases() {
+  static function getOpenCases() {
     $cases = array();
 
     $dao = CRM_Core_DAO::executeQuery(
