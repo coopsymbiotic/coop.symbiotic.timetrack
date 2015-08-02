@@ -69,13 +69,19 @@ class CRM_Timetrack_Form_InvoiceCommon {
     // and the DB layer explicitely ignores timestamps (there is a trigger
     // defined in timetrack.php).
     $apiparams = array(
-      'id' => $invoice_id,
-      'case_id' => $case_id,
       'title' => $params['title'],
       'state' => 3, // FIXME, expose to UI, pseudoconstant, etc.
       'ledger_order_id' => $params['ledger_order_id'],
       'ledger_bill_id' => $params['ledger_bill_id'],
     );
+
+    if ($case_id) {
+      $apiparams['case_id'] = $case_id;
+    }
+
+    if ($invoice_id) {
+      $apiparams['id'] = $invoice_id;
+    }
 
     if ($params['deposit_date']) {
       $apiparams['deposit_date'] = $params['deposit_date'];
@@ -86,14 +92,14 @@ class CRM_Timetrack_Form_InvoiceCommon {
     }
 
     if ($params['details_public']) {
-      $params['details_public'] = $params['details_public'];
+      $apiparams['details_public'] = $params['details_public'];
     }
 
     if ($params['details_private']) {
-      $params['details_private'] = $params['details_private'];
+      $apiparams['details_private'] = $params['details_private'];
     }
 
-    $result = civicrm_api3('Timetrackinvoice', 'create', $params);
+    $result = civicrm_api3('Timetrackinvoice', 'create', $apiparams);
 
     $order_id = $result['id'];
 

@@ -118,9 +118,21 @@ class CRM_Timetrack_Form_Invoice extends CRM_Core_Form {
   }
 
   function postProcess() {
-    $order_id = CRM_Timetrack_Form_InvoiceCommon::postProcess($this, $this->_caseid, $this->_tasksdata);
+    $params = $this->exportValues();
+    $caseid = CRM_Utils_Array::value('caseid', $params);
 
-    CRM_Core_Session::setStatus(ts('The order #%1 has been saved.', array(1 => $order_id)), '', 'success');
+    $order_id = CRM_Timetrack_Form_InvoiceCommon::postProcess($this, $caseid, $this->_tasksdata);
+    CRM_Core_Session::setStatus(ts('The invoice #%1 has been saved.', array(1 => $order_id)), '', 'success');
+
+    // Find the main contact ID of the case, to redirect back to the case.
+    $contacts = CRM_Case_BAO_Case::getContactNames($caseid);
+
+    if (count($contacts)) {
+      $c = array_shift($contacts);
+      $url = CRM_Utils_System::url('civicrm/contact/view/case', 'reset=1&id=' . $caseid . '&cid=' . $c['contact_id'] . '&action=view');
+      CRM_Utils_System::redirect($url);
+    }
+
     parent::postProcess();
   }
 
