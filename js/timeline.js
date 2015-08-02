@@ -56,8 +56,8 @@ CRM.$(function($) {
   // Show feedback messages
   // TODO: might be cleaner to handle the actual save/create/delete from here?
   // (for better handling of error messages)
-  scheduler.attachEvent("onEventDeleted", function(id) {
-    CRM.alert(ts('The punch has been deleted.'), ts('Deleted'), 'success');
+  scheduler.attachEvent("onEventDeleted", function(id, ev) {
+    CRM.alert(ts('Punch #%1 has been deleted.', {1: ev.id}), ts('Deleted'), 'success');
   });
 
   scheduler.attachEvent("onEventChanged", function(id, ev) {

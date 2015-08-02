@@ -34,6 +34,7 @@ class CRM_Timetrack_Page_TimelineData extends CRM_Core_Page {
       }
 
       $punches[] = array(
+        'id' => $val['id'], // required for punch deletion
         'punch_id' => $val['id'],
         'ktask_id' => $val['ktask_id'],
         'text' => $val['comment'],
@@ -51,7 +52,7 @@ class CRM_Timetrack_Page_TimelineData extends CRM_Core_Page {
 
     if ($action == 'deleted') {
       $result = civicrm_api3('Timetrackpunch', 'delete', array(
-        'id' => CRM_Utils_Request::retrieve('punch_id', 'Positive', $this, FALSE, NULL, 'POST'),
+        'id' => CRM_Utils_Request::retrieve('punch_id', 'Positive', $this, TRUE, NULL, 'POST'),
       ));
     }
     else {
