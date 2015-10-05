@@ -70,7 +70,7 @@ class CRM_Timetrack_Form_InvoiceCommon {
     // defined in timetrack.php).
     $apiparams = array(
       'title' => $params['title'],
-      'state' => 3, // FIXME, expose to UI, pseudoconstant, etc.
+      'state' => $params['state'],
       'ledger_order_id' => $params['ledger_order_id'],
       'ledger_bill_id' => $params['ledger_bill_id'],
     );
