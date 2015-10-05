@@ -124,6 +124,23 @@ function _civicrm_api3_timetrackinvoice_get_spec(&$params) {
   $params['invoice_is_deleted']['api.default'] = 0;
 
   $params['title']['title'] = 'Invoice title';
-  $params['case_id']['case'] = 'Invoice case/project/contract ID';
-  $params['created_date']['created_date'] = 'Invoice creation date';
+  $params['case_id']['title'] = 'Invoice case/project/contract ID';
+  $params['state']['title'] = 'Invoice status';
+  $params['ledger_order_id']['title'] = 'Invoice order ID';
+  $params['ledger_ledger_id']['title'] = 'Invoice ledger ID';
+  $params['created_date']['title'] = 'Invoice creation date';
+  $params['modified_date']['title'] = 'Invoice last modification date';
+  $params['deposit_date']['title'] = 'Payment deposit date';
+  $params['deposit_reference']['title'] = 'Payment deposit reference';
+  $params['details_public']['title'] = 'Public note written on the invoice';
+  $params['details_private']['title'] = 'Internal private notes related to the invoice';
+
+  $params['values']['state'] = CRM_Timetrack_PseudoConstant::getInvoiceStatuses();
+}
+
+/**
+ * Required for Timetrackinvoice.getoptions
+ */
+function _civicrm_api3_timetrackinvoice_DAO() {
+  return 'CRM_Timetrack_DAO_Invoice';
 }

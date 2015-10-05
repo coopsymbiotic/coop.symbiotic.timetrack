@@ -190,6 +190,11 @@ class CRM_Timetrack_Case_Page_CaseView {
       'option.limit' => 1000,
     ));
 
+    $invoice_status_options = civicrm_api3('Timetrackinvoice', 'getoptions', array(
+      'field' => 'state',
+      'option.limit' => 0,
+    ));
+
     foreach ($result['values'] as $invoice) {
       $included_hours = CRM_Timetrack_Utils::roundUpSeconds($invoice['total_included'], 1);
 
@@ -198,7 +203,9 @@ class CRM_Timetrack_Case_Page_CaseView {
         'total' => $included_hours,
         'invoiced' => $invoice['hours_billed'], // already in hours
         'invoiced_pct' => ($included_hours > 0 ? round($invoice['hours_billed'] / $included_hours * 100, 2) : 0) . '%',
-        'state' => $invoice['state'],
+        'state' => "<div class='crm-entity' data-entity='Timetrackinvoice' data-id='{$invoice['id']}'>"
+          . "<div class='crm-editable' data-type='select' data-field='state'>" . $invoice_status_options['values'][$invoice['state']] . '</div>'
+          . '</div>',
         'ledger_id' => $invoice['ledger_bill_id'],
         'generate' => CRM_Utils_System::href(ts('Generate'), 'civicrm/timetrack/invoice/generate', array('invoice_id' => $invoice['invoice_id'])),
       );
