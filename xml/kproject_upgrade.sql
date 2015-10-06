@@ -113,6 +113,13 @@ UPDATE korder, node, civicrm_value_infos_base_contrats_1
    AND node.nid = civicrm_value_infos_base_contrats_1.kproject_node_2
    AND (korder.case_id = 0 OR korder.case_id IS NULL);
 
+ALTER TABLE korder
+  ADD `invoice_from_id` int(10) unsigned DEFAULT NULL COMMENT 'Invoice From Contact ID' AFTER `id`;
+
+ALTER TABLE korder
+  ADD CONSTRAINT `FK_korder_invoice_from_id` FOREIGN KEY (`invoice_from_id`)
+      REFERENCES `civicrm_contact` (`id`) on delete set null;
+
 --
 -- korder_line
 --

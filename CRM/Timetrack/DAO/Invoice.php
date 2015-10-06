@@ -119,6 +119,12 @@ class CRM_Timetrack_DAO_Invoice extends CRM_Core_DAO
    */
   public $state;
   /**
+   * Contact ID of the organisation (or person) sending the invoice.
+   *
+   * @var int unsigned
+   */
+  public $invoice_from_id;
+  /**
    * Work order reference in the accounting system.
    *
    * @var int unsigned
@@ -203,12 +209,14 @@ class CRM_Timetrack_DAO_Invoice extends CRM_Core_DAO
           'name' => 'id',
           'type' => CRM_Utils_Type::T_INT,
           'title' => ts('Timetrack Invoice ID') ,
+          'description' => 'Invoice Id',
           'required' => true,
         ) ,
         'title' => array(
           'name' => 'title',
           'type' => CRM_Utils_Type::T_STRING,
           'title' => ts('Title') ,
+          'description' => 'Invoice title, short description.',
           'required' => true,
           'maxlength' => 255,
           'size' => CRM_Utils_Type::HUGE,
@@ -309,6 +317,7 @@ class CRM_Timetrack_DAO_Invoice extends CRM_Core_DAO
         'case_id' => 'case_id',
         'node_reference' => 'node_reference',
         'state' => 'state',
+        'invoice_from_id' => 'invoice_from_id',
         'ledger_order_id' => 'ledger_order_id',
         'ledger_bill_id' => 'ledger_bill_id',
         'hours_billed' => 'hours_billed',

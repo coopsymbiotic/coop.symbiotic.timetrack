@@ -13,6 +13,11 @@ class CRM_Timetrack_Form_InvoiceCommon {
    *
    */
   static function buildForm(&$form, $tasks) {
+    $form->addEntityRef('invoice_from_id', ts('Invoice from'), array(
+      'create' => FALSE,
+      'api' => array('extra' => array('email')),
+    ), TRUE);
+
     $form->addElement('text', 'client_name', ts('Client'))->freeze();
     $form->addElement('text', 'title', ts('Invoice title'));
     $form->addElement('text', 'invoice_period_start', ts('From'));
@@ -71,6 +76,7 @@ class CRM_Timetrack_Form_InvoiceCommon {
     $apiparams = array(
       'title' => $params['title'],
       'state' => $params['state'],
+      'invoice_from_id' => $params['invoice_from_id'],
       'ledger_order_id' => $params['ledger_order_id'],
       'ledger_bill_id' => $params['ledger_bill_id'],
     );

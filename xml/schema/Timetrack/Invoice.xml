@@ -50,6 +50,13 @@
     <comment>Invoice status.</comment>
   </field>
   <field>
+    <name>invoice_from_id</name>
+    <type>int unsigned</type>
+    <required>true</required>
+    <add>1.0</add>
+    <comment>Contact ID of the organisation (or person) sending the invoice.</comment>
+  </field>
+  <field>
     <name>ledger_order_id</name>
     <type>int unsigned</type>
     <required>false</required>

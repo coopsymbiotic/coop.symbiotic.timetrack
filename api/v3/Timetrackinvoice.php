@@ -20,7 +20,8 @@ function civicrm_api3_timetrackinvoice_get($params) {
   // XXX: assuming cases only have 1 client contact.
   $sql = 'SELECT ko.id, ko.id as invoice_id, ko.state, ko.title, ko.deposit_date,
                  ko.deposit_reference, ko.details_public, ko.details_private,
-                 ko.state, ko.ledger_order_id, ko.ledger_bill_id, ko.hours_billed, ko.paid, ko.created_date,
+                 ko.state, ko.ledger_order_id, ko.ledger_bill_id, ko.hours_billed,
+                 ko.paid, ko.created_date, ko.invoice_from_id,
                  c.id as case_id, c.subject as case_subject,
                  ccont.contact_id
             FROM korder as ko
@@ -62,6 +63,7 @@ function civicrm_api3_timetrackinvoice_get($params) {
       'invoice_id' => $dao->invoice_id,
       'case_id' => $dao->case_id,
       'contact_id' => $dao->contact_id,
+      'invoice_from_id' => $dao->invoice_from_id,
       'state' => $dao->state,
       'paid' => $dao->paid,
       'hours_billed' => $dao->hours_billed,

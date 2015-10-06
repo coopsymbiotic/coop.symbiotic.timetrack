@@ -1,4 +1,10 @@
 <div class="crm-section crm-timetrack-general-section">
+  <div class="label">{$form.invoice_from_id.label}</div>
+  <div class="content">{$form.invoice_from_id.html}</div>
+  <div class="clear"></div>
+</div>
+
+<div class="crm-section crm-timetrack-general-section">
   <div class="label">{$form.client_name.label}</div>
   <div class="content">{$form.client_name.html}</div>
   <div class="clear"></div>
