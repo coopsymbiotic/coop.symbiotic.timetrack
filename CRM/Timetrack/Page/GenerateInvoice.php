@@ -11,8 +11,6 @@ class CRM_Timetrack_Page_GenerateInvoice extends CRM_Core_Page {
     $TBS = new clsTinyButStrong; // new instance of TBS
     $TBS->Plugin(TBS_INSTALL, OPENTBS_PLUGIN); // load the OpenTBS plugin
 
-    $template = CRM_Core_Resources::singleton()->getPath('ca.bidon.timetrack', 'facture_stic_modele3.odt');
-
     $client = $this->getClient($invoice_id);
     $invoice = $this->getInvoice($invoice_id);
 
@@ -36,6 +34,22 @@ class CRM_Timetrack_Page_GenerateInvoice extends CRM_Core_Page {
       'ProjectPeriod' => 'XXXXXXXXXXXXXXXX', // FIXME, needs to be saved in DB
       'SubTotal' => CRM_Utils_Money::format($subtotal),
     );
+
+    $result_default = civicrm_api3('Setting', 'get', array(
+      'return' => 'TimetrackInvoiceTemplateDefault',
+    ));
+
+    // Check if we have a template for the pref language of the client.
+    $lang_code = strtoupper(substr($client['preferred_language'], 0, 2));
+    $result_lang = civicrm_api3('Setting', 'get', array(
+      'return' => 'TimetrackInvoiceTemplate' . $lang_code,
+    ));
+
+    $template = $result_default['values'][1]['TimetrackInvoiceTemplateDefault'];
+
+    if ($result_lang['count'] > 0 && ! empty($result_lang['values'][1]['TimetrackInvoiceTemplate' . $lang_code])) {
+      $template = $result_lang['values'][1]['TimetrackInvoiceTemplate' . $lang_code];
+    }
 
     $TBS->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
     $TBS->VarRef = &$vars;

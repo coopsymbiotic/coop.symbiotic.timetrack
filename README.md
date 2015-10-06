@@ -142,6 +142,26 @@ a typo, restart from the beginning. Otherwise, the template engine might not
 be able to recognize the token, such as: "[t.<span>title</span>]". If in
 doubt, unzip the .odt file and inspect it with a text editor.
 
+Finally, to define the location of your invoice template, you must define the
+setting manually using the API:
+
+```
+$ drush cvapi Setting.create TimetrackInvoiceTemplateDefault='/path/to/invoice-template.odt';
+```
+
+The generator will respect the "preferred language" of the contact if you have
+a template for that language. It must be defined using, for example:
+
+```
+$ drush cvapi Setting.create TimetrackInvoiceTemplateFR='/path/to/invoice-template-fr.odt';
+```
+
+where "FR" is extracted from the contact's preferred language (ex: "fr_CA" becomes "FR").
+
+You can also use the API explorer (example.org/civicrm/api/explorer), instead of drush.
+
+(yes, this is a bit weird, it was a quick hack and needs a UI)
+
 Timetrack APIs
 ==============
 
