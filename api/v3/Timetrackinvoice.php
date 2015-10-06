@@ -144,3 +144,49 @@ function _civicrm_api3_timetrackinvoice_get_spec(&$params) {
 function _civicrm_api3_timetrackinvoice_DAO() {
   return 'CRM_Timetrack_DAO_Invoice';
 }
+
+/**
+ * Implements Timetrackinvoice.setvalue
+ *
+ * @param  array  input parameters
+ */
+function civicrm_api3_timetrackinvoice_setvalue($params) {
+  $entity = 'CRM_Timetrack_DAO_Invoice';
+  $id = $params['id'];
+
+  $field = $params['field'];
+  $field = str_replace('punch_', '', $field);
+
+  $value = $params['value'];
+
+  // TODO FIXME: check_permissions?
+
+  $result = FALSE;
+
+  $object = new CRM_Timetrack_DAO_Invoice();
+  $object->id = $id;
+
+  if ($object->find(TRUE)) {
+    if ($field == 'deposit_date') {
+      CRM_Core_DAO::executeQuery('UPDATE korder SET deposit_date = %1 WHERE id = %2', array(
+        1 => array(CRM_Utils_Date::isoToMysql($value), 'Timestamp'),
+        2 => array($id, 'Positive')
+      ));
+
+      $result = TRUE;
+    }
+    else {
+      $object->$field = $value;
+      $result = $object->save();
+    }
+  }
+
+  $object->free();
+
+  if ($result) {
+    CRM_Utils_Hook::post('edit', $entity, $id, $entity);
+    return civicrm_api3_create_success($entity);
+  }
+
+  return civicrm_api3_create_error("error assigning $field=$value for $entity (id=$id)");
+}
