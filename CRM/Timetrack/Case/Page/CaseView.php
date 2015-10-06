@@ -172,12 +172,14 @@ class CRM_Timetrack_Case_Page_CaseView {
 
     // FIXME ts() domain.
     $headers = array(
-      'title' => ts('Title'),
+      'created_date' => ts('Invoice date'),
       'total' => ts('Total punches'),
       'invoiced' => ts('Invoiced'),
       'invoiced_pct' => ts('% invoiced'),
       'ledger_id' => ts('Ledger ID'),
       'state' => ts('Status'),
+      'deposit_date' => ts('Deposit'),
+      'deposit_reference' => ts('Reference'),
       'generate' => ts('Generate'),
     );
 
@@ -199,12 +201,18 @@ class CRM_Timetrack_Case_Page_CaseView {
       $included_hours = CRM_Timetrack_Utils::roundUpSeconds($invoice['total_included'], 1);
 
       $rows[] = array(
-        'title' => CRM_Utils_System::href($invoice['title'], 'civicrm/timetrack/invoice', array('invoice_id' => $invoice['invoice_id'])),
+        'created_date' => CRM_Utils_System::href(substr($invoice['created_date'], 0, 10), 'civicrm/timetrack/invoice', array('invoice_id' => $invoice['invoice_id'])),
         'total' => $included_hours,
         'invoiced' => $invoice['hours_billed'], // already in hours
         'invoiced_pct' => ($included_hours > 0 ? round($invoice['hours_billed'] / $included_hours * 100, 2) : 0) . '%',
         'state' => "<div class='crm-entity' data-entity='Timetrackinvoice' data-id='{$invoice['id']}'>"
           . "<div class='crm-editable' data-type='select' data-field='state'>" . $invoice_status_options['values'][$invoice['state']] . '</div>'
+          . '</div>',
+        'deposit_date' => "<div class='crm-entity' data-entity='Timetrackinvoice' data-id='{$invoice['id']}'>"
+          . "<div class='crm-editable' data-type='text' data-field='deposit_date'>" . substr($invoice['deposit_date'], 0, 10) . '</div>'
+          . '</div>',
+        'deposit_reference' => "<div class='crm-entity' data-entity='Timetrackinvoice' data-id='{$invoice['id']}'>"
+          . "<div class='crm-editable' data-type='text' data-field='deposit_reference'>" . $invoice['deposit_reference'] . '</div>'
           . '</div>',
         'ledger_id' => $invoice['ledger_bill_id'],
         'generate' => CRM_Utils_System::href(ts('Generate'), 'civicrm/timetrack/invoice/generate', array('invoice_id' => $invoice['invoice_id'])),
