@@ -173,11 +173,11 @@ class CRM_Timetrack_Case_Page_CaseView {
 
     // FIXME ts() domain.
     $headers = array(
+      'ledger_id' => ts('Ledger ID'),
       'created_date' => ts('Invoice date'),
       'total' => ts('Total punches'),
       'invoiced' => ts('Invoiced'),
       'invoiced_pct' => ts('% invoiced'),
-      'ledger_id' => ts('Ledger ID'),
       'state' => ts('Status'),
       'deposit_date' => ts('Deposit'),
       'deposit_reference' => ts('Reference'),
