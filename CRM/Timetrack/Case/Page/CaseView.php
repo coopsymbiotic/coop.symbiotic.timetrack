@@ -130,7 +130,8 @@ class CRM_Timetrack_Case_Page_CaseView {
 
     $result = civicrm_api3('Timetracktask', 'get', array(
       'case_id' => $case_id,
-      'option.limit' => 1000,
+      'skip_open_case_check' => 1,
+      'option.limit' => 0,
     ));
 
     foreach ($result['values'] as $task) {
@@ -189,7 +190,7 @@ class CRM_Timetrack_Case_Page_CaseView {
 
     $result = civicrm_api3('Timetrackinvoice', 'get', array(
       'case_id' => $case_id,
-      'option.limit' => 1000,
+      'option.limit' => 0,
     ));
 
     $invoice_status_options = civicrm_api3('Timetrackinvoice', 'getoptions', array(
