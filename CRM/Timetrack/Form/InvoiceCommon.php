@@ -79,6 +79,7 @@ class CRM_Timetrack_Form_InvoiceCommon {
       'invoice_from_id' => $params['invoice_from_id'],
       'ledger_order_id' => $params['ledger_order_id'],
       'ledger_bill_id' => $params['ledger_bill_id'],
+      'hours_billed' => $total_hours_billed,
     );
 
     if ($case_id) {
