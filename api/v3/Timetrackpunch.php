@@ -339,6 +339,7 @@ function civicrm_api3_timetrackpunch_punchout($params) {
   $task = civicrm_api3('Timetracktask', 'getsingle', array('id' => $punch->ktask_id));
   $values[$punch->id]['ktask_title'] = $task['title'];
   $values[$punch->id]['case_subject'] = $task['case_subject'];
+  $values[$punch->id]['duration_text'] = CRM_Timetrack_Utils::roundUpSeconds($punch->duration, 1);
 
   return civicrm_api3_create_success($values, $params, NULL, 'punchout', $punch);
 }
