@@ -35,20 +35,12 @@ class CRM_Timetrack_Page_GenerateInvoice extends CRM_Core_Page {
       'SubTotal' => CRM_Utils_Money::format($subtotal),
     );
 
-    $result_default = civicrm_api3('Setting', 'get', array(
-      'return' => 'TimetrackInvoiceTemplateDefault',
-    ));
-
     // Check if we have a template for the pref language of the client.
     $lang_code = strtoupper(substr($client['preferred_language'], 0, 2));
-    $result_lang = civicrm_api3('Setting', 'get', array(
-      'return' => 'TimetrackInvoiceTemplate' . $lang_code,
-    ));
+    $template = Civi::settings()->get('TimetrackInvoiceTemplate' . $lang_code);
 
-    $template = $result_default['values'][1]['TimetrackInvoiceTemplateDefault'];
-
-    if ($result_lang['count'] > 0 && ! empty($result_lang['values'][1]['TimetrackInvoiceTemplate' . $lang_code])) {
-      $template = $result_lang['values'][1]['TimetrackInvoiceTemplate' . $lang_code];
+    if (empty($template)) {
+      $template = Civi::settings()->get('TimetrackInvoiceTemplateDefault');
     }
 
     $TBS->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
