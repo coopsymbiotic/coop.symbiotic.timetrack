@@ -62,7 +62,7 @@ class CRM_Timetrack_Form_Search_TimetrackPunches implements CRM_Contact_Form_Sea
     // [ML] If I understand correctly, this refers to the tasks we defined
     // in hook_civicrm_searchTasks() ?
     $tasks = array(
-      100 => ts('Invoice punches', array('domain' => 'ca.bidon.timetrack')),
+      100 => ts('Invoice punches', array('domain' => 'coop.symbiotic.timetrack')),
     );
 
     return $tasks;

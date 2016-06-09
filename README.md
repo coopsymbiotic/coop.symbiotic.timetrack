@@ -206,27 +206,21 @@ Support
 =======
 
 Please post bug reports in the issue tracker of this project on github:  
-https://github.com/mlutfy/ca.bidon.timetrack/issues
+https://github.com/coopsymbiotic/coop.symbiotic.timetrack/issues
 
-For general questions and support, please post on the "Extensions" forum:  
-https://forum.civicrm.org/index.php/board,57.0.html
+For general questions and support, please post on the CiviCRM Stack Exchange
+and tag your question with "timetrack":  
+http://civicrm.stackexchange.com
 
-This is a community contributed extension written thanks to the financial
-support of organisations using it, as well as the very helpful and collaborative
-CiviCRM community.
+This extension was written thanks to the financial support of organisations
+using it, as well as the very helpful and collaborative CiviCRM community.
 
-If you appreciate this module, please consider donating 10$ to the CiviCRM project:  
-http://civicrm.org/participate/support-civicrm
-
-While I do my best to provide volunteer support for this extension, please
+While we do our best to provide volunteer support for this extension, please
 consider financially contributing to support or development of this extension
 if you can.
 
 Commercial support via Coop SymbioTIC:  
-https://www.symbiotic.coop
-
-Or you can send me the equivalent of a beer:  
-https://www.bidon.ca/en/paypal
+https://www.symbiotic.coop/en
 
 License
 =======
@@ -234,7 +228,9 @@ License
 Distributed under the terms of the GNU Affero General public license (AGPL).
 See LICENSE.txt for details.
 
-(C) 2014 Mathieu Lutfy <mathieu@bidon.ca>
+(C) 2014-2016 Mathieu Lutfy <mathieu@bidon.ca>
+(C) 2016 Mathieu Lutfy <mathieu@symbiotic.coop>
+(C) 2016 Coop SymbioTIC <info@symbiotic.coop>
 
 Includes code based on "kproject"  
 https://drupal.org/project/kproject  

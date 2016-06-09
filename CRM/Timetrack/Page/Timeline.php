@@ -3,10 +3,10 @@
 class CRM_Timetrack_Page_Timeline extends CRM_Core_Page {
   function run() {
     CRM_Core_Resources::singleton()
-      ->addScriptFile('ca.bidon.timetrack', 'js/timeline.js')
-      ->addScriptFile('ca.bidon.timetrack', 'dist/dhtmlxscheduler/codebase/dhtmlxscheduler.js')
-      ->addScriptFile('ca.bidon.timetrack', 'dist/dhtmlxscheduler/codebase/ext/dhtmlxscheduler_timeline.js')
-      ->addStyleFile('ca.bidon.timetrack', 'dist/dhtmlxscheduler/codebase/dhtmlxscheduler.css');
+      ->addScriptFile('coop.symbiotic.timetrack', 'js/timeline.js')
+      ->addScriptFile('coop.symbiotic.timetrack', 'dist/dhtmlxscheduler/codebase/dhtmlxscheduler.js')
+      ->addScriptFile('coop.symbiotic.timetrack', 'dist/dhtmlxscheduler/codebase/ext/dhtmlxscheduler_timeline.js')
+      ->addStyleFile('coop.symbiotic.timetrack', 'dist/dhtmlxscheduler/codebase/dhtmlxscheduler.css');
 
     // TODO: currently we only show a timeline for the current user.
     // Get info on the current user.

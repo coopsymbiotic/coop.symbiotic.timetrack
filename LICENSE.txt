@@ -1,5 +1,5 @@
-Package: ca.bidon.timetrack
-Copyright (C) 2014, Mathieu Lutfy <mathieu@bidon.ca>
+Package: coop.symbiotic.timetrack
+See README.md for copyright author information.
 Licensed under the GNU Affero Public License 3.0 (below).
 
 -------------------------------------------------------------------------------

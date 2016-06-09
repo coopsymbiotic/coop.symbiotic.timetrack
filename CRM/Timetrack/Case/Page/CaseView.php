@@ -7,7 +7,7 @@ class CRM_Timetrack_Case_Page_CaseView {
   function caseSummary($case_id) {
     $summary = array();
 
-    CRM_Core_Resources::singleton()->addStyleFile('ca.bidon.timetrack', 'css/crm-timetrack-case-page-caseview.css');
+    CRM_Core_Resources::singleton()->addStyleFile('coop.symbiotic.timetrack', 'css/crm-timetrack-case-page-caseview.css');
 
     $dao = CRM_Core_DAO::executeQuery('SELECT * FROM kcontract WHERE case_id = %1', array(
       1 => array($case_id, 'Positive'),
@@ -99,7 +99,7 @@ class CRM_Timetrack_Case_Page_CaseView {
     $smarty = CRM_Core_Smarty::singleton();
 
     $smarty->assign('timetrack_header_idcss', 'caseview-tasks');
-    $smarty->assign('timetrack_header_title', ts('Tasks', array('domain' => 'ca.bidon.timetrack')));
+    $smarty->assign('timetrack_header_title', ts('Tasks', array('domain' => 'coop.symbiotic.timetrack')));
 
     $taskStatuses = CRM_Timetrack_PseudoConstant::getTaskStatuses();
 
@@ -169,19 +169,19 @@ class CRM_Timetrack_Case_Page_CaseView {
     $smarty = CRM_Core_Smarty::singleton();
 
     $smarty->assign('timetrack_header_idcss', 'caseview-invoices');
-    $smarty->assign('timetrack_header_title', ts('Invoices', array('domain' => 'ca.bidon.timetrack')));
+    $smarty->assign('timetrack_header_title', ts('Invoices', array('domain' => 'coop.symbiotic.timetrack')));
 
     // FIXME ts() domain.
     $headers = array(
-      'ledger_id' => ts('Ledger ID'),
-      'created_date' => ts('Invoice date'),
-      'total' => ts('Total punches'),
-      'invoiced' => ts('Invoiced'),
-      'invoiced_pct' => ts('% invoiced'),
-      'state' => ts('Status'),
-      'deposit_date' => ts('Deposit'),
-      'deposit_reference' => ts('Reference'),
-      'generate' => ts('Generate'),
+      'ledger_id' => ts('Ledger ID', array('domain' => 'coop.symbiotic.timetrack')),
+      'created_date' => ts('Invoice date', array('domain' => 'coop.symbiotic.timetrack')),
+      'total' => ts('Total punches', array('domain' => 'coop.symbiotic.timetrack')),
+      'invoiced' => ts('Invoiced', array('domain' => 'coop.symbiotic.timetrack')),
+      'invoiced_pct' => ts('% invoiced', array('domain' => 'coop.symbiotic.timetrack')),
+      'state' => ts('Status', array('domain' => 'coop.symbiotic.timetrack')),
+      'deposit_date' => ts('Deposit', array('domain' => 'coop.symbiotic.timetrack')),
+      'deposit_reference' => ts('Reference', array('domain' => 'coop.symbiotic.timetrack')),
+      'generate' => ts('Generate', array('domain' => 'coop.symbiotic.timetrack')),
     );
 
     $smarty->assign('timetrack_headers', $headers);

@@ -224,7 +224,7 @@ function timetrack_civicrm_searchTasks($objectType, &$tasks) {
   // FIXME: how to define our own object?
   if ($objectType == 'contact') {
     $tasks[100] = array(
-      'title' => ts('Invoice punches', array('domain' => 'ca.bidon.timetrack')),
+      'title' => ts('Invoice punches', array('domain' => 'coop.symbiotic.timetrack')),
       'class' => 'CRM_Timetrack_Form_Task_Invoice',
       'result' => TRUE,
     );

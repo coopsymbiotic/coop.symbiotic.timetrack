@@ -169,7 +169,7 @@ function _timetrack_civix_civicrm_managed(&$entities) {
     $es = include $file;
     foreach ($es as $e) {
       if (empty($e['module'])) {
-        $e['module'] = 'ca.bidon.timetrack';
+        $e['module'] = 'coop.symbiotic.timetrack';
       }
       $entities[] = $e;
     }
@@ -177,7 +177,7 @@ function _timetrack_civix_civicrm_managed(&$entities) {
 }
 
 /**
- * (Delegated) Implementation of hook_civicrm_caseTypes
+ * (Delegated) Implements hook_civicrm_caseTypes().
  *
  * Find any and return any files matching "xml/case/*.xml"
  *
@@ -198,7 +198,7 @@ function _timetrack_civix_civicrm_caseTypes(&$caseTypes) {
       // throw new CRM_Core_Exception($errorMessage);
     }
     $caseTypes[$name] = array(
-      'module' => 'ca.bidon.timetrack',
+      'module' => 'coop.symbiotic.timetrack',
       'name' => $name,
       'file' => $file,
     );
@@ -262,13 +262,58 @@ function _timetrack_civix_insert_navigation_menu(&$menu, $path, $item, $parentId
 }
 
 /**
- * (Delegated) Implementation of hook_civicrm_alterSettingsFolders
+ * (Delegated) Implements hook_civicrm_navigationMenu().
+ */
+function _timetrack_civix_navigationMenu(&$nodes) {
+  if (!is_callable(array('CRM_Core_BAO_Navigation', 'fixNavigationMenu'))) {
+    _timetrack_civix_fixNavigationMenu($nodes);
+  }
+}
+
+/**
+ * Given a navigation menu, generate navIDs for any items which are
+ * missing them.
+ */
+function _timetrack_civix_fixNavigationMenu(&$nodes) {
+  $maxNavID = 1;
+  array_walk_recursive($nodes, function($item, $key) use (&$maxNavID) {
+    if ($key === 'navID') {
+      $maxNavID = max($maxNavID, $item);
+    }
+    });
+  _timetrack_civix_fixNavigationMenuItems($nodes, $maxNavID, NULL);
+}
+
+function _timetrack_civix_fixNavigationMenuItems(&$nodes, &$maxNavID, $parentID) {
+  $origKeys = array_keys($nodes);
+  foreach ($origKeys as $origKey) {
+    if (!isset($nodes[$origKey]['attributes']['parentID']) && $parentID !== NULL) {
+      $nodes[$origKey]['attributes']['parentID'] = $parentID;
+    }
+    // If no navID, then assign navID and fix key.
+    if (!isset($nodes[$origKey]['attributes']['navID'])) {
+      $newKey = ++$maxNavID;
+      $nodes[$origKey]['attributes']['navID'] = $newKey;
+      $nodes[$newKey] = $nodes[$origKey];
+      unset($nodes[$origKey]);
+      $origKey = $newKey;
+    }
+    if (isset($nodes[$origKey]['child']) && is_array($nodes[$origKey]['child'])) {
+      _timetrack_civix_fixNavigationMenuItems($nodes[$origKey]['child'], $maxNavID, $nodes[$origKey]['attributes']['navID']);
+    }
+  }
+}
+
+/**
+ * (Delegated) Implements hook_civicrm_alterSettingsFolders().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_alterSettingsFolders
  */
 function _timetrack_civix_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
   static $configured = FALSE;
-  if ($configured) return;
+  if ($configured) {
+    return;
+  }
   $configured = TRUE;
 
   $settingsDir = __DIR__ . DIRECTORY_SEPARATOR . 'settings';
