@@ -40,7 +40,7 @@ class CRM_Timetrack_Page_TimelineData extends CRM_Core_Page {
         'text' => $val['comment'],
         'start_date' => date('Y-m-d H:i:s', $val['begin']), // FIXME begin should be mysql date
         'end_date' => date('Y-m-d H:i:s', $val['begin'] + $val['duration']), // FIXME begin should be mysql date
-        'contact_id' => $val['uid'], // FIXME should be contact_id
+        'contact_id' => $val['contact_id'], // FIXME should be contact_id
       );
     }
 
@@ -65,7 +65,7 @@ class CRM_Timetrack_Page_TimelineData extends CRM_Core_Page {
         'ktask_id' => CRM_Utils_Request::retrieve('ktask_id', 'Positive', $this, TRUE, NULL, 'POST'),
         'comment' => CRM_Utils_Request::retrieve('text', 'String', $this, TRUE, NULL, 'POST'),
         'begin' => CRM_Utils_Request::retrieve('start_date', 'String', $this, TRUE, NULL, 'POST'),
-        'uid' => CRM_Utils_Request::retrieve('contact_id', 'Positive', $this, TRUE, NULL, 'POST'),
+        'contact_id' => CRM_Utils_Request::retrieve('contact_id', 'Positive', $this, TRUE, NULL, 'POST'),
         'duration' => $duration,
         'skip_punched_in_check' => 1,
         'skip_open_case_check' => 1,

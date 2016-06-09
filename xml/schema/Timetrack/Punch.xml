@@ -20,15 +20,15 @@
      <autoincrement>true</autoincrement>
   </primaryKey>
   <field>
-    <name>uid</name>
+    <name>contact_id</name>
     <type>int unsigned</type>
     <required>true</required>
     <add>1.0</add>
     <comment>Author of the punch.</comment>
   </field>
   <index>
-    <name>index_uid</name>
-    <fieldName>uid</fieldName>
+    <name>index_contact_id</name>
+    <fieldName>contact_id</fieldName>
     <add>1.0</add>
   </index>
   <field>
@@ -43,11 +43,6 @@
     <name>index_ktask_id</name>
     <fieldName>ktask_id</fieldName>
     <add>1.0</add>
-  </index>
-  <field>
-    <name>begin</name>
-    <type>int unsigned</type>
-    <required>true</required>
     <add>1.0</add>
     <comment>Start timestamp of the punch.</comment>
   </field>

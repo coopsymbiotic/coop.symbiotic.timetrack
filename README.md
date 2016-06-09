@@ -2,17 +2,20 @@ Timetrack
 =========
 
 General idea: you have activities and can track time with activities.
-However, some activities are done over various moments in a day/week/month,
-and you want to track your time in a more granular way.
+However, you may have some activities are done over various moments in a
+day/week/month, and you want to track your time in a more granular way.
 
-This extension adds a new entity for "punches", which have a begin date/time,
-duration and comment. The punches are linked to tasks/activities of a case.
+This extension adds a new entities for "contracts", "tasks" and "punches",
+which have a begin date/time, duration and comment. The punches are linked to
+tasks of a case.
 
 Punches can then be invoiced to the client (making it easy to know which work
-has been invoied or not). The extension can generate invoices in OpenDocument
-(odt) format using the tinybutstrong library (see "Invoicing").
+has been invoiced or not). The extension can generate invoices in OpenDocument
+(odt) format using the tinybutstrong (opentbs) library (see "Invoicing").
 
-Timetrack also includes reports and new APIs to manipulate the punches.
+Timetrack also includes reports, custom searches and new APIs to manipulate the
+punches and make it easy to punch using 3rd-party systems, such as Mattermost
+or IRC bots.
 
 Here are a few screenshots:
 
@@ -22,22 +25,22 @@ Here are a few screenshots:
 * https://www.bidon.ca/files/timetrack/timetrack-search-inline-edit2.gif (600 KB)
 
 To download the latest version of this module:  
-https://github.com/mlutfy/ca.bidon.timetrack
+https://github.com/coopsymbiotic/coop.symbiotic.timetrack
 
 Status
 ======
 
-This extension is mostly usable out of the box, but has not been widely tested,
-and lacks documentation on more advanced features (invoicing, IRC punching).
+This extension is mostly usable out of the box, but might have some rough edges.
+Expect some surprises and be ready to contribute patches or request paid
+support.
 
-I have still not finished fixing the database schema. The upgrade path from
-kproject (see 'History') needs some tweaking as well (ex: to create cases for
-each 'contract').
+It is not currently fully possible to upgrade from kproject (see 'History').
+See the sql/kproject_upgrade.sql file for more information.
 
 Requirements
 ============
 
-- CiviCRM >= 4.5
+- CiviCRM >= 4.6, CiviCRM 4.7 recommended.
 
 Installation
 ============
@@ -53,10 +56,10 @@ Install as any other regular CiviCRM extension:
 History
 =======
 
-Timetrack is a fork/rewrite of "kproject", a time management tool written by
-Koumbit. It was written as a Drupal module, and was an awesome time tracker,
-which included an IRC bot and a few planning features suitable for small-medium
-organisations.
+Timetrack is a fork/rewrite of "kproject"[1], a time management tool written by
+Koumbit.org. It was written as a Drupal 6 module, and was an awesome time
+tracker, which included an IRC bot and a few planning features suitable for
+small-medium organisations.
 
 However, it was mostly used only by Koumbit, and they did not upgrade it to
 Drupal 7. Since kproject implemented many CRM-ish features that are present in
@@ -64,52 +67,39 @@ CiviCRM, causing some duplication of information (list of clients, contact
 information), this extension attempts to implement in CiviCRM some of the
 features of kproject.
 
-The "client" in kproject becomes a "contact" in CiviCRM (and you can create
-new entity sub-types in CiviCRM, such as 'Clients' based off the 'Organisation'
+The "client" in kproject becomes a CiviCRM "contact" (and you can create new
+entity sub-types in CiviCRM, such as 'Clients' based off the 'Organisation'
 entity).
 
 The "contract" in kproject becomes a "case" in CiviCRM. You can create different
 case types depending on your type of contracts (ex: consultation, support), and
 you can create standart timelines for them.
 
-The "task" in kproject becomes an "activity" in CiviCRM (not implemented yet).
-They provide a general idea of the start/end work period on a specific issue.
+The "task", "punch" and "order" in kproject are mostly kept as is. Orders also
+have an "order_line" in order to keep more granular tracking in invoices.
 
-The "punch" in kproject is kept as-is in CiviCRM, as a custom entity.
-It provides granular information on the work done.
-
-The "order" in kproject becomes an "invoice" in CiviCRM. We deprecated the
-idea of tracking 'work orders'. The task estimates should be seen as the
-work orders.
-
-For reference:
-https://www.drupal.org/project/kproject
+  [1] https://www.drupal.org/project/kproject
 
 Punching using an IRC bot
 =========================
 
-The following assumes you have a general knowledge of IRC and bots.
+The following assumes you generally understand how IRC and bots work.
 
 IRC punching is done using the CiviCRM API. This extension provides
 basic entities for 'Timetracktask', 'Timetrackpunch', etc.
 
-The following module make it easier to run an IRC bot:
-https://www.drupal.org/sandbox/bgm/1957132
+Timetrack has been successfully tested with Mattermost using a Hubot
+robot.
 
-This is a submodule for the Drupal bot:
-https://www.drupal.org/project/bot
-
-TODO: our kpirc.module from kproject needs to be bundled in bot_kproject,
-which probably needs to be renamed, and/or bundled in ktimetrack.
+TODO: URL to Hubot script for Timetrack. Ping us if you need more information.
 
 Invoicing
 =========
 
-To keep it simple, since invoices can be quite an art and need to look good,
-Timetrack takes an ordinary OpenDocument file (odt) as a template in order to
-generate invoices.
+Invoices can be quite an art and need to look good, Timetrack takes an ordinary
+OpenDocument file (odt) as a template in order to generate invoices.
 
-Your OpenDocument file can have the following tokens that will be filled-in by
+The OpenDocument file can have the following tokens that will be filled-in by
 Timetrack. Since we are using the tinybutstrong library, the tokens have the
 following syntax:
 
@@ -136,7 +126,7 @@ The following tokens should be used in a row:
 
 The invoice subtotal can be found in [var.SubTotal].
 
-Advice: LibreOffice/OpenOffice might wrap your text in a "span", depending on
+Warning: LibreOffice/OpenOffice might wrap your text in a "span", depending on
 how you entered the text. Type the tokens all at once. If you have to delete
 a typo, restart from the beginning. Otherwise, the template engine might not
 be able to recognize the token, such as: "[t.<span>title</span>]". If in
@@ -177,7 +167,6 @@ of this extension. Below is a short list of things that need fixing.
 Tasks and punches:
 
 * [rc] Script to convert the contracts (kcontract) to be linked to civicrm_case, instead of node.
-* [rc] Punches should refer to the contact_id, instead of Drupal uid.
 * [wishlist] Punching in a 'new' task should change it to 'open'.
 * [wishlist] Quick punch form, not linked to a specific case.
 

@@ -69,7 +69,7 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
             'default' => TRUE,
             'type' => CRM_Utils_Type::T_INT,
           ),
-          'uid' => array(
+          'contact_id' => array(
             'title' => ts('User'),
             'default' => TRUE,
             'type' => CRM_Utils_Type::T_STRING,
@@ -102,7 +102,7 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
             'operatorType' => CRM_Report_Form::OP_DATE,
             'type' => CRM_Utils_Type::T_DATE,
           ),
-          'uid' => array(
+          'contact_id' => array(
             'title' => ts('User'),
             'operatorType' => CRM_Report_Form::OP_SELECT,
             'type' => CRM_Utils_Type::T_INT,
@@ -170,8 +170,8 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
     // FIXME: remove when field has been converted to mysql date.
     $this->_select = str_replace('punch_civireport.begin as punch_begin', 'FROM_UNIXTIME(punch_civireport.begin) as punch_begin', $this->_select);
 
-    // Replace the drupal uid by the civicrm contact display_name
-    $this->_select = str_replace('punch_civireport.uid as punch_uid', 'contact_civireport.display_name as punch_uid', $this->_select);
+    // Replace the drupal contact_id by the civicrm contact display_name
+    $this->_select = str_replace('punch_civireport.contact_id as punch_contact_id', 'contact_civireport.display_name as punch_contact_id', $this->_select);
 
     // Concat project and task, so that inline edit works better.
     $this->_select = str_replace('task_civireport.title as task_title', "CONCAT(case_civireport.subject, ' > ', task_civireport.title) as task_title", $this->_select);
@@ -182,8 +182,7 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
               LEFT JOIN ktask as task_civireport ON (task_civireport.id = punch_civireport.ktask_id)
               LEFT JOIN korder as invoice_civireport ON (invoice_civireport.id = punch_civireport.korder_id)
               LEFT JOIN civicrm_case as case_civireport ON (case_civireport.id = task_civireport.case_id)
-              LEFT JOIN civicrm_uf_match as ufmatch_civireport ON (ufmatch_civireport.uf_id = punch_civireport.uid)
-              LEFT JOIN civicrm_contact as contact_civireport ON (contact_civireport.id = ufmatch_civireport.contact_id)';
+              LEFT JOIN civicrm_contact as contact_civireport ON (contact_civireport.id = punch_civireport.contact_id)';
   }
 
   /**
@@ -270,7 +269,7 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
 
   function alterDisplay(&$rows) {
     $crmEditable = array(
-      'punch_uid' => 'punch_uid',
+      'punch_contact_idd' => 'punch_contact_id',
       'punch_begin' => 'punch_begin',
       'punch_duration' => 'punch_duration',
       'punch_comment' => 'punch_comment',
@@ -281,7 +280,7 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
     // and see also duplicate code in CRM/Timetrack/Form/Search/TimetrackPunches.php
     $optionsCache = array(
       'ktask_id' => json_encode(CRM_Timetrack_Utils::getActivitiesForCase(), JSON_HEX_APOS),
-      'punch_uid' => json_encode(CRM_Timetrack_Utils::getUsers(), JSON_HEX_APOS),
+      'punch_contact_id' => json_encode(CRM_Timetrack_Utils::getUsers(), JSON_HEX_APOS),
     );
 
     foreach ($rows as &$row) {

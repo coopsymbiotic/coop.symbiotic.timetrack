@@ -26,13 +26,13 @@ function civicrm_api3_timetrackpunch_get($params) {
     $sql .= ' AND kpunch.id = %1';
   }
 
-  if (! empty($params['uid'])) {
-    $sqlparams[2] = array($params['uid'], 'Positive');
-    $sql .= ' AND kpunch.uid = %2';
+  if (! empty($params['contact_id'])) {
+    $sqlparams[2] = array($params['contact_id'], 'Positive');
+    $sql .= ' AND kpunch.contact_id = %2';
   }
   elseif (! empty($params['contact_id'])) {
     $sqlparams[2] = array($params['contact_id'], 'Positive');
-    $sql .= ' AND kpunch.uid = %2'; // FIXME ix when we fix kpunch.user_id
+    $sql .= ' AND kpunch.contact_id = %2'; // FIXME ix when we fix kpunch.user_id
   }
   elseif (! empty($params['contact_ids'])) {
     $t = array();
@@ -51,7 +51,7 @@ function civicrm_api3_timetrackpunch_get($params) {
     }
 
     if (! empty($t)) {
-      $sql .= ' AND kpunch.uid IN (' . implode($t, ',') . ')';
+      $sql .= ' AND kpunch.contact_id IN (' . implode($t, ',') . ')';
     }
   }
 
@@ -79,8 +79,7 @@ function civicrm_api3_timetrackpunch_get($params) {
       'id' => $dao->id,
       'ktask_id' => $dao->ktask_id,
       'activity_id' => $dao->ktask_id, // FIXME is this used?
-      'contact_id' => $dao->uid,
-      'uid' => $dao->uid,
+      'contact_id' => $dao->contact_id,
       'begin' => $dao->begin,
       'duration' => $dao->duration,
       'comment' => $dao->comment,
@@ -112,7 +111,7 @@ function _civicrm_api3_timetrackpunch_get_spec(&$params) {
   $params['task_is_deleted']['api.default'] = 0;
 
   $params['id']['title'] = 'Punch ID';
-  $params['uid']['title'] = 'User ID of the punch author';
+  $params['contact_id']['title'] = 'Contact ID of the punch author';
   $params['ktask_id']['title'] = 'Task ID';
   $params['begin']['title'] = 'Punch begin';
   $params['duration']['title'] = 'Punch duration';
@@ -140,9 +139,9 @@ function civicrm_api3_timetrackpunch_create($params) {
   $extra_comments = array();
   $punch = new CRM_Timetrack_DAO_Punch();
 
-  // uid params is mandatory
-  if (empty($params['uid'])) {
-    return civicrm_api3_create_error('uid is mandatory (Timetrackpunch create)');
+  // contact_id param is mandatory
+  if (empty($params['contact_id'])) {
+    return civicrm_api3_create_error('contact_id is mandatory (Timetrackpunch create)');
   }
 
   // Validate the task/case
@@ -210,7 +209,7 @@ function civicrm_api3_timetrackpunch_create($params) {
     if (empty($params['skip_punched_in_check'])) {
       $result = civicrm_api3('Timetrackpunch', 'get', array(
         'duration' => -1,
-        'uid' => $params['uid'],
+        'contact_id' => $params['contact_id'],
       ));
 
       if ($result['count'] > 0) {
@@ -238,7 +237,7 @@ function civicrm_api3_timetrackpunch_create($params) {
     if (empty($params['skip_overlap_check'])) {
       $test_punch = array(
         'id' => $task['id'],
-        'uid' => $params['uid'],
+        'contact_id' => $params['contact_id'],
         'begin' => $begin,
         'duration' => time() - $begin,
       );
@@ -260,12 +259,12 @@ function civicrm_api3_timetrackpunch_create($params) {
   if (empty($params['skip_punched_in_check'])) {
     $result = civicrm_api3('Timetrackpunch', 'get', array(
       'duration' => -1,
-      'uid' => $params['uid'],
+      'contact_id' => $params['contact_id'],
     ));
 
     if ($result['count'] > 0) {
       $punchoutres = civicrm_api3('Timetrackpunch', 'punchout', array(
-        'uid' => $params['uid'],
+        'contact_id' => $params['contact_id'],
       ));
 
       $punchout_punch = array_shift($punchoutres['values']);
@@ -312,12 +311,12 @@ function civicrm_api3_timetrackpunch_create($params) {
  * Punch out
  */
 function civicrm_api3_timetrackpunch_punchout($params) {
-  if (empty($params['uid'])) {
+  if (empty($params['contact_id'])) {
     return civicrm_api3_create_error('You must specify the user to punch out.');
   }
 
   $result = civicrm_api3('Timetrackpunch', 'getsingle', array(
-    'uid' => $params['uid'],
+    'contact_id' => $params['contact_id'],
     'duration' => -1,
   ));
 
@@ -485,7 +484,7 @@ function timetrack_punch_validate($punch) {
 
   $args = array(
     ':ktaskid' => $punch['ktask_id'],
-    ':uid' => $punch['uid'],
+    ':contact_id' => $punch['contact_id'],
     ':begin' => $punch['begin'],
     ':end'   => $punch['begin'] + $punch['duration'],
   );
@@ -495,8 +494,8 @@ function timetrack_punch_validate($punch) {
   if ($record = $result->fetchObject()) {
     $node = node_load($record->nid);
 
-    return t('Error: Overlapping with punch @pid (@comment) on @taskname id=@taskid',
-      array('@pid' => $record->id, '@comment' => $record->comment, '@taskname' => $record->title, '@taskid' => $record->ktask_id));
+    return ts('Error: Overlapping with punch %1 (%2) on %3 id=%4',
+      array(1 => $record->id, 2 => $record->comment, 3 => $record->title, 4 => $record->ktask_id));
   }
   else {
     return TRUE;

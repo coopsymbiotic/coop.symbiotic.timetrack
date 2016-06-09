@@ -135,7 +135,7 @@ class CRM_Timetrack_Form_Punch extends CRM_Core_Form {
     $duration = $values['duration'] * 60 * 60;
 
     if ($this->_pid) {
-      $dao = CRM_Core_DAO::executeQuery('UPDATE kpunch SET begin = %1, duration = %2, comment = %3, ktask_id = %4, uid = %5 WHERE id = %6', array(
+      $dao = CRM_Core_DAO::executeQuery('UPDATE kpunch SET begin = %1, duration = %2, comment = %3, ktask_id = %4, contact_id = %5 WHERE id = %6', array(
         1 => array($begin, 'Positive'), // FIXME date mysql
         2 => array($duration, 'Integer'),
         3 => array($values['comment'], 'String'),
@@ -146,7 +146,7 @@ class CRM_Timetrack_Form_Punch extends CRM_Core_Form {
       CRM_Core_Session::setStatus(ts('The punch has been updated.'), '', 'success');
     }
     else {
-      $dao = CRM_Core_DAO::executeQuery('INSERT INTO kpunch (begin, duration, comment, ktask_id, uid) VALUES (%1, %2, %3, %4, %5)', array(
+      $dao = CRM_Core_DAO::executeQuery('INSERT INTO kpunch (begin, duration, comment, ktask_id, contact_id) VALUES (%1, %2, %3, %4, %5)', array(
         1 => array($begin, 'Positive'), // FIXME date mysql
         2 => array($duration, 'Integer'),
         3 => array($values['comment'], 'String'),

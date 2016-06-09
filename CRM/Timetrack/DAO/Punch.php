@@ -91,7 +91,7 @@ class CRM_Timetrack_DAO_Punch extends CRM_Core_DAO
    *
    * @var int unsigned
    */
-  public $uid;
+  public $contact_id;
   /**
    * Task associated to the punch (FK to ktask).
    *
@@ -166,10 +166,10 @@ class CRM_Timetrack_DAO_Punch extends CRM_Core_DAO
           'description' => 'Punch Id',
           'required' => true,
         ) ,
-        'uid' => array(
-          'name' => 'uid',
+        'contact_idd' => array(
+          'name' => 'contact_id',
           'type' => CRM_Utils_Type::T_INT,
-          'title' => ts('Uid') ,
+          'title' => ts('Contact ID') ,
           'description' => 'Author of the punch.',
           'required' => true,
         ) ,
@@ -249,7 +249,7 @@ class CRM_Timetrack_DAO_Punch extends CRM_Core_DAO
     if (!(self::$_fieldKeys)) {
       self::$_fieldKeys = array(
         'id' => 'timetrack_punch_id',
-        'uid' => 'uid',
+        'contact_id' => 'contact_id',
         'ktask_id' => 'ktask_id',
         'begin' => 'begin',
         'duration' => 'duration',
