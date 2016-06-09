@@ -191,7 +191,6 @@ Invoices:
 
 Misc:
 
-* [rc] Create install.sql file for the basic schema.
 * [rc] Implement "case merge" hook.
 * [rc] Convert all unix timestamp fields to mysql datetime (ex: task begin/end, punch begin).
 * [important] Config UI for the invoice template file (currently the path of the template is hardcoded).
