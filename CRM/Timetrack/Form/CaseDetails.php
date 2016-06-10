@@ -59,9 +59,11 @@ class CRM_Timetrack_Form_CaseDetails extends CRM_Core_Form {
     $buttonName = $this->controller->getButtonName();
 
     $alias = strtotime($values['begin']);
-    $estimate = $values['duration'] * 60 * 60;
+    $values['estimate'] = (empty($values['estimate']) ? 0 : $values['estimate']);
 
-    $exists = CRM_Core_DAO::singleValueQuery('SELECT case_id FROM kcontract WHERE case_id = %1', array(1 => array($values['case_id'], 'Positive')));
+    $exists = CRM_Core_DAO::singleValueQuery('SELECT case_id FROM kcontract WHERE case_id = %1', array(
+      1 => array($values['case_id'], 'Positive'),
+    ));
 
     if ($exists) {
       $dao = CRM_Core_DAO::executeQuery('UPDATE kcontract SET alias = %1, estimate = %2 WHERE case_id = %3', array(
