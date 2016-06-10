@@ -62,7 +62,7 @@ class CRM_Timetrack_Case_Page_CaseView {
       );
 
       $summary['timetrack_irc_alias'] = array(
-        'label' => ts('IRC alias:'),
+        'label' => ts('Chat alias:'),
         'value' => ($dao->alias ? $dao->alias : ts('n/a')),
       );
     }
@@ -107,11 +107,12 @@ class CRM_Timetrack_Case_Page_CaseView {
     $headers = array(
       'title' => ts('Task'),
       'estimate' => ts('Estimate'),
-      'total_included' => ts('Total punches'),
+      'total_included' => ts('Punches'),
       'percent_done' => ts('% done'),
       'state' => ts('Status'),
       'begin' => ts('Begin'),
-      'end' => ts('end'),
+      'end' => ts('End'),
+      'lead' => ts('Lead'),
     );
 
     $smarty->assign('timetrack_headers', $headers);
@@ -150,6 +151,7 @@ class CRM_Timetrack_Case_Page_CaseView {
         'state' => $taskStatuses[$task['state']],
         'begin' => substr($task['begin'], 0, 10), // TODO format date l10n
         'end' => substr($task['end'], 0, 10), // TODO format date l10n
+        'lead' => $task['lead'],
       );
 
       $total['estimate'] += $task['estimate'];

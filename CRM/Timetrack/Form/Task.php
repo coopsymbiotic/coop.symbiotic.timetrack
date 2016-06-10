@@ -83,8 +83,18 @@ class CRM_Timetrack_Form_Task extends CRM_Core_Form {
     $this->addDate('begin', ts('Start'));
     $this->addDate('end', ts('End'));
     $this->add('text', 'estimate', ts('Estimate'));
-    $this->add('text', 'leadautocomplete', ts('Lead'));
-    $this->add('hidden', 'lead');
+
+    $field = array(
+      'type' => 'entityRef',
+      'label' => ts('Lead'),
+      'attributes' => array(
+        'multiple' => FALSE,
+        'create' => FALSE,
+        'api' => array('params' => array('is_deceased' => 0, 'contact_type' => 'Individual')),
+      ),
+    );
+
+    $this->addEntityRef('lead', $field['label'], $field['attributes'], FALSE);
 
     $this->addButtons(array(
       array(

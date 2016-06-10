@@ -223,11 +223,10 @@ function civicrm_api3_timetrackpunch_create($params) {
           $previous_punch['duration'] = $start - $previous_punch['begin'] - 1;
           $result = civicrm_api('Timetrackpunch', 'create', $previous_punch);
 
-          // FIXME: t() / language
-          $extra_comments[] = t('punched out of !task (!comment), worked !duration hours.', array(
-            '!task' => $result['case_subject'] . ' / ' . $result['ktask_title'],
-            '!duration' => CRM_Timetrack_Utils::roundUpSeconds($previous_punch['duration'], 1),
-            '!comment' => $previous_punch['comment'],
+          $extra_comments[] = ts('punched out of %1 (%2), worked %3 hours.', array(
+            1 => $result['case_subject'] . ' / ' . $result['ktask_title'],
+            2 => CRM_Timetrack_Utils::roundUpSeconds($previous_punch['duration'], 1),
+            3 => $previous_punch['comment'],
           ));
         }
       }
@@ -271,10 +270,10 @@ function civicrm_api3_timetrackpunch_create($params) {
 
       // FIXME: ts() / language
 
-      $extra_comments[] = t('and punched out of !task (!comment), worked !duration hours.', array(
-        '!task' => $punchout_punch['case_subject'] . ' / ' . $punchout_punch['ktask_title'],
-        '!duration' => CRM_Timetrack_Utils::roundUpSeconds($punchout_punch['duration'], 1),
-        '!comment' => $punchout_punch['comment'],
+      $extra_comments[] = ts('and punched out of %1 (%2), worked %3 hours.', array(
+        1 => $punchout_punch['case_subject'] . ' / ' . $punchout_punch['ktask_title'],
+        2 => CRM_Timetrack_Utils::roundUpSeconds($punchout_punch['duration'], 1),
+        3 => $punchout_punch['comment'],
       ));
     }
   }
