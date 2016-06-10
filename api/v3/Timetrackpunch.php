@@ -242,9 +242,8 @@ function civicrm_api3_timetrackpunch_create($params) {
       );
 
       // FIXME: needs more testing.
-      if (! $valid = timetrack_punch_validate($test_punch)) {
-        return civicrm_api3_create_error(ts('Invalid punch: %1', array(1 => $valid)));
-      }
+      // NB: throws an exception if it fails.
+      timetrack_punch_validate($test_punch);
     }
 
     $params['begin'] = $begin;
@@ -470,35 +469,33 @@ function timetrack_convert_punch_start_to_timestamp($time_to_convert = NULL) {
  *   An array containing the punch properties as they are to be written.
  *
  * @return
- *   TRUE if the entry is valid, an error message otherwise.
+ *   TRUE if the entry is valid, throws an exception otherwise.
  */
 function timetrack_punch_validate($punch) {
-  $query = 'SELECT * FROM {kpunch} k ' .
-           'WHERE k.ktask_id = :ktaskid AND k.uid = :uid ' .
-           'AND ( ' .
-           '(:begin >= k.begin AND :begin <= (k.begin + k.duration)) ' .
-           'OR (:end >= k.begin AND :end <= (k.begin + k.duration)) ' .
-           'OR ((k.begin >= :begin) AND (k.begin <= :end))' .
-           ') ORDER BY k.id DESC';
+  $sql = 'SELECT * FROM kpunch k
+           WHERE k.ktask_id = %1 AND k.contact_id = %2
+             AND (
+               (%3 >= k.begin AND %3 <= (k.begin + k.duration))
+               OR (%4 >= k.begin AND %4 <= (k.begin + k.duration))
+               OR ((k.begin >= %3) AND (k.begin <= %3))
+             )
+           ORDER BY k.id DESC';
 
-  $args = array(
-    ':ktaskid' => $punch['ktask_id'],
-    ':contact_id' => $punch['contact_id'],
-    ':begin' => $punch['begin'],
-    ':end'   => $punch['begin'] + $punch['duration'],
+  $params = array(
+    1 => array($punch['ktask_id'], 'Positive'),
+    2 => array($punch['contact_id'], 'Positive'),
+    3 => array($punch['begin'], 'Positive'), // Mysql timestamp
+    4 => array($punch['begin'] + $punch['duration'], 'Positive'), // Mysql timestamp
   );
 
-  $result = db_query($query, $args);
+  $dao = CRM_Core_DAO::executeQuery($sql, $params);
 
-  if ($record = $result->fetchObject()) {
-    $node = node_load($record->nid);
+  if ($dao->fetch()) {
+    throw new Exception(ts('Error: Overlapping with punch %1 (%2) on %3 id=%4',
+      array(1 => $dao->id, 2 => $dao->comment, 3 => $dao->title, 4 => $dao->ktask_id)));
+  }
 
-    return ts('Error: Overlapping with punch %1 (%2) on %3 id=%4',
-      array(1 => $record->id, 2 => $record->comment, 3 => $record->title, 4 => $record->ktask_id));
-  }
-  else {
-    return TRUE;
-  }
+  return TRUE;
 }
 
 /**
