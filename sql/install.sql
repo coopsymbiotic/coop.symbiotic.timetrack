@@ -1,6 +1,3 @@
----
---- See the xml schema files for more information.
----
 CREATE TABLE `kcontract` (
   `kcid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `parent` int(10) unsigned NOT NULL DEFAULT '0',
@@ -71,10 +68,27 @@ CREATE TABLE `kprojectreports_schedules` (
   PRIMARY KEY (`krid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
+CREATE TABLE `ktask` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `case_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `activity_id` int(10) unsigned NOT NULL DEFAULT '0',
+  `parent` int(10) unsigned NOT NULL DEFAULT '0',
+  `state` tinyint(4) NOT NULL DEFAULT '0',
+  `estimate` int(11) DEFAULT NULL,
+  `begin` int(11) DEFAULT NULL,
+  `end` int(11) DEFAULT NULL,
+  `lead` int(11) DEFAULT NULL,
+  `title` varchar(255) DEFAULT '',
+  PRIMARY KEY (`id`),
+  KEY `state` (`state`),
+  KEY `parent` (`parent`),
+  KEY `case_id` (`case_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
 CREATE TABLE `kpunch` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `ktask_id` int(10) unsigned DEFAULT NULL,
-  `contact_id` int(10) unsigned NOT NULL,
+  `contact_id` int(10) unsigned DEFAULT NULL,
   `begin` int(11) NOT NULL,
   `duration` int(11) DEFAULT NULL,
   `comment` varchar(255) DEFAULT NULL,
@@ -94,21 +108,4 @@ CREATE TABLE `kpunch` (
   CONSTRAINT `FK_kpunch_korder_id` FOREIGN KEY (`korder_id`) REFERENCES `korder` (`id`) ON DELETE SET NULL,
   CONSTRAINT `FK_kpunch_korder_line_id` FOREIGN KEY (`korder_line_id`) REFERENCES `korder_line` (`id`) ON DELETE SET NULL,
   CONSTRAINT `FK_ktask_id` FOREIGN KEY (`ktask_id`) REFERENCES `ktask` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
-CREATE TABLE `ktask` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `case_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `activity_id` int(10) unsigned NOT NULL DEFAULT '0',
-  `parent` int(10) unsigned NOT NULL DEFAULT '0',
-  `state` tinyint(4) NOT NULL DEFAULT '0',
-  `estimate` int(11) DEFAULT NULL,
-  `begin` int(11) DEFAULT NULL,
-  `end` int(11) DEFAULT NULL,
-  `lead` int(11) DEFAULT NULL,
-  `title` varchar(255) DEFAULT '',
-  PRIMARY KEY (`id`),
-  KEY `state` (`state`),
-  KEY `parent` (`parent`),
-  KEY `case_id` (`case_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
