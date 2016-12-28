@@ -56,8 +56,10 @@
   <thead>
     <tr>
       <th>{ts}Task{/ts}</th>
-      <th>{ts}Hours{/ts}</th>
-      <th>{ts}Rounded{/ts}</th>
+      {if !$timetrack_invoice_options.invoice_other_only}
+        <th>{ts}Hours{/ts}</th>
+      {/if}
+      <th>{ts}Quantity{/ts}</th>
       <th>{ts}Unit{/ts}</th>
       <th>{ts}Cost{/ts}</th>
       <th>{ts}Amount{/ts}</th>
@@ -73,7 +75,9 @@
       {assign var="amount" value='task_'|cat:$foo|cat:'_amount'}
       <tr>
         <td class="crm-timetrack-lineitem-title">{$form.$title.html}</td>
-        <td class="crm-timetrack-lineitem-hours">{$form.$hours.html}</td>
+        {if !$timetrack_invoice_options.invoice_other_only}
+          <td class="crm-timetrack-lineitem-hours">{$form.$hours.html}</td>
+        {/if}
         <td class="crm-timetrack-lineitem-hoursbilled">{$form.$hoursbilled.html}</td>
         <td class="crm-timetrack-lineitem-unit">{$form.$unit.html}</td>
         <td class="crm-timetrack-lineitem-cost">{$form.$cost.html}</td>

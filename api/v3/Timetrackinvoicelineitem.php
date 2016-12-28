@@ -50,7 +50,7 @@ function civicrm_api3_timetrackinvoicelineitem_get($params) {
       'order_line_id' => $dao->id,
       'order_id' => $dao->order_id,
       'title' => $dao->title,
-      'invoice_id' => $dao->invoice_id,
+      'invoice_id' => (isset($dao->invoice_id) ? $dao->invoice_id : NULL), // not used?
       'hours_billed' => $dao->hours_billed,
       'unit' => $dao->unit,
       'cost' => $dao->cost,

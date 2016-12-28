@@ -8,6 +8,7 @@
 class CRM_Timetrack_Form_Invoice extends CRM_Core_Form {
   public $_caseid;
   public $_invoiceid;
+  public $_action;
 
   protected $_invoicedata;
   protected $_tasksdata;
@@ -18,6 +19,7 @@ class CRM_Timetrack_Form_Invoice extends CRM_Core_Form {
   function preProcess() {
     $this->_caseid = CRM_Utils_Request::retrieve('case_id', 'Integer', $this, FALSE, NULL);
     $this->_invoiceid = CRM_Utils_Request::retrieve('invoice_id', 'Integer', $this, FALSE, NULL);
+    $this->_action = CRM_Utils_Request::retrieve('action', 'String', $this, FALSE, NULL);
 
     if ($this->_invoiceid) {
       // Editing an existing invoice. Fetch the invoice data for setDefaultValues() later.
@@ -68,9 +70,18 @@ class CRM_Timetrack_Form_Invoice extends CRM_Core_Form {
     if ($this->_invoicedata) {
       $defaults = array_merge($defaults, $this->_invoicedata);
 
+      if ($this->_action == 'clone') {
+        unset($defaults['ledger_order_id']);
+        unset($defaults['ledger_bill_id']);
+        unset($defaults['created_date']);
+      }
+
       // FIXME: I don't understan jcalendar widgets and it's date formats..
       if (! empty($defaults['created_date'])) {
         $defaults['created_date'] = date('m/d/Y', strtotime($defaults['created_date']));
+      }
+      else {
+        $defaults['created_date'] = date('m/d/Y');
       }
 
       foreach ($this->_tasksdata as $key => $val) {
@@ -95,10 +106,18 @@ class CRM_Timetrack_Form_Invoice extends CRM_Core_Form {
 
   function buildQuickForm() {
     if ($this->_invoiceid) {
-      CRM_Utils_System::setTitle(ts('Edit invoice %1 for project %2', array(
-        1 => $this->_invoicedata['title'],
-        2 => $this->_invoicedata['case_subject']
-      )));
+      if ($this->_action == 'clone') {
+        CRM_Utils_System::setTitle(ts('New invoice for project %2 based on %1', array(
+          1 => $this->_invoicedata['title'],
+          2 => $this->_invoicedata['case_subject']
+        )));
+      }
+      else {
+        CRM_Utils_System::setTitle(ts('Edit invoice %1 for project %2', array(
+          1 => $this->_invoicedata['title'],
+          2 => $this->_invoicedata['case_subject']
+        )));
+      }
     }
     else {
       $case_title = CRM_Timetrack_Utils::getCaseSubject($this->_caseid);
@@ -106,9 +125,14 @@ class CRM_Timetrack_Form_Invoice extends CRM_Core_Form {
     }
 
     $this->add('hidden', 'caseid', $this->_caseid);
-    $this->add('hidden', 'invoiceid', $this->_invoiceid);
 
-    CRM_Timetrack_Form_InvoiceCommon::buildForm($this, $this->_tasksdata);
+    if ($this->_action != 'clone') {
+      $this->add('hidden', 'invoiceid', $this->_invoiceid);
+    }
+
+    CRM_Timetrack_Form_InvoiceCommon::buildForm($this, $this->_tasksdata, [
+      'invoice_other_only' => TRUE,
+    ]);
 
     $this->addButtons(array(
       array(

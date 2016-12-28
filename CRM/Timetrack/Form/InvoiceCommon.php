@@ -12,7 +12,7 @@ class CRM_Timetrack_Form_InvoiceCommon {
   /**
    *
    */
-  static function buildForm(&$form, $tasks) {
+  static function buildForm(&$form, $tasks, $options = []) {
     $form->addEntityRef('invoice_from_id', ts('Invoice from'), array(
       'create' => FALSE,
       'api' => array('extra' => array('email')),
@@ -26,15 +26,19 @@ class CRM_Timetrack_Form_InvoiceCommon {
     $form->add('text', 'ledger_order_id', ts('Ledger order ID'), 'size="7"', FALSE);
     $form->add('text', 'ledger_bill_id', ts('Ledger invoice ID'), 'size="7"', TRUE);
 
-    // NB: this should include the "extra" tasks.
+    // NB: this should already include the "extra" tasks.
     // i.e. the calling function should have added them to $tasks.
     foreach ($tasks as $key => $val) {
-      $form->addElement('text', 'task_' . $key . '_title');
-      $form->addElement('text', 'task_' . $key . '_hours')->freeze();
-      $form->addElement('text', 'task_' . $key . '_hours_billed');
-      $form->addElement('text', 'task_' . $key . '_unit');
-      $form->addElement('text', 'task_' . $key . '_cost');
-      $form->addElement('text', 'task_' . $key . '_amount');
+      $form->add('text', 'task_' . $key . '_title', ts('Task %1 title', [1=>$key]), 'size="35"');
+
+      if (empty($options['invoice_other_only'])) {
+        $form->addElement('text', 'task_' . $key . '_hours')->freeze();
+      }
+
+      $form->add('text', 'task_' . $key . '_hours_billed', ts('Task %1 hours billed', [1=>$key]), 'size="6" style="text-align: right"');
+      $form->add('text', 'task_' . $key . '_unit', ts('Task %1 unit', [1=>$key]), 'size="9"');
+      $form->add('text', 'task_' . $key . '_cost', ts('Task %1 cost per unit', [1=>$key]), 'size="6" style="text-align: right"');
+      $form->add('text', 'task_' . $key . '_amount', ts('Task %1 line total', [1=>$key]), 'size="9" style="text-align: right"');
     }
 
     $status = array_merge(array('' => ts('- select -')), CRM_Timetrack_PseudoConstant::getInvoiceStatuses());
@@ -43,6 +47,8 @@ class CRM_Timetrack_Form_InvoiceCommon {
     $form->add('text', 'deposit_reference', ts('Deposit reference'));
     $form->add('textarea', 'details_public', ts('Notes for the client'));
     $form->add('textarea', 'details_private', ts('Internal notes'));
+
+    $form->assign('timetrack_invoice_options', $options);
   }
 
   /**
@@ -65,10 +71,10 @@ class CRM_Timetrack_Form_InvoiceCommon {
     }
 
     for ($key = 0; $key < CRM_Timetrack_Form_Invoice::EXTRA_LINES; $key++) {
-      $total_hours_billed += $params['task_extra' . $key . '_hours_billed'];
+      if (isset($params['task_extra' . $key . '_hours_billed'])) {
+        $total_hours_billed += $params['task_extra' . $key . '_hours_billed'];
+      }
     }
-
-    $params['deposit_date'] = date('Ymd', strtotime($params['deposit_date']));
 
     // NB: created_date can't be set manually becase it is a timestamp
     // and the DB layer explicitely ignores timestamps (there is a trigger
@@ -91,6 +97,7 @@ class CRM_Timetrack_Form_InvoiceCommon {
     }
 
     if ($params['deposit_date']) {
+      $params['deposit_date'] = date('Ymd', strtotime($params['deposit_date']));
       $apiparams['deposit_date'] = $params['deposit_date'];
     }
 

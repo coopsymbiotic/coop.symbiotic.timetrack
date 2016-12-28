@@ -183,7 +183,7 @@ class CRM_Timetrack_Case_Page_CaseView {
       'state' => ts('Status', array('domain' => 'coop.symbiotic.timetrack')),
       'deposit_date' => ts('Deposit', array('domain' => 'coop.symbiotic.timetrack')),
       'deposit_reference' => ts('Reference', array('domain' => 'coop.symbiotic.timetrack')),
-      'generate' => ts('Generate', array('domain' => 'coop.symbiotic.timetrack')),
+      'generate' => ts('Actions', array('domain' => 'coop.symbiotic.timetrack')),
     );
 
     $smarty->assign('timetrack_headers', $headers);
@@ -218,7 +218,9 @@ class CRM_Timetrack_Case_Page_CaseView {
           . "<div class='crm-editable' data-type='text' data-field='deposit_reference'>" . $invoice['deposit_reference'] . '</div>'
           . '</div>',
         'ledger_id' => $invoice['ledger_bill_id'],
-        'generate' => CRM_Utils_System::href(ts('Generate'), 'civicrm/timetrack/invoice/generate', array('invoice_id' => $invoice['invoice_id'])),
+        'generate' => CRM_Utils_System::href(ts('View'), 'civicrm/timetrack/invoice', array('invoice_id' => $invoice['invoice_id']))
+          . ', ' . CRM_Utils_System::href(ts('Generate'), 'civicrm/timetrack/invoice/generate', array('invoice_id' => $invoice['invoice_id']))
+          . ', ' . CRM_Utils_System::href(ts('Copy'), 'civicrm/timetrack/invoice', array('invoice_id' => $invoice['invoice_id'], 'action' => 'clone'))
       );
     }
 
