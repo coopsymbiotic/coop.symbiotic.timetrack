@@ -33,6 +33,11 @@ class CRM_Timetrack_Case_Form_Case {
   function postProcess(&$form) {
     $params = $form->exportValues();
 
+    // Only run on create/edit.
+    if ($form->_action & CRM_Core_Action::DELETE) {
+      return;
+    }
+
     // FIXME: assuming two cases are not created at the same time..   
     $case_id = CRM_Core_DAO::singleValueQuery("SELECT max(id) as id FROM civicrm_case");
 
