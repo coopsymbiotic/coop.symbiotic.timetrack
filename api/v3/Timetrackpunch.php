@@ -17,8 +17,10 @@ function civicrm_api3_timetrackpunch_get($params) {
 
   $sqlparams = array();
 
-  $sql = 'SELECT kpunch.*
+  $sql = 'SELECT kpunch.*, ktask.title as ktask_title, civicrm_case.subject as case_subject
             FROM kpunch
+            LEFT JOIN ktask on (ktask.id = kpunch.ktask_id)
+            LEFT JOIN civicrm_case on (ktask.case_id = civicrm_case.id)
            WHERE 1=1 ';
 
   if (! empty($params['id'])) {
@@ -72,12 +74,36 @@ function civicrm_api3_timetrackpunch_get($params) {
     $sql .= ' AND kpunch.begin <= UNIX_TIMESTAMP(%5)';
   }
 
+  // FIXME: should this be $params['options']['sort']?
+  // When using the http REST endpoint, it's hard to encode options
+  // other than by using &options.sort='foo'
+  if (!empty($params['options_sort'])) {
+    // Too lazy to find the correct way to avoid an SQLi
+    $valid_sorts = [
+      'id desc',
+      'begin desc',
+    ];
+    if (in_array($params['options_sort'], $valid_sorts)) {
+      $sql .= ' ORDER BY ' . $params['options_sort'];
+    }
+    else {
+      CRM_Core_Error::fatal('Invalid sort, this API call only support: ' . implode(', ', $valid_sorts));
+    }
+  }
+
+  // FIXME: add support for 'limit'
+  if (!empty($params['options_offset'])) {
+    $sql .= ' LIMIT ' . intval($params['options_offset']) . ',25';
+  }
+
   $dao = CRM_Core_DAO::executeQuery($sql, $sqlparams);
 
   while ($dao->fetch()) {
     $p = array(
       'id' => $dao->id,
       'ktask_id' => $dao->ktask_id,
+      'ktask_title' => $dao->ktask_title,
+      'case_subject' => $dao->case_subject,
       'activity_id' => $dao->ktask_id, // FIXME is this used?
       'contact_id' => $dao->contact_id,
       'begin' => $dao->begin,
@@ -140,7 +166,7 @@ function civicrm_api3_timetrackpunch_create($params) {
   $punch = new CRM_Timetrack_DAO_Punch();
 
   // contact_id param is mandatory
-  if (empty($params['contact_id'])) {
+  if (empty($params['id']) && empty($params['contact_id'])) {
     return civicrm_api3_create_error('contact_id is mandatory (Timetrackpunch create)');
   }
 
@@ -206,6 +232,8 @@ function civicrm_api3_timetrackpunch_create($params) {
     }
 
     // Check to see if the user is already punched in.
+    // NB: we do not check existing punches. This is meant to help unpunch,
+    // not police against overlapping punches.
     if (empty($params['skip_punched_in_check'])) {
       $result = civicrm_api3('Timetrackpunch', 'get', array(
         'duration' => -1,
@@ -215,16 +243,23 @@ function civicrm_api3_timetrackpunch_create($params) {
       if ($result['count'] > 0) {
         $previous_punch = $result['values'][0];
 
-        if ($start < $previous_punch['begin']) {
-          return civicrm_api3_create_error(ts('Error: Trying to set end of previous punch before it began (%1).', array(1 => date('Y-m-d h:i:s', $previous_punch['begin']))));
+        if ($begin < $previous_punch['begin']) {
+          return civicrm_api3_create_error(ts('Error: Trying to set end of previous punch before it began (begin: %1, end: %2).', array(
+            1 => date('Y-m-d h:i:s', $previous_punch['begin']),
+            2 => date('Y-m-d h:i:s', $begin))));
         }
         else {
           // Adjust the end of the previous punch.
-          $previous_punch['duration'] = $start - $previous_punch['begin'] - 1;
-          $result = civicrm_api('Timetrackpunch', 'create', $previous_punch);
+          // Not using the API for this, since kind of creates a weird loop.
+          $previous_punch['duration'] = $begin - $previous_punch['begin'] - 1;
+
+          CRM_Core_DAO::executeQuery('UPDATE kpunch SET duration = %1 WHERE id = %2', array(
+            1 => array($previous_punch['duration'], 'Positive'),
+            2 => array($previous_punch['id'], 'Positive'),
+          ));
 
           $extra_comments[] = ts('punched out of %1 (%2), worked %3 hours.', array(
-            1 => $result['case_subject'] . ' / ' . $result['ktask_title'],
+            1 => $previous_punch['case_subject'] . ' / ' . $previous_punch['ktask_title'],
             2 => CRM_Timetrack_Utils::roundUpSeconds($previous_punch['duration'], 1),
             3 => $previous_punch['comment'],
           ));
@@ -233,7 +268,10 @@ function civicrm_api3_timetrackpunch_create($params) {
     }
 
     // Check for overlapping punches.
-    if (empty($params['skip_overlap_check'])) {
+// [ML] we don't really care about overlapping punches.
+// There are more legitimate cases for it, than against it.
+/*
+    if (empty($params['skip_overlap_check']) && empty($params['id'])) {
       $test_punch = array(
         'id' => $task['id'],
         'contact_id' => $params['contact_id'],
@@ -245,16 +283,19 @@ function civicrm_api3_timetrackpunch_create($params) {
       // NB: throws an exception if it fails.
       timetrack_punch_validate($test_punch);
     }
+*/
 
     $params['begin'] = $begin;
   }
   else {
-    // TODO: should be mysql datetime
-    $params['begin'] = time();
+    if (empty($params['id'])) {
+      // TODO: should be mysql datetime
+      $params['begin'] = time();
+    }
   }
 
   // Check if need to un-punch (semi-redundant with previous check, if begin was provided).
-  if (empty($params['skip_punched_in_check'])) {
+  if (empty($params['skip_punched_in_check']) && empty($params['id'])) {
     $result = civicrm_api3('Timetrackpunch', 'get', array(
       'duration' => -1,
       'contact_id' => $params['contact_id'],
@@ -297,10 +338,12 @@ function civicrm_api3_timetrackpunch_create($params) {
   _civicrm_api3_object_to_array($punch, $values[$punch->id]);
 
   // Fetch task title
-  $task = civicrm_api3('Timetracktask', 'getsingle', array('id' => $params['ktask_id']));
-  $values[$punch->id]['ktask_title'] = $task['title'];
-  $values[$punch->id]['case_subject'] = $task['case_subject'];
-  $values[$punch->id]['extra_comments'] = implode(';', $extra_comments);
+  $pid = $punch->id;
+  $punch = civicrm_api3('Timetrackpunch', 'getsingle', array('id' => $pid));
+  $task = civicrm_api3('Timetracktask', 'getsingle', array('id' => $punch['ktask_id']));
+  $values[$pid]['ktask_title'] = $task['title'];
+  $values[$pid]['case_subject'] = $task['case_subject'];
+  $values[$pid]['extra_comments'] = implode(';', $extra_comments);
 
   return civicrm_api3_create_success($values, $params);
 }
@@ -473,18 +516,17 @@ function timetrack_convert_punch_start_to_timestamp($time_to_convert = NULL) {
  */
 function timetrack_punch_validate($punch) {
   $sql = 'SELECT * FROM kpunch k
-           WHERE k.ktask_id = %1 AND k.contact_id = %2
+           WHERE k.contact_id = %2
              AND (
                (%3 >= k.begin AND %3 <= (k.begin + k.duration))
                OR (%4 >= k.begin AND %4 <= (k.begin + k.duration))
-               OR ((k.begin >= %3) AND (k.begin <= %3))
+               OR ((k.begin >= %3) AND (k.begin <= %4))
              )
            ORDER BY k.id DESC';
 
   $params = array(
-    1 => array($punch['ktask_id'], 'Positive'),
     2 => array($punch['contact_id'], 'Positive'),
-    3 => array($punch['begin'], 'Positive'), // Mysql timestamp
+    3 => array($punch['begin'], 'Positive'), // Mysql timestamp FIXME
     4 => array($punch['begin'] + $punch['duration'], 'Positive'), // Mysql timestamp
   );
 
