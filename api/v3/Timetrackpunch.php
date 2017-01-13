@@ -196,11 +196,13 @@ function civicrm_api3_timetrackpunch_create($params) {
     }
   }
 
-  if (empty($params['ktask_id'])) {
+  if (empty($params['ktask_id']) && empty($params['id'])) {
     return civicrm_api3_create_error('ktask_id is mandatory (Timetrackpunch create)');
   }
 
-  if (empty($params['skip_open_case_check'])) {
+  // Check if we are punching in an open case
+  // only applies to new punches, not when editing a punch.
+  if (empty($params['skip_open_case_check']) && empty($params['id'])) {
     if (! isset($caseStatuses)) {
       $caseStatuses = CRM_Timetrack_Utils::getCaseOpenStatuses();
     }
