@@ -122,16 +122,14 @@ class CRM_Timetrack_Utils {
   static function getUsers() {
     $users = array('' => ts('- select -'));
 
-    $sql = 'SELECT uf.uf_id, c.display_name
-              FROM civicrm_contact c
-             INNER JOIN civicrm_uf_match uf ON (uf.contact_id = c.id)';
+    $sql = 'SELECT c.id, c.display_name
+              FROM civicrm_uf_match uf
+        INNER JOIN civicrm_contact c ON (uf.contact_id = c.id)';
 
-    $params = array();
-
-    $dao = CRM_Core_DAO::executeQuery($sql, $params);
+    $dao = CRM_Core_DAO::executeQuery($sql);
 
     while ($dao->fetch()) {
-      $users[$dao->uf_id] = $dao->display_name;
+      $users[$dao->id] = $dao->display_name;
     }
 
     return $users;
