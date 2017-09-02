@@ -92,6 +92,11 @@ class CRM_Timetrack_Case_Page_CaseView {
       'value' => $this->getListOfInvoice($case_id),
     );
 
+    $summary['timetrack_invoice_task_overview'] = array(
+      'label' => '',
+      'value' => $this->getInvoiceTaskOverview($case_id),
+    );
+
     return $summary;
   }
 
@@ -112,7 +117,6 @@ class CRM_Timetrack_Case_Page_CaseView {
       'state' => ts('Status'),
       'begin' => ts('Begin'),
       'end' => ts('End'),
-      'lead' => ts('Lead'),
     );
 
     $smarty->assign('timetrack_headers', $headers);
@@ -151,7 +155,6 @@ class CRM_Timetrack_Case_Page_CaseView {
         'state' => $taskStatuses[$task['state']],
         'begin' => substr($task['begin'], 0, 10), // TODO format date l10n
         'end' => substr($task['end'], 0, 10), // TODO format date l10n
-        'lead' => $task['lead'],
       );
 
       $total['estimate'] += $task['estimate'];
@@ -218,14 +221,111 @@ class CRM_Timetrack_Case_Page_CaseView {
         'deposit_reference' => "<div class='crm-entity' data-entity='Timetrackinvoice' data-id='{$invoice['id']}'>"
           . "<div class='crm-editable' data-type='text' data-field='deposit_reference'>" . $invoice['deposit_reference'] . '</div>'
           . '</div>',
-        'generate' => CRM_Utils_System::href(ts('View'), 'civicrm/timetrack/invoice', array('invoice_id' => $invoice['invoice_id']))
-          . ', ' . CRM_Utils_System::href(ts('Generate'), 'civicrm/timetrack/invoice/generate', array('invoice_id' => $invoice['invoice_id']))
-          . ', ' . CRM_Utils_System::href(ts('Copy'), 'civicrm/timetrack/invoice', array('invoice_id' => $invoice['invoice_id'], 'action' => 'clone'))
+        'generate' => CRM_Utils_System::href('<i class="fa fa-pencil" aria-hidden="true" title="' . ts('Edit invoice', array('escape' => 'js', 'domain' => 'coop.symbiotic.timetrack')). '"></i>', 'civicrm/timetrack/invoice', array('invoice_id' => $invoice['invoice_id']))
+          . ' ' . CRM_Utils_System::href('<i class="fa fa-cogs" aria-hidden="true" title="' . ts('Generate invoice', array('escape' => 'js', 'domain' => 'coop.symbiotic.timetrack')) . '"></i>', 'civicrm/timetrack/invoice/generate', array('invoice_id' => $invoice['invoice_id']))
+          . ' ' . CRM_Utils_System::href('<i class="fa fa-files-o" aria-hidden="true" title="' . ts('Copy invoice as new', array('escape' => 'js', 'domain' => 'coop.symbiotic.timetrack')) . '"></i>', 'civicrm/timetrack/invoice', array('invoice_id' => $invoice['invoice_id'], 'action' => 'clone'))
       );
     }
 
     $smarty->assign('timetrack_rows', $rows);
 
+    return $smarty->fetch('CRM/Timetrack/Page/Snippets/AccordionTable.tpl');
+  }
+
+  /**
+   *
+   */
+  function getInvoiceTaskOverview($case_id) {
+    $smarty = CRM_Core_Smarty::singleton();
+
+    $smarty->assign('timetrack_header_idcss', 'caseview-invoice-task-recap');
+    $smarty->assign('timetrack_header_title', ts('Invoicing, per task', array('domain' => 'ca.bidon.timetrack')));
+
+    $rows = [];
+
+    // FIXME ts() domain.
+    $headers = array(
+      'title' => ts('Task'),
+      'estimate' => ts('Estimate'),
+    );
+
+    $rows = [];
+    $tasks = [];
+
+    // Fetch all tasks on the project, to make sure we list them all in the overview,
+    // not just list tasks that have been invoiced already.
+    $result = civicrm_api3('Timetracktask', 'get', array(
+      'case_id' => $case_id,
+      'skip_open_case_check' => 1,
+      'option.limit' => 0,
+    ));
+
+    foreach ($result['values'] as $key => $val) {
+      $rows[$key] = [
+        'title' => $val['title'],
+        'estimate' => $val['estimate'],
+      ];
+    }
+
+    $total = array(
+      'title' => ts('Total'),
+      'estimate' => 0,
+    );
+
+    $dao = CRM_Core_DAO::executeQuery('SELECT o.ledger_bill_id, o.title, t.title as ktask_title, t.estimate, t.id as ktask_id, l.hours_billed
+      FROM korder_line l
+      LEFT JOIN korder o ON (o.id = l.order_id)
+      LEFT JOIN ktask t ON (t.id = l.ktask_id)
+      WHERE t.case_id = %1
+      GROUP BY t.id, o.id
+      ORDER BY o.id ASC', [
+      1 => [$case_id, 'Positive'],
+    ]);
+
+    while ($dao->fetch()) {
+      $headers[$dao->ledger_bill_id] = '#' . $dao->ledger_bill_id;
+
+      if (!isset($total[$dao->ktask_id])) {
+        $total[$dao->ktask_id] = 0;
+      }
+
+      if (!isset($tasks[$dao->ktask_id])) {
+        $tasks[$dao->ktask_id] = 0;
+      }
+
+      $rows[$dao->ktask_id][$dao->ledger_bill_id] = $dao->hours_billed;
+      $total[$dao->ledger_bill_id] += $dao->hours_billed;
+      $tasks[$dao->ktask_id] += $dao->hours_billed;
+    }
+
+    $headers['total'] = ts('Total');
+    $headers['available'] = ts('Available');
+
+    // Calculate the total time invoiced, per task
+    foreach ($tasks as $key => $val) {
+      $rows[$key]['total'] = $val;
+    }
+
+    // Calculate the total estimates, per task
+    // as well as the available budget left.
+    foreach ($rows as $key => $val) {
+      $total['estimate'] += $val['estimate'];
+      $rows[$key]['available'] = $val['estimate'] - $val['total'];
+    }
+
+    // Now calculate the total of totals, and total available budget.
+    $total['total'] = 0;
+    $total['available'] = 0;
+
+    foreach ($rows as $key => $val) {
+      $total['total'] += $val['total'];
+      $total['available'] += $val['available'];
+    }
+
+    $rows[] = $total;
+
+    $smarty->assign('timetrack_headers', $headers);
+    $smarty->assign('timetrack_rows', $rows);
     return $smarty->fetch('CRM/Timetrack/Page/Snippets/AccordionTable.tpl');
   }
 
