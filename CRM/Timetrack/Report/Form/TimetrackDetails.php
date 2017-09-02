@@ -70,7 +70,7 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
             'type' => CRM_Utils_Type::T_INT,
           ),
           'contact_id' => array(
-            'title' => ts('User'),
+            'title' => ts('Contact'),
             'default' => TRUE,
             'type' => CRM_Utils_Type::T_STRING,
           ),
