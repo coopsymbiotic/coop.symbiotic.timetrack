@@ -239,7 +239,7 @@ class CRM_Timetrack_Case_Page_CaseView {
     $smarty = CRM_Core_Smarty::singleton();
 
     $smarty->assign('timetrack_header_idcss', 'caseview-invoice-task-recap');
-    $smarty->assign('timetrack_header_title', ts('Invoicing, per task', array('domain' => 'ca.bidon.timetrack')));
+    $smarty->assign('timetrack_header_title', ts('Invoicing, per task', array('domain' => 'coop.symbiotic.timetrack')));
 
     $rows = [];
 
