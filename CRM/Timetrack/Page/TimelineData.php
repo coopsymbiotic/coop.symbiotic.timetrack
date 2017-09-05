@@ -19,7 +19,7 @@ class CRM_Timetrack_Page_TimelineData extends CRM_Core_Page {
     $session = CRM_Core_Session::singleton();
 
     $result = civicrm_api3('Timetrackpunch', 'get', array(
-      'contact_id' => $session->get('ufID'),
+      'contact_id' => $session->get('userID'),
       'filter.begin_low' => str_replace('-', '', $from) . '000001',
       'filter.begin_high' => str_replace('-', '', $to) . '235959',
     ));

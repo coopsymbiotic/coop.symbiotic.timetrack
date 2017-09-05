@@ -68,7 +68,7 @@ class CRM_Timetrack_Form_Punch extends CRM_Core_Form {
 
       // Default to current user.
       $session = CRM_Core_Session::singleton();
-      $defaults['contact_id'] = $session->get('ufID');
+      $defaults['contact_id'] = $session->get('userID');
     }
 
     return $defaults;

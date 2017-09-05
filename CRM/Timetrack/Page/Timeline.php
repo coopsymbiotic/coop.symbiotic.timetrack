@@ -18,7 +18,7 @@ class CRM_Timetrack_Page_Timeline extends CRM_Core_Page {
     ));
 
     $users[] = array(
-      'key' => $session->get('ufID'), // FIXME should be userID (contact_id)
+      'key' => $session->get('userID'),
       'label' => $contact['display_name'],
     );
 
