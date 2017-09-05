@@ -60,7 +60,7 @@ class CRM_Timetrack_Form_SearchTask extends CRM_Core_Form {
         }
       }
     }
-    elseif ($value['radio_ts'] == 'ts_all') {
+    elseif ($values['radio_ts'] == 'ts_all') {
       // FIXME: this duplicates codes from CRM_Timetrack_Form_Search_TimetrackPunches
       // it might not really be necessary, if the 'contact' hack works?
       // but might be better to keep it (and refactor), so that we can avoid that hack.
