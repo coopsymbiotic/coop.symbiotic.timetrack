@@ -3,7 +3,7 @@
 /**
  * 
  */
-class CRM_Timetrack_Form_Search_TimetrackPunches implements CRM_Contact_Form_Search_Interface {
+class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search_Custom_Base implements CRM_Contact_Form_Search_Interface {
   protected $_formValues;
   protected $_tableName;
   protected $_tables;
@@ -11,6 +11,8 @@ class CRM_Timetrack_Form_Search_TimetrackPunches implements CRM_Contact_Form_Sea
   protected $_permissionWhereClause;
 
   function __construct(&$formValues) {
+    parent::__construct($formValues);
+
     $this->_formValues = $formValues;
     $this->_tables = array();
     $this->_whereTables = array();
@@ -144,7 +146,8 @@ class CRM_Timetrack_Form_Search_TimetrackPunches implements CRM_Contact_Form_Sea
    */
   function all($offset = 0, $rowcount = 0, $sort = null, $includeContactIDs = FALSE, $onlyIDs = FALSE) {
     // XXX: kpunch.id as contact_id is a hack because the tasks require it for the checkboxes.
-    $select = "kpunch.id as pid, kpunch.id as contact_id, kpunch.contact_id, from_unixtime(kpunch.begin) as begin, kpunch.duration,
+    // FIXME: do we use the 'real_contact_id'? (was uid).
+    $select = "kpunch.id as pid, kpunch.id as contact_id, kpunch.contact_id as real_contact_id, from_unixtime(kpunch.begin) as begin, kpunch.duration,
                kpunch.duration as duration_rounded, kpunch.comment, kpunch.korder_id as invoice_id,
                korder.state as order_state,
                kt.title as task,

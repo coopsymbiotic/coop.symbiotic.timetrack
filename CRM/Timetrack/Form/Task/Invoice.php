@@ -3,7 +3,7 @@
 /**
  * This class provides the functionality to invoice punches.
  */
-class CRM_Timetrack_Form_Task_Invoice extends CRM_Contact_Form_Task {
+class CRM_Timetrack_Form_Task_Invoice extends CRM_Timetrack_Form_SearchTask {
   protected $defaults;
   protected $punchIds;
 
@@ -168,7 +168,7 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Contact_Form_Task {
    * from a random punch.
    */
   function getCaseID() {
-    $pid = $this->_contactIds[0];
+    $pid = $this->_componentIds[0];
 
     $sql = "SELECT case_id
             FROM kpunch
@@ -217,17 +217,7 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Contact_Form_Task {
   }
 
   function getPunchIds() {
-    if (isset($this->punchIds)) {
-      return $this->punchIds;
-    }
-
-    $this->punchIds = array();
-
-    foreach ($this->_contactIds as $cid) {
-      $this->punchIds[] = intval($cid);
-    }
-
-    return $this->punchIds;
+    return $this->_componentIds;
   }
 
   function getTotalHours($punches, $field = 'duration') {
