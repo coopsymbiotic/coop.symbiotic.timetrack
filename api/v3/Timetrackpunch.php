@@ -320,8 +320,13 @@ function civicrm_api3_timetrackpunch_create($params) {
     }
   }
 
+  if (!empty($params['duration_hours'])) {
+    $params['duration'] = $params['duration_hours'] * 3600;
+  }
+
   // No duration means that we are punching in (not punched out yet).
-  if (empty($params['duration'])) {
+  // Except if we're updating the comment on an existing punch.
+  if (empty($params['duration']) && empty($params['id'])) {
     $params['duration'] = -1;
   }
 

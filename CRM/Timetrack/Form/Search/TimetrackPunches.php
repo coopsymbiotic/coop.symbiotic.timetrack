@@ -27,7 +27,7 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
       ts('Punch') => 'pid',
       ts('Worker') => 'real_contact_id',
       ts('Begin') => 'begin',
-      ts('Duration') => 'duration',
+      ts('Duration') => 'duration_hours',
       ts('Rounded') => 'duration_rounded',
       ts('Comment') => 'comment',
       ts('Billing') => 'invoice_id',
@@ -146,7 +146,7 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
    */
   function all($offset = 0, $rowcount = 0, $sort = null, $includeContactIDs = FALSE, $onlyIDs = FALSE) {
     // XXX: kpunch.id as contact_id is a hack because the tasks require it for the checkboxes.
-    $select = "kpunch.id as pid, kpunch.id as contact_id, kpunch.contact_id as real_contact_id, from_unixtime(kpunch.begin) as begin, kpunch.duration,
+    $select = "kpunch.id as pid, kpunch.id as contact_id, kpunch.contact_id as real_contact_id, from_unixtime(kpunch.begin) as begin, kpunch.duration as duration_hours,
                kpunch.duration as duration_rounded, kpunch.comment, kpunch.korder_id as invoice_id,
                korder.state as order_state,
                kt.title as task,
@@ -319,7 +319,7 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
    * Implements alterRow().
    */
   function alterRow(&$row) {
-    $row['duration'] = CRM_Timetrack_Utils::roundUpSeconds($row['duration'], 1);
+    $row['duration_hours'] = CRM_Timetrack_Utils::roundUpSeconds($row['duration_hours'], 1);
     $row['duration_rounded'] = CRM_Timetrack_Utils::roundUpSeconds($row['duration_rounded']);
 
     // Keep a cache of tasks for each case_id
@@ -342,7 +342,7 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
     }
 
     // Allow user to edit punch duration, comment and task type.
-    $row['duration'] = "<div class='crm-entity' data-entity='Timetrackpunch' data-id='{$row['pid']}'><div class='crm-editable' data-field='duration'>" . $row['duration'] . '</div></div>';
+    $row['duration_hours'] = "<div class='crm-entity' data-entity='Timetrackpunch' data-id='{$row['pid']}'><div class='crm-editable' data-field='duration_hours'>" . $row['duration_hours'] . '</div></div>';
     $row['comment'] = "<div class='crm-entity' data-entity='Timetrackpunch' data-id='{$row['pid']}'><div class='crm-editable' data-field='comment'>" . $row['comment'] . '</div></div>';
 
     $options = json_encode($task_cache[$case_id]);
