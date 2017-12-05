@@ -161,6 +161,10 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Timetrack_Form_SearchTask {
     }
 
     CRM_Core_Session::setStatus(ts('The order #%1 has been saved.', array(1 => $order_id)), '', 'success');
+
+    // Redirect back to the case.
+    $url = CRM_Timetrack_Utils::getCaseUrl($case_id);
+    CRM_Utils_System::redirect($url);
   }
 
   /**
