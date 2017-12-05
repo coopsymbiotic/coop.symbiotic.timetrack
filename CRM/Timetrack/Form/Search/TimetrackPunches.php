@@ -118,6 +118,9 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
       'template' => 'CRM/common/crmeditable.tpl',
       'weight' => 100,
     ));
+
+    // Hide the action links, since they only work for contacts.
+    Civi::resources()->addStyle('.crm-search-results tbody > tr > td:last-child { display: none; }');
   }
 
   function setDefaultValues() {
@@ -327,6 +330,7 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
     // which can lookup option values when necessary (i.e. if the user clicks a field).
     static $task_cache = array();
     $case_id = $row['case_id'];
+    $pid = $row['pid'];
 
     if (! isset($task_cache[$case_id])) {
       $task_cache[$case_id] = array();
@@ -341,12 +345,16 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
       }
     }
 
+    // Link the pid to the punch edit form
+    $url = CRM_Utils_System::url('civicrm/timetrack/punch', array('reset' => 1, 'cid' => $case_id, 'pid' => $pid));
+    $row['pid'] = "<a class='crm-popup' href='$url'>" . $row['pid'] . '</a>';
+
     // Allow user to edit punch duration, comment and task type.
-    $row['duration_hours'] = "<div class='crm-entity' data-entity='Timetrackpunch' data-id='{$row['pid']}'><div class='crm-editable' data-field='duration_hours'>" . $row['duration_hours'] . '</div></div>';
-    $row['comment'] = "<div class='crm-entity' data-entity='Timetrackpunch' data-id='{$row['pid']}'><div class='crm-editable' data-field='comment'>" . $row['comment'] . '</div></div>';
+    $row['duration_hours'] = "<div class='crm-entity' data-entity='Timetrackpunch' data-id='{$pid}'><div class='crm-editable' data-field='duration_hours'>" . $row['duration_hours'] . '</div></div>';
+    $row['comment'] = "<div class='crm-entity' data-entity='Timetrackpunch' data-id='{$pid}'><div class='crm-editable' data-field='comment'>" . $row['comment'] . '</div></div>';
 
     $options = json_encode($task_cache[$case_id]);
-    $row['task'] = "<div class='crm-entity' data-entity='Timetrackpunch' data-id='{$row['pid']}'><div class='crm-editable' data-field='ktask_id' data-type='select' data-options='$options'>" . $row['task'] . '</div></div>';
+    $row['task'] = "<div class='crm-entity' data-entity='Timetrackpunch' data-id='{$pid}'><div class='crm-editable' data-field='ktask_id' data-type='select' data-options='$options'>" . $row['task'] . '</div></div>';
 
     if (! empty($row['case_subject'])) {
       $contact_id = CRM_Timetrack_Utils::getCaseContact($case_id);
