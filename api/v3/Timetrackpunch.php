@@ -229,10 +229,6 @@ function civicrm_api3_timetrackpunch_create($params) {
       return civicrm_api3_create_error(ts('Begin time format error (%1). Choose from 00:00, YYYY-MM-DD 00:00, 0m, 0min, 0h, 0hour.', array(1 => $params['begin'])));
     }
 
-    if ($begin > time()) {
-      return civicrm_api3_create_error(ts('Error: Cannot start punch later than now.'));
-    }
-
     // Check to see if the user is already punched in.
     // NB: we do not check existing punches. This is meant to help unpunch,
     // not police against overlapping punches.
