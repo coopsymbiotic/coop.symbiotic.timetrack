@@ -81,6 +81,7 @@ CREATE TABLE `ktask` (
   `end` int(11) DEFAULT NULL,
   `lead` int(11) DEFAULT NULL,
   `title` varchar(255) DEFAULT '',
+  `description` text DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `state` (`state`),
   KEY `parent` (`parent`),

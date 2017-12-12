@@ -95,6 +95,7 @@ class CRM_Timetrack_Form_Task extends CRM_Core_Form {
     );
 
     $this->addEntityRef('lead', $field['label'], $field['attributes'], FALSE);
+    $this->add('wysiwyg', 'description', ts('Description/notes'));
 
     $this->addButtons(array(
       array(

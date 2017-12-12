@@ -87,4 +87,11 @@
     <add>1.0</add>
     <comment>Task title, short description.</comment>
   </field>
+  <field>
+    <name>description</name>
+    <type>wysiwyg</type>
+    <required>false</required>
+    <add>1.1</add>
+    <comment>Task description or notes.</comment>
+  </field>
 </table>
