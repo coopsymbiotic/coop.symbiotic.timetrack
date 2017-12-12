@@ -33,6 +33,10 @@ function civicrm_api3_timetrackinvoice_get($params) {
     $sql .= ' AND ko.id = %1';
     $sqlparams[1] = array($invoice_id, 'Positive');
   }
+  elseif ($invoice_id = CRM_Utils_Array::value('timetrack_invoice_id', $params)) {
+    $sql .= ' AND ko.id = %1';
+    $sqlparams[1] = array($invoice_id, 'Positive');
+  }
   elseif ($invoice_id = CRM_Utils_Array::value('id', $params)) {
     $sql .= ' AND ko.id = %1';
     $sqlparams[1] = array($invoice_id, 'Positive');

@@ -41,7 +41,7 @@ class CRM_Timetrack_Form_InvoiceCommon {
       $form->add('text', 'task_' . $key . '_amount', ts('Task %1 line total', [1=>$key]), 'size="9" style="text-align: right"');
     }
 
-    $status = array_merge(array('' => ts('- select -')), CRM_Timetrack_PseudoConstant::getInvoiceStatuses());
+    $status = CRM_Timetrack_PseudoConstant::getInvoiceStatuses();
     $form->add('select', 'state', ts('Status'), $status);
     $form->addDate('deposit_date', ts('Deposit date'));
     $form->add('text', 'deposit_reference', ts('Deposit reference'));
