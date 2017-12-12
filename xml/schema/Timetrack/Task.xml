@@ -89,9 +89,14 @@
   </field>
   <field>
     <name>description</name>
-    <type>wysiwyg</type>
+    <type>longtext</type>
     <required>false</required>
     <add>1.1</add>
     <comment>Task description or notes.</comment>
+    <html>
+      <type>RichTextEditor</type>
+      <rows>4</rows>
+      <cols>60</cols>
+    </html>
   </field>
 </table>
