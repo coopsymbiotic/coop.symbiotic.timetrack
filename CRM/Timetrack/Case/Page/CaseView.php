@@ -233,7 +233,7 @@ class CRM_Timetrack_Case_Page_CaseView {
   }
 
   /**
-   *
+   * Returns a rendered HTML table overview of the invoicing, per task.
    */
   function getInvoiceTaskOverview($case_id) {
     $smarty = CRM_Core_Smarty::singleton();
@@ -274,8 +274,8 @@ class CRM_Timetrack_Case_Page_CaseView {
 
     $dao = CRM_Core_DAO::executeQuery('SELECT o.ledger_bill_id, o.title, t.title as ktask_title, t.estimate, t.id as ktask_id, l.hours_billed
       FROM korder_line l
-      LEFT JOIN korder o ON (o.id = l.order_id)
-      LEFT JOIN ktask t ON (t.id = l.ktask_id)
+      INNER JOIN korder o ON (o.id = l.order_id)
+      INNER JOIN ktask t ON (t.id = l.ktask_id)
       WHERE t.case_id = %1
       GROUP BY t.id, o.id
       ORDER BY o.id ASC', [
