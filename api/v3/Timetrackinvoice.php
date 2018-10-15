@@ -53,7 +53,7 @@ function civicrm_api3_timetrackinvoice_get($params) {
   }
 
   // FIXME: should respect API options groupby
-  $sql .= ' ORDER BY created_date DESC';
+  $sql .= ' ORDER BY created_date DESC, invoice_id DESC';
 
   $dao = CRM_Core_DAO::executeQuery($sql, $sqlparams);
 
