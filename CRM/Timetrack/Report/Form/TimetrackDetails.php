@@ -142,7 +142,7 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
 
   function preProcess() {
     $this->assign('reportTitle', ts("Timetrack detailed report"));
-    CRM_Core_Resources::singleton()->addStyleFile('coop.symbiotic.timetrack', 'css/crm-timetrack-report-timetrackdetails.css');
+    Civi::resources()->addStyleFile('coop.symbiotic.timetrack', 'css/crm-timetrack-report-timetrackdetails.css');
 
     parent::preProcess();
   }

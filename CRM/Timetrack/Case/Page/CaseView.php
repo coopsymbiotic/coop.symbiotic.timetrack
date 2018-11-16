@@ -7,7 +7,7 @@ class CRM_Timetrack_Case_Page_CaseView {
   function caseSummary($case_id) {
     $summary = array();
 
-    CRM_Core_Resources::singleton()->addStyleFile('coop.symbiotic.timetrack', 'css/crm-timetrack-case-page-caseview.css');
+    Civi::resources()->addStyleFile('coop.symbiotic.timetrack', 'css/crm-timetrack-case-page-caseview.css');
 
     $dao = CRM_Core_DAO::executeQuery('SELECT * FROM kcontract WHERE case_id = %1', array(
       1 => array($case_id, 'Positive'),
