@@ -196,6 +196,11 @@ function civicrm_api3_timetrackpunch_create($params) {
     }
   }
 
+  // Comments are now mandatory for new punches
+  if (empty($params['id']) && empty($params['comment'])) {
+    return civicrm_api3_create_error(ts('Please enter a short comment or issue reference to describe your work.'));
+  }
+
   if (empty($params['ktask_id']) && empty($params['id'])) {
     return civicrm_api3_create_error('ktask_id is mandatory (Timetrackpunch create)');
   }
