@@ -49,24 +49,33 @@ CRM.$(function($) {
   scheduler.load(CRM.url('civicrm/timetrack/timeline-data'), 'json');
 
   // Handling of new punches or edits (events on the timeline).
-  var dp = new dataProcessor(CRM.url('civicrm/timetrack/timeline-data'));
+  // If we don't append a '?', it will suffix an ID at the end of the URL, causing a 404,
+  // because it assumes a normal REST API, ex: /api/v1/punch/1234
+  // The ID is also useful when deleting a punch.
+  var dp = new dataProcessor(CRM.url('civicrm/timetrack/timeline-data') + '?id=');
   dp.init(scheduler);
-  dp.setTransactionMode("POST");
+  dp.setTransactionMode("REST");
 
-  // Show feedback messages
-  // TODO: might be cleaner to handle the actual save/create/delete from here?
-  // (for better handling of error messages)
-  scheduler.attachEvent("onEventDeleted", function(id, ev) {
-    CRM.alert(ts('Punch #%1 has been deleted.', {1: ev.id}), ts('Deleted'), 'success');
+  dp.attachEvent("onAfterUpdate", function(id, action, tid, response) {
+    if (action == 'error') {
+      CRM.alert(response.error_message, ts('Error'), 'error');
+
+      scheduler.getEvent(tid)._text_style = 'color: black; background: red;';
+      scheduler.updateEvent(tid);
+    }
+    else if (action == 'deleted') {
+      CRM.alert(ts('Punch #%1 has been deleted.', {1: tid}), ts('Deleted'), 'success');
+    }
+    else if (action == 'updated') {
+      CRM.alert(ts('Punch #%1 has been updated.', {1: tid}), ts('Updated'), 'success');
+    }
+    else if (action == 'inserted') {
+      CRM.alert(ts('Punch #%1 has been added.', {1: tid}), ts('Added'), 'success');
+    }
+    else {
+      CRM.alert(ts('Unexpected action %1', {1: action}), ts('Warning'), 'warning');
+      console.log(response);
+    }
   });
 
-  scheduler.attachEvent("onEventChanged", function(id, ev) {
-    CRM.alert(ts('The punch has been saved.'), ts('Saved'), 'success');
-    return true;
-  });
-
-  scheduler.attachEvent("onEventAdded", function(id, ev){
-    CRM.alert(ts('The punch has been saved.'), ts('Saved'), 'success');
-    return true;
-  });
 });

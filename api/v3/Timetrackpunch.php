@@ -197,7 +197,7 @@ function civicrm_api3_timetrackpunch_create($params) {
   }
 
   // Comments are now mandatory for new punches
-  if (empty($params['id']) && empty($params['comment'])) {
+  if ((empty($params['id']) && empty($params['comment'])) || (isset($params['comment']) && empty($params['comment']))) {
     return civicrm_api3_create_error(ts('Please enter a short comment or issue reference to describe your work.'));
   }
 
