@@ -149,6 +149,7 @@ class CRM_Timetrack_Case_Page_CaseView {
 
       $rows[] = array(
         'title' => CRM_Utils_System::href($task['title'], 'civicrm/timetrack/task', array('tid' => $task['task_id'])),
+        'description' => $task['description'],
         'estimate' => $task['estimate'],
         'total_included' => $included_hours,
         'percent_done' => $percent_done,
