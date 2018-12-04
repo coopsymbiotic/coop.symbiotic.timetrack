@@ -43,20 +43,6 @@ CREATE TABLE `korder` (
   CONSTRAINT `FK_korder_invoice_from_id` FOREIGN KEY (`invoice_from_id`) REFERENCES `civicrm_contact` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-CREATE TABLE `korder_line` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `order_id` int(10) unsigned NOT NULL,
-  `ktask_id` int(10) unsigned DEFAULT NULL,
-  `title` varchar(255) COLLATE utf8_unicode_ci DEFAULT '',
-  `hours_billed` float NOT NULL DEFAULT '0',
-  `cost` float NOT NULL DEFAULT '0',
-  `unit` varchar(15) COLLATE utf8_unicode_ci DEFAULT '',
-  PRIMARY KEY (`id`),
-  KEY `order_id` (`order_id`),
-  CONSTRAINT `FK_korder_line_order_id` FOREIGN KEY (`order_id`) REFERENCES `korder` (`id`) ON DELETE CASCADE,
-  CONSTRAINT `FK_korder_line_ktask_id` FOREIGN KEY (`ktask_id`) REFERENCES `ktask` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
 CREATE TABLE `kprojectreports_schedules` (
   `krid` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `title` char(255) DEFAULT NULL,
@@ -86,6 +72,20 @@ CREATE TABLE `ktask` (
   KEY `state` (`state`),
   KEY `parent` (`parent`),
   KEY `case_id` (`case_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+CREATE TABLE `korder_line` (
+  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `order_id` int(10) unsigned NOT NULL,
+  `ktask_id` int(10) unsigned DEFAULT NULL,
+  `title` varchar(255) COLLATE utf8_unicode_ci DEFAULT '',
+  `hours_billed` float NOT NULL DEFAULT '0',
+  `cost` float NOT NULL DEFAULT '0',
+  `unit` varchar(15) COLLATE utf8_unicode_ci DEFAULT '',
+  PRIMARY KEY (`id`),
+  KEY `order_id` (`order_id`),
+  CONSTRAINT `FK_korder_line_order_id` FOREIGN KEY (`order_id`) REFERENCES `korder` (`id`) ON DELETE CASCADE,
+  CONSTRAINT `FK_korder_line_ktask_id` FOREIGN KEY (`ktask_id`) REFERENCES `ktask` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 CREATE TABLE `kpunch` (
