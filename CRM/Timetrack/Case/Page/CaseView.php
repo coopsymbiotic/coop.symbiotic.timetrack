@@ -265,6 +265,7 @@ class CRM_Timetrack_Case_Page_CaseView {
       $rows[$key] = [
         'title' => $val['title'],
         'estimate' => $val['estimate'],
+        'total' => 0,
       ];
     }
 
@@ -294,8 +295,13 @@ class CRM_Timetrack_Case_Page_CaseView {
         $tasks[$dao->ktask_id] = 0;
       }
 
-      $rows[$dao->ktask_id][$dao->ledger_bill_id] = $dao->hours_billed;
+      if (!isset($total[$dao->ledger_bill_id])) {
+        $total[$dao->ledger_bill_id] = 0;
+      }
+
       $total[$dao->ledger_bill_id] += $dao->hours_billed;
+
+      $rows[$dao->ktask_id][$dao->ledger_bill_id] = $dao->hours_billed;
       $tasks[$dao->ktask_id] += $dao->hours_billed;
     }
 
