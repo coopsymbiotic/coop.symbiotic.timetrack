@@ -47,11 +47,11 @@ class CRM_Timetrack_Form_Task extends CRM_Core_Form {
 
       // TODO: mysql timestamps vs date..
       if (! empty($defaults['begin'])) {
-        $defaults['begin'] = date('m/d/Y', strtotime($defaults['begin']));
+        $defaults['begin'] = date('Y-m-d', strtotime($defaults['begin']));
       }
 
       if (! empty($defaults['end'])) {
-        $defaults['end'] = date('m/d/Y', strtotime($defaults['end']));
+        $defaults['end'] = date('Y-m-d', strtotime($defaults['end']));
       }
     }
     else {
@@ -62,8 +62,6 @@ class CRM_Timetrack_Form_Task extends CRM_Core_Form {
   }
 
   function buildQuickForm() {
-    $projects = CRM_Timetrack_Utils::getOpenCases();
-    $users = CRM_Timetrack_Utils::getUsers();
 
     if ($this->_taskid) {
       CRM_Utils_System::setTitle(ts('Edit task %1 for %2', array(1 => $this->_taskdata['title'], 2 => $this->_taskdata['case_subject'])));
@@ -75,26 +73,23 @@ class CRM_Timetrack_Form_Task extends CRM_Core_Form {
 
     $this->add('hidden', 'task_id', $this->_taskid);
 
-    // TODO: should be an auto-complete / select2
-    $this->add('select', 'case_id', ts('Case'), $projects, TRUE);
+    $this->addEntityRef('case_id', ts('Case'), [
+      'entity' => 'case',
+      'api' => ['params' => ['status_id.grouping' => "Opened", 'is_deleted' => 0]],
+      'select' => ['minimumInputLength' => 0],
+    ], TRUE);
 
-    $this->add('text', 'title', ts('Title'), NULL, TRUE);
+    $this->add('text', 'title', ts('Title'), ['class' => 'huge'], TRUE);
     $this->add('select', 'state', ts('Status'), CRM_Timetrack_PseudoConstant::getTaskStatuses(), TRUE);
-    $this->addDate('begin', ts('Start'));
-    $this->addDate('end', ts('End'));
+    $this->add('datepicker', 'begin', ts('Start'), [], FALSE, ['time' => FALSE]);
+    $this->add('datepicker', 'end', ts('End'), [], FALSE, ['time' => FALSE]);
     $this->add('text', 'estimate', ts('Estimate'));
 
-    $field = array(
-      'type' => 'entityRef',
-      'label' => ts('Lead'),
-      'attributes' => array(
-        'multiple' => FALSE,
-        'create' => FALSE,
-        'api' => array('params' => array('is_deceased' => 0, 'contact_type' => 'Individual')),
-      ),
-    );
+    $this->addEntityRef('lead', ts('Lead'), [
+      'create' => FALSE,
+      'api' => ['params' => ['is_deceased' => 0, 'contact_type' => 'Individual']],
+    ]);
 
-    $this->addEntityRef('lead', $field['label'], $field['attributes'], FALSE);
     $this->add('wysiwyg', 'description', ts('Description/notes'));
 
     $this->addButtons(array(

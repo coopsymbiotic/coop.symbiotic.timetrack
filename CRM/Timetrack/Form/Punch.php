@@ -79,6 +79,7 @@ class CRM_Timetrack_Form_Punch extends CRM_Core_Form {
     $limit_case = ($this->_pid ? 0 : $this->_cid);
     $tasks = CRM_Timetrack_Utils::getActivitiesForCase($limit_case);
 
+    // @todo: convert users field to EntityRef; requires https://github.com/civicrm/civicrm-core/pull/13230
     $users = CRM_Timetrack_Utils::getUsers();
     $case_title = CRM_Timetrack_Utils::getCaseSubject($this->_cid);
 
@@ -92,19 +93,13 @@ class CRM_Timetrack_Form_Punch extends CRM_Core_Form {
     $this->add('hidden', 'cid', $this->_cid);
     $this->add('hidden', 'pid', $this->_pid);
 
-    $this->add('select', 'activity_id', ts('Activity'), $tasks);
-    $this->add('select', 'contact_id', ts('Contact'), $users);
+    $this->add('select', 'activity_id', ts('Activity'), $tasks, TRUE, ['class' => 'crm-select2']);
+    $this->add('select', 'contact_id', ts('Contact'), $users, TRUE, ['class' => 'crm-select2']);
 
-    // TODO: using textfield for now, since we're using timestamps in the DB.
-    $this->add('text', 'begin', ts('Start'));
-    $this->add('text', 'end', ts('End'));
-    $this->add('text', 'duration', ts('Duration'));
+    $this->add('datepicker', 'begin', ts('Start'), [], TRUE);
+    $this->add('datepicker', 'end', ts('End'));
+    $this->add('text', 'duration', ts('Duration'), [], TRUE);
     $this->add('text', 'comment', ts('Comment'));
-
-    $this->addRule('begin', ts('Begin date and time is required'), 'required');
-    $this->addRule('duration', ts('Duration is required'), 'required');
-    $this->addRule('activity_id', ts('Activity is required'), 'required');
-    $this->addRule('contact_id', ts('Contact is required'), 'required');
 
     $this->addButtons(array(
       array(
