@@ -1,6 +1,6 @@
 <?php
 
-require_once 'CRM/Core/Form.php';
+use CRM_Timetrack_ExtensionUtil as E;
 
 /**
  * Form controller class
@@ -93,13 +93,13 @@ class CRM_Timetrack_Form_Punch extends CRM_Core_Form {
     $this->add('hidden', 'cid', $this->_cid);
     $this->add('hidden', 'pid', $this->_pid);
 
-    $this->add('select', 'activity_id', ts('Activity'), $tasks, TRUE, ['class' => 'crm-select2']);
+    $this->add('select', 'activity_id', ts('Activity'), $tasks, TRUE, ['class' => 'crm-select2 huge']);
     $this->add('select', 'contact_id', ts('Contact'), $users, TRUE, ['class' => 'crm-select2']);
 
     $this->add('datepicker', 'begin', ts('Start'), [], TRUE);
     $this->add('datepicker', 'end', ts('End'));
-    $this->add('text', 'duration', ts('Duration'), [], TRUE);
-    $this->add('text', 'comment', ts('Comment'));
+    $this->add('text', 'duration', ts('Duration'), ['class' => 'four', 'placeholder' => E::ts('Hours')], TRUE);
+    $this->add('text', 'comment', ts('Comment'), ['class' => 'huge'], TRUE);
 
     $this->addButtons(array(
       array(

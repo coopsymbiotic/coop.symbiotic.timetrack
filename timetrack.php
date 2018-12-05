@@ -1,6 +1,7 @@
 <?php
 
 require_once 'timetrack.civix.php';
+use CRM_Timetrack_ExtensionUtil as E;
 
 /**
  * Implementation of hook_civicrm_config
