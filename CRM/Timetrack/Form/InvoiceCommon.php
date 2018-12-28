@@ -10,7 +10,9 @@
 
 class CRM_Timetrack_Form_InvoiceCommon {
   /**
-   *
+   * @param CRM_Core_Form $form
+   * @param array $tasks
+   * @param array $options
    */
   static function buildForm(&$form, $tasks, $options = []) {
     $form->addEntityRef('invoice_from_id', ts('Invoice from'), array(
@@ -22,7 +24,7 @@ class CRM_Timetrack_Form_InvoiceCommon {
     $form->addElement('text', 'title', ts('Invoice title'));
     $form->addElement('text', 'invoice_period_start', ts('From'));
     $form->addElement('text', 'invoice_period_end', ts('To'));
-    $form->addDate('created_date', ts('Invoice date'), TRUE);
+    $form->add('datepicker', 'created_date', ts('Invoice date'), [], TRUE, ['time' => FALSE]);
     $form->add('text', 'ledger_order_id', ts('Ledger order ID'), 'size="7"', FALSE);
     $form->add('text', 'ledger_bill_id', ts('Ledger invoice ID'), 'size="7"', TRUE);
 
@@ -43,7 +45,7 @@ class CRM_Timetrack_Form_InvoiceCommon {
 
     $status = CRM_Timetrack_PseudoConstant::getInvoiceStatuses();
     $form->add('select', 'state', ts('Status'), $status);
-    $form->addDate('deposit_date', ts('Deposit date'));
+    $form->add('datepicker', 'deposit_date', ts('Deposit date'), [], FALSE, ['time' => FALSE]);
     $form->add('text', 'deposit_reference', ts('Deposit reference'));
     $form->add('textarea', 'details_public', ts('Notes for the client'));
     $form->add('textarea', 'details_private', ts('Internal notes'));

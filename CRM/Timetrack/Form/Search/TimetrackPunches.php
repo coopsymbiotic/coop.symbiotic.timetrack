@@ -90,8 +90,8 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
     // NB: ktask select must not be named 'task' or it will conflict with the 'task' select in the results.
     $form->addElement('hidden', 'case_id', $this->case_id);
 
-    $form->addDate('start_date', ts('Punch start date'), FALSE, array('formatType' => 'custom', 'id' => 'date_start'));
-    $form->addDate('end_date', ts('Punch end date'), FALSE, array('formatType' => 'custom', 'id' => 'date_end'));
+    $form->add('datepicker', 'start_date', ts('Punch start date'), [], FALSE, ['time' => FALSE]);
+    $form->add('datepicker', 'end_date', ts('Punch end date'), [], FALSE, ['time' => FALSE]);
 
     $tasks = CRM_Timetrack_Utils::getActivitiesForCase($this->case_id);
     $tasks[''] = ts('- select -');
