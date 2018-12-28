@@ -98,7 +98,7 @@ class CRM_Timetrack_Form_Punch extends CRM_Core_Form {
 
     $this->add('datepicker', 'begin', ts('Start'), [], TRUE);
     $this->add('datepicker', 'end', ts('End'));
-    $this->add('text', 'duration', ts('Duration'), ['class' => 'four', 'placeholder' => E::ts('Hours')], TRUE);
+    $this->add('number', 'duration', ts('Duration'), ['class' => 'four', 'placeholder' => E::ts('Hours')], TRUE);
     $this->add('text', 'comment', ts('Comment'), ['class' => 'huge'], TRUE);
 
     $this->addButtons(array(
@@ -109,6 +109,7 @@ class CRM_Timetrack_Form_Punch extends CRM_Core_Form {
       ),
       array(
         'type' => 'next',
+        'subName' => 'new',
         'name' => ts('Save and New'),
         'isDefault' => TRUE,
       ),
@@ -151,9 +152,8 @@ class CRM_Timetrack_Form_Punch extends CRM_Core_Form {
       CRM_Core_Session::setStatus(ts('The punch has been saved.'), '', 'success');
     }
 
-    if ($buttonName == $this->getButtonName('next')) {
-      CRM_Core_Session::setStatus(ts('You can add another punch.'), '', 'info');
-      $session = CRM_Core_Session::singleton();
+    $session = CRM_Core_Session::singleton();
+    if ($buttonName == $this->getButtonName('next', 'new')) {
       $session->replaceUserContext(
         CRM_Utils_System::url(
           'civicrm/timetrack/punch',
@@ -162,9 +162,13 @@ class CRM_Timetrack_Form_Punch extends CRM_Core_Form {
       );
     }
     else {
-      // FIXME? This kind of redirects randomly..
-      $session = CRM_Core_Session::singleton();
-      CRM_Utils_System::redirect($session->popUserContext());
+      $contact_id = CRM_Core_DAO::singleValueQuery('select contact_id from civicrm_case_contact where case_id = %1 limit 1', array(
+        1 => array($this->_cid, 'Positive'),
+      ));
+      $session->replaceUserContext(CRM_Utils_System::url(
+        'civicrm/contact/view/case',
+        'reset=1&action=view&context=case&id=' . $this->_cid . '&cid=' . $contact_id
+      ));
     }
 
     parent::postProcess();

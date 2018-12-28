@@ -101,6 +101,7 @@ class CRM_Timetrack_Form_Task extends CRM_Core_Form {
       array(
         'type' => 'next',
         'name' => ts('Save and New'),
+        'subName' => 'new',
         'isDefault' => TRUE,
       ),
     ));
@@ -127,9 +128,8 @@ class CRM_Timetrack_Form_Task extends CRM_Core_Form {
 
     parent::postProcess();
 
-    if ($buttonName == $this->getButtonName('next')) {
-      CRM_Core_Session::setStatus(ts('You can create another task.'), '', 'info');
-      $session = CRM_Core_Session::singleton();
+    $session = CRM_Core_Session::singleton();
+    if ($buttonName == $this->getButtonName('next', 'new')) {
       $session->replaceUserContext(
         CRM_Utils_System::url(
           'civicrm/timetrack/task',
@@ -141,8 +141,7 @@ class CRM_Timetrack_Form_Task extends CRM_Core_Form {
       $contact_id = CRM_Core_DAO::singleValueQuery('select contact_id from civicrm_case_contact where case_id = %1 limit 1', array(
         1 => array($this->_caseid, 'Positive'),
       ));
-
-      CRM_Utils_System::redirect(CRM_Utils_System::url(
+      $session->replaceUserContext(CRM_Utils_System::url(
         'civicrm/contact/view/case',
         'reset=1&action=view&context=case&id=' . $this->_caseid . '&cid=' . $contact_id
       ));
