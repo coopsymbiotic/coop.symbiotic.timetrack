@@ -25,7 +25,7 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
       ts('Project') => 'case_subject',
       ts('Task') => 'task',
       ts('Punch') => 'pid',
-      ts('Worker') => 'real_contact_id',
+      ts('Contact') => 'real_contact_id',
       ts('Begin') => 'begin',
       ts('Duration') => 'duration_hours',
       ts('Rounded') => 'duration_rounded',
@@ -77,14 +77,13 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
     // Needs to be set in the $form, so that we don't loose it after filter/task submit.
     $this->case_id = CRM_Utils_Request::retrieve('case_id', 'Integer', $form, FALSE, NULL);
 
-    $elements = array();
+    $elements = [];
 
-    // Get the case subject
-    $result = civicrm_api3('Case', 'getsingle', array(
-      'id' => $this->case_id,
-    ));
+    // @todo: convert users field to EntityRef; requires https://github.com/civicrm/civicrm-core/pull/13230
+    $users = CRM_Timetrack_Utils::getUsers();
 
-    $this->setTitle(ts('List of punches for %1', array(1 => $result['subject'])));
+    $case_title = CRM_Timetrack_Utils::getCaseSubject($this->case_id);
+    $this->setTitle(ts('List of punches for %1', [1 => $case_title]));
 
     // Punch filters
     // NB: ktask select must not be named 'task' or it will conflict with the 'task' select in the results.
@@ -97,6 +96,7 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
     $tasks[''] = ts('- select -');
 
     $form->add('select', 'ktask', ts('Task'), $tasks);
+    $form->add('select', 'contact_id', ts('Contact'), $users, FALSE, ['class' => 'crm-select2']);
     $form->add('text', 'comment', ts('Comment'), FALSE);
     $form->add('select', 'state', ts('Invoice status'), array_merge(array('' => ts('- select -')), CRM_Timetrack_PseudoConstant::getInvoiceStatuses()));
 
@@ -104,6 +104,7 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
     array_push($elements, 'start_date');
     array_push($elements, 'end_date');
     array_push($elements, 'ktask');
+    array_push($elements, 'contact_id');
     array_push($elements, 'comment');
     array_push($elements, 'state');
 
@@ -234,6 +235,10 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
 
     if (! empty($this->_formValues['ktask'])) {
       $clauses[] = 'kpunch.ktask_id = ' . CRM_Utils_Type::escape($this->_formValues['ktask'], 'Positive');
+    }
+
+    if (! empty($this->_formValues['contact_id'])) {
+      $clauses[] = 'kpunch.contact_id = ' . CRM_Utils_Type::escape($this->_formValues['contact_id'], 'Positive');
     }
 
     if (! empty($this->_formValues['case_id'])) {
