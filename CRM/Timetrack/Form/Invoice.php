@@ -74,6 +74,7 @@ class CRM_Timetrack_Form_Invoice extends CRM_Core_Form {
         unset($defaults['ledger_order_id']);
         unset($defaults['ledger_bill_id']);
         unset($defaults['created_date']);
+        unset($defaults['state']);
       }
 
       if (empty($defaults['created_date'])) {
