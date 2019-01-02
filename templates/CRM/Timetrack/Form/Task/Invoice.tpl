@@ -30,7 +30,7 @@
 
 <div class="crm-section crm-timetrack-general-section">
   <div class="label">{$form.created_date.label}</div>
-  <div class="content">{include file="CRM/common/jcalendar.tpl" elementName=created_date}</div>
+  <div class="content">{$form.created_date.html}</div>
   <div class="clear"></div>
 </div>
 
@@ -89,7 +89,7 @@
 
 <div class="crm-section crm-timetrack-general-section">
   <div class="label">{$form.deposit_date.label}</div>
-  <div class="content">{include file="CRM/common/jcalendar.tpl" elementName=deposit_date}</div>
+  <div class="content">{$form.deposit_date.html}</div>
   <div class="clear"></div>
 </div>
 

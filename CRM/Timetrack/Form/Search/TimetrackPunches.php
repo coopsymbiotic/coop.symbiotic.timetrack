@@ -46,11 +46,11 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
     }
   }
 
-  function get($name) {
-    return $this->$name;
+  public function get($name) {
+    return isset($this->$name) ? $this->$name : NULL;
   }
 
-  function set($name, $value) {
+  public function set($name, $value) {
     $this->$name = $value;
   }
 
@@ -71,7 +71,7 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
   }
 
   /**
-   *
+   * @param CRM_Core_Form $form
    */
   function buildForm(&$form) {
     // Needs to be set in the $form, so that we don't loose it after filter/task submit.
@@ -90,8 +90,8 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
     // NB: ktask select must not be named 'task' or it will conflict with the 'task' select in the results.
     $form->addElement('hidden', 'case_id', $this->case_id);
 
-    $form->addDate('start_date', ts('Punch start date'), FALSE, array('formatType' => 'custom', 'id' => 'date_start'));
-    $form->addDate('end_date', ts('Punch end date'), FALSE, array('formatType' => 'custom', 'id' => 'date_end'));
+    $form->add('datepicker', 'start_date', ts('Punch start date'), [], FALSE, ['time' => FALSE]);
+    $form->add('datepicker', 'end_date', ts('Punch end date'), [], FALSE, ['time' => FALSE]);
 
     $tasks = CRM_Timetrack_Utils::getActivitiesForCase($this->case_id);
     $tasks[''] = ts('- select -');
@@ -112,12 +112,6 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
     // FIXME: this disables ./Contact/Form/Search.php from doing: $this->addClass('crm-ajax-selection-form');
     // because the ajax selection doesn't work on non-contacts (always returns 0 items).
     $form->set('component_mode', 999);
-
-    // FIXME: deprecated starting CiviCRM 4.6
-    CRM_Core_Region::instance('page-header')->add(array(
-      'template' => 'CRM/common/crmeditable.tpl',
-      'weight' => 100,
-    ));
 
     // Hide the action links, since they only work for contacts.
     Civi::resources()->addStyle('.crm-search-results tbody > tr > td:last-child { display: none; }');
@@ -290,7 +284,7 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
   /**
    * Not sure if mandatory or not. Was in the base example I re-used.
    */
-  function contactIDs($offset = 0, $rowcount = 0, $sort = NULL) {
+  function contactIDs($offset = 0, $rowcount = 0, $sort = NULL, $returnSQL = FALSE) {
     return $this->all($offset, $rowcount, $sort, FALSE, TRUE);
   }
 
