@@ -43,4 +43,10 @@
     <access_arguments>access CiviCRM</access_arguments>
     <is_ssl>true</is_ssl>
   </item>
+  <item>
+    <path>civicrm/timetrack/gitlab</path>
+    <page_callback>CRM_Timetrack_Page_Gitlab</page_callback>
+    <title>Gitlab</title>
+    <access_callback>1</access_callback>
+  </item>
 </menu>
