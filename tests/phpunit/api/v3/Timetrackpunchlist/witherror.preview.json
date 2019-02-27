@@ -1,0 +1,8 @@
+[
+  {"begin": "2019-02-03 12:34", "duration": "3600", "alias": "mock/foo", "comment": "make the foo", "contact_id": "@user_contact_id"},
+  {"error": 1, "lineNo": 2, "line": "!pi -s 2019-02-03 12:34+1h bad/foo make the foo", "message": "Unrecognized task alias (bad/foo)"},
+  {"error": 1, "lineNo": 3, "line": "!pi 2019-02-03 12:34+1h mock/foo make the foo", "message": "Failed to parse line"},
+  {"begin": "2019-02-10 11:00", "duration": "5400", "alias": "mock/bar", "comment": "make the foobar", "contact_id": "@user_contact_id"},
+  {"error": 1, "lineNo": 6, "line": "!pi 11:00+1.5h mock/bar make the foobar", "message": "Failed to parse line"},
+  {"begin": "2019-02-10 20:00", "duration": "1800", "alias": "mock/whiz", "comment": "make the foobarwhiz", "contact_id": "@user_contact_id"}
+]

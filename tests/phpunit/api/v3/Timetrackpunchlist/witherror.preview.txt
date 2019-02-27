@@ -1,0 +1,7 @@
+!pi -s 2019-02-03 12:34+1h mock/foo make the foo
+!pi -s 2019-02-03 12:34+1h bad/foo make the foo
+!pi 2019-02-03 12:34+1h mock/foo make the foo
+!pi -s 11:00+1.5h mock/bar make the foobar
+# comment
+!pi 11:00+1.5h mock/bar make the foobar
+!pi -s 20:00+30m mock/whiz make the foobarwhiz
