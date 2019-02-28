@@ -25,7 +25,7 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
       ts('Project') => 'case_subject',
       ts('Task') => 'task',
       ts('Punch') => 'pid',
-      ts('Worker') => 'real_contact_id',
+      ts('Contact') => 'real_contact_id',
       ts('Begin') => 'begin',
       ts('Duration') => 'duration_hours',
       ts('Rounded') => 'duration_rounded',
@@ -46,11 +46,11 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
     }
   }
 
-  function get($name) {
-    return $this->$name;
+  public function get($name) {
+    return isset($this->$name) ? $this->$name : NULL;
   }
 
-  function set($name, $value) {
+  public function set($name, $value) {
     $this->$name = $value;
   }
 
@@ -71,32 +71,32 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
   }
 
   /**
-   *
+   * @param CRM_Core_Form $form
    */
   function buildForm(&$form) {
     // Needs to be set in the $form, so that we don't loose it after filter/task submit.
     $this->case_id = CRM_Utils_Request::retrieve('case_id', 'Integer', $form, FALSE, NULL);
 
-    $elements = array();
+    $elements = [];
 
-    // Get the case subject
-    $result = civicrm_api3('Case', 'getsingle', array(
-      'id' => $this->case_id,
-    ));
+    // @todo: convert users field to EntityRef; requires https://github.com/civicrm/civicrm-core/pull/13230
+    $users = CRM_Timetrack_Utils::getUsers();
 
-    $this->setTitle(ts('List of punches for %1', array(1 => $result['subject'])));
+    $case_title = CRM_Timetrack_Utils::getCaseSubject($this->case_id);
+    $this->setTitle(ts('List of punches for %1', [1 => $case_title]));
 
     // Punch filters
     // NB: ktask select must not be named 'task' or it will conflict with the 'task' select in the results.
     $form->addElement('hidden', 'case_id', $this->case_id);
 
-    $form->addDate('start_date', ts('Punch start date'), FALSE, array('formatType' => 'custom', 'id' => 'date_start'));
-    $form->addDate('end_date', ts('Punch end date'), FALSE, array('formatType' => 'custom', 'id' => 'date_end'));
+    $form->add('datepicker', 'start_date', ts('Punch start date'), [], FALSE, ['time' => FALSE]);
+    $form->add('datepicker', 'end_date', ts('Punch end date'), [], FALSE, ['time' => FALSE]);
 
     $tasks = CRM_Timetrack_Utils::getActivitiesForCase($this->case_id);
     $tasks[''] = ts('- select -');
 
     $form->add('select', 'ktask', ts('Task'), $tasks);
+    $form->add('select', 'contact_id', ts('Contact'), $users, FALSE, ['class' => 'crm-select2']);
     $form->add('text', 'comment', ts('Comment'), FALSE);
     $form->add('select', 'state', ts('Invoice status'), array_merge(array('' => ts('- select -')), CRM_Timetrack_PseudoConstant::getInvoiceStatuses()));
 
@@ -104,6 +104,7 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
     array_push($elements, 'start_date');
     array_push($elements, 'end_date');
     array_push($elements, 'ktask');
+    array_push($elements, 'contact_id');
     array_push($elements, 'comment');
     array_push($elements, 'state');
 
@@ -112,12 +113,6 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
     // FIXME: this disables ./Contact/Form/Search.php from doing: $this->addClass('crm-ajax-selection-form');
     // because the ajax selection doesn't work on non-contacts (always returns 0 items).
     $form->set('component_mode', 999);
-
-    // FIXME: deprecated starting CiviCRM 4.6
-    CRM_Core_Region::instance('page-header')->add(array(
-      'template' => 'CRM/common/crmeditable.tpl',
-      'weight' => 100,
-    ));
 
     // Hide the action links, since they only work for contacts.
     Civi::resources()->addStyle('.crm-search-results tbody > tr > td:last-child { display: none; }');
@@ -242,6 +237,10 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
       $clauses[] = 'kpunch.ktask_id = ' . CRM_Utils_Type::escape($this->_formValues['ktask'], 'Positive');
     }
 
+    if (! empty($this->_formValues['contact_id'])) {
+      $clauses[] = 'kpunch.contact_id = ' . CRM_Utils_Type::escape($this->_formValues['contact_id'], 'Positive');
+    }
+
     if (! empty($this->_formValues['case_id'])) {
       $clauses[] = 'civicrm_case.id = ' . intval($this->_formValues['case_id']);
     }
@@ -290,7 +289,7 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
   /**
    * Not sure if mandatory or not. Was in the base example I re-used.
    */
-  function contactIDs($offset = 0, $rowcount = 0, $sort = NULL) {
+  function contactIDs($offset = 0, $rowcount = 0, $sort = NULL, $returnSQL = FALSE) {
     return $this->all($offset, $rowcount, $sort, FALSE, TRUE);
   }
 

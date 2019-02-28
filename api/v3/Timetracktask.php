@@ -103,6 +103,7 @@ function civicrm_api3_timetracktask_get($params) {
       'begin' => ($dao->begin ? date('Y-m-d', $dao->begin) : NULL), // TODO: convert to mysql datetime
       'end' => ($dao->end ? date('Y-m-d', $dao->end) : NULL), // TODO: convert.
       'lead' => $dao->lead,
+      'description' => $dao->description,
     );
 
     // Calculate the time of included punches

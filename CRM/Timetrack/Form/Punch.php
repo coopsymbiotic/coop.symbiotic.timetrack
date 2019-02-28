@@ -1,6 +1,6 @@
 <?php
 
-require_once 'CRM/Core/Form.php';
+use CRM_Timetrack_ExtensionUtil as E;
 
 /**
  * Form controller class
@@ -79,6 +79,7 @@ class CRM_Timetrack_Form_Punch extends CRM_Core_Form {
     $limit_case = ($this->_pid ? 0 : $this->_cid);
     $tasks = CRM_Timetrack_Utils::getActivitiesForCase($limit_case);
 
+    // @todo: convert users field to EntityRef; requires https://github.com/civicrm/civicrm-core/pull/13230
     $users = CRM_Timetrack_Utils::getUsers();
     $case_title = CRM_Timetrack_Utils::getCaseSubject($this->_cid);
 
@@ -92,19 +93,13 @@ class CRM_Timetrack_Form_Punch extends CRM_Core_Form {
     $this->add('hidden', 'cid', $this->_cid);
     $this->add('hidden', 'pid', $this->_pid);
 
-    $this->add('select', 'activity_id', ts('Activity'), $tasks);
-    $this->add('select', 'contact_id', ts('Contact'), $users);
+    $this->add('select', 'activity_id', ts('Activity'), $tasks, TRUE, ['class' => 'crm-select2 huge']);
+    $this->add('select', 'contact_id', ts('Contact'), $users, TRUE, ['class' => 'crm-select2']);
 
-    // TODO: using textfield for now, since we're using timestamps in the DB.
-    $this->add('text', 'begin', ts('Start'));
-    $this->add('text', 'end', ts('End'));
-    $this->add('text', 'duration', ts('Duration'));
-    $this->add('text', 'comment', ts('Comment'));
-
-    $this->addRule('begin', ts('Begin date and time is required'), 'required');
-    $this->addRule('duration', ts('Duration is required'), 'required');
-    $this->addRule('activity_id', ts('Activity is required'), 'required');
-    $this->addRule('contact_id', ts('Contact is required'), 'required');
+    $this->add('datepicker', 'begin', ts('Start'), [], TRUE);
+    $this->add('datepicker', 'end', ts('End'));
+    $this->add('number', 'duration', ts('Duration'), ['class' => 'four', 'placeholder' => E::ts('Hours')], TRUE);
+    $this->add('text', 'comment', ts('Comment'), ['class' => 'huge'], TRUE);
 
     $this->addButtons(array(
       array(
@@ -114,6 +109,7 @@ class CRM_Timetrack_Form_Punch extends CRM_Core_Form {
       ),
       array(
         'type' => 'next',
+        'subName' => 'new',
         'name' => ts('Save and New'),
         'isDefault' => TRUE,
       ),
@@ -156,9 +152,8 @@ class CRM_Timetrack_Form_Punch extends CRM_Core_Form {
       CRM_Core_Session::setStatus(ts('The punch has been saved.'), '', 'success');
     }
 
-    if ($buttonName == $this->getButtonName('next')) {
-      CRM_Core_Session::setStatus(ts('You can add another punch.'), '', 'info');
-      $session = CRM_Core_Session::singleton();
+    $session = CRM_Core_Session::singleton();
+    if ($buttonName == $this->getButtonName('next', 'new')) {
       $session->replaceUserContext(
         CRM_Utils_System::url(
           'civicrm/timetrack/punch',
@@ -167,9 +162,13 @@ class CRM_Timetrack_Form_Punch extends CRM_Core_Form {
       );
     }
     else {
-      // FIXME? This kind of redirects randomly..
-      $session = CRM_Core_Session::singleton();
-      CRM_Utils_System::redirect($session->popUserContext());
+      $contact_id = CRM_Core_DAO::singleValueQuery('select contact_id from civicrm_case_contact where case_id = %1 limit 1', array(
+        1 => array($this->_cid, 'Positive'),
+      ));
+      $session->replaceUserContext(CRM_Utils_System::url(
+        'civicrm/contact/view/case',
+        'reset=1&action=view&context=case&id=' . $this->_cid . '&cid=' . $contact_id
+      ));
     }
 
     parent::postProcess();

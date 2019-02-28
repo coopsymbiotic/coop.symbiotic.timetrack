@@ -7,7 +7,7 @@ class CRM_Timetrack_Case_Page_CaseView {
   function caseSummary($case_id) {
     $summary = array();
 
-    CRM_Core_Resources::singleton()->addStyleFile('coop.symbiotic.timetrack', 'css/crm-timetrack-case-page-caseview.css');
+    Civi::resources()->addStyleFile('coop.symbiotic.timetrack', 'css/crm-timetrack-case-page-caseview.css');
 
     $dao = CRM_Core_DAO::executeQuery('SELECT * FROM kcontract WHERE case_id = %1', array(
       1 => array($case_id, 'Positive'),
@@ -149,6 +149,7 @@ class CRM_Timetrack_Case_Page_CaseView {
 
       $rows[] = array(
         'title' => CRM_Utils_System::href($task['title'], 'civicrm/timetrack/task', array('tid' => $task['task_id'])),
+        'description' => $task['description'],
         'estimate' => $task['estimate'],
         'total_included' => $included_hours,
         'percent_done' => $percent_done,
@@ -233,7 +234,7 @@ class CRM_Timetrack_Case_Page_CaseView {
   }
 
   /**
-   *
+   * Returns a rendered HTML table overview of the invoicing, per task.
    */
   function getInvoiceTaskOverview($case_id) {
     $smarty = CRM_Core_Smarty::singleton();
@@ -264,6 +265,7 @@ class CRM_Timetrack_Case_Page_CaseView {
       $rows[$key] = [
         'title' => $val['title'],
         'estimate' => $val['estimate'],
+        'total' => 0,
       ];
     }
 
@@ -274,8 +276,8 @@ class CRM_Timetrack_Case_Page_CaseView {
 
     $dao = CRM_Core_DAO::executeQuery('SELECT o.ledger_bill_id, o.title, t.title as ktask_title, t.estimate, t.id as ktask_id, l.hours_billed
       FROM korder_line l
-      LEFT JOIN korder o ON (o.id = l.order_id)
-      LEFT JOIN ktask t ON (t.id = l.ktask_id)
+      INNER JOIN korder o ON (o.id = l.order_id)
+      INNER JOIN ktask t ON (t.id = l.ktask_id)
       WHERE t.case_id = %1
       GROUP BY t.id, o.id
       ORDER BY o.id ASC', [
@@ -293,8 +295,13 @@ class CRM_Timetrack_Case_Page_CaseView {
         $tasks[$dao->ktask_id] = 0;
       }
 
-      $rows[$dao->ktask_id][$dao->ledger_bill_id] = $dao->hours_billed;
+      if (!isset($total[$dao->ledger_bill_id])) {
+        $total[$dao->ledger_bill_id] = 0;
+      }
+
       $total[$dao->ledger_bill_id] += $dao->hours_billed;
+
+      $rows[$dao->ktask_id][$dao->ledger_bill_id] = $dao->hours_billed;
       $tasks[$dao->ktask_id] += $dao->hours_billed;
     }
 

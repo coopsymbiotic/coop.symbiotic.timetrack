@@ -3,10 +3,9 @@
 class CRM_Timetrack_Case_Form_Case {
   function buildForm(&$form) {
     $form->add('text', 'alias', ts('Alias'));
-    $form->add('text', 'estimate', ts('Estimate'));
+    $form->add('number', 'estimate', ts('Estimate'));
 
-    // FIXME: in 4.5, we can use 'form-bottom' instead of page-body.
-    CRM_Core_Region::instance('page-body')->add(array(
+    CRM_Core_Region::instance('form-bottom')->add(array(
       'template' => 'CRM/Timetrack/Form/CaseDetails.tpl',
       'weight' => 100,
     ));
@@ -30,6 +29,9 @@ class CRM_Timetrack_Case_Form_Case {
     }
   }
 
+  /**
+   * @param CRM_Core_Form $form
+   */
   function postProcess(&$form) {
     $params = $form->exportValues();
 
@@ -38,13 +40,12 @@ class CRM_Timetrack_Case_Form_Case {
       return;
     }
 
-    // FIXME: assuming two cases are not created at the same time..   
-    $case_id = CRM_Core_DAO::singleValueQuery("SELECT max(id) as id FROM civicrm_case");
+    $case_id = $form->getVar('_caseId');
 
     if ($case_id) {
       CRM_Core_DAO::executeQuery('INSERT INTO kcontract (alias, estimate, case_id) VALUES (%1, %2, %3)', array(
         1 => array($params['alias'], 'String'),
-        2 => array($params['estimate'], 'Float'),
+        2 => array(CRM_Utils_Array::value('estimate', $params) ?: 0, 'Float'),
         3 => array($case_id, 'Positive'),
       ));
     }

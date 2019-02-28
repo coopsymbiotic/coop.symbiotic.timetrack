@@ -37,13 +37,7 @@
             {foreach from=$elements item=element}
                 <tr class="crm-contact-custom-search-form-row-{$element}">
                     <td class="label">{$form.$element.label}</td>
-                    {if $element eq 'start_date'}
-                        <td>{include file="CRM/common/jcalendar.tpl" elementName=start_date}</td>
-                    {elseif $element eq 'end_date'}
-                        <td>{include file="CRM/common/jcalendar.tpl" elementName=end_date}</td>
-                    {else}
-                        <td>{$form.$element.html}</td>
-                    {/if}
+                    <td>{$form.$element.html}</td>
                 </tr>
             {/foreach}
         </table>

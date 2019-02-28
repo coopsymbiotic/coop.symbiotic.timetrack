@@ -11,7 +11,11 @@
         {foreach from=$timetrack_rows item=row name=rowloop}
           <tr class="{cycle values="odd,even"}">
             {foreach from=$timetrack_headers item=foo key=k}
-              <td>{$row.$k}</td>
+              {if $k == 'title' && !empty($row.description)}
+                <td title="{$row.description|strip_tags}">{$row.$k}</td>
+              {else}
+                <td>{$row.$k}</td>
+              {/if}
             {/foreach}
           </tr>
         {/foreach}

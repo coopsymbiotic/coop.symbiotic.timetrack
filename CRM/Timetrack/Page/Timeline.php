@@ -2,7 +2,7 @@
 
 class CRM_Timetrack_Page_Timeline extends CRM_Core_Page {
   function run() {
-    CRM_Core_Resources::singleton()
+    Civi::resources()
       ->addScriptFile('coop.symbiotic.timetrack', 'js/timeline.js')
       ->addScriptFile('coop.symbiotic.timetrack', 'dist/dhtmlxscheduler/codebase/dhtmlxscheduler.js')
       ->addScriptFile('coop.symbiotic.timetrack', 'dist/dhtmlxscheduler/codebase/ext/dhtmlxscheduler_timeline.js')

@@ -96,25 +96,6 @@ class CRM_Timetrack_Utils {
     return $result['subject'];
   }
 
-  static function getOpenCases() {
-    $cases = array();
-
-    $dao = CRM_Core_DAO::executeQuery(
-      'SELECT c.id, c.subject
-         FROM civicrm_case c
-         INNER JOIN civicrm_option_group og ON (og.name = "case_status")
-         INNER JOIN civicrm_option_value ov ON (ov.option_group_id = og.id AND ov.grouping = "Opened" AND c.status_id = ov.value)
-         WHERE c.is_deleted = 0'
-    );
-
-    while ($dao->fetch()) {
-      $cases[$dao->id] = $dao->subject;
-    }
-
-    asort($cases);
-    return $cases;
-  }
-
   /**
    * Returns a list of contacts who have CMS access.
    * Should probably return contacts from a certain subtype/group/permission..?

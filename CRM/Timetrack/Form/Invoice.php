@@ -74,14 +74,11 @@ class CRM_Timetrack_Form_Invoice extends CRM_Core_Form {
         unset($defaults['ledger_order_id']);
         unset($defaults['ledger_bill_id']);
         unset($defaults['created_date']);
+        unset($defaults['state']);
       }
 
-      // FIXME: I don't understan jcalendar widgets and it's date formats..
-      if (! empty($defaults['created_date'])) {
-        $defaults['created_date'] = date('m/d/Y', strtotime($defaults['created_date']));
-      }
-      else {
-        $defaults['created_date'] = date('m/d/Y');
+      if (empty($defaults['created_date'])) {
+        $defaults['created_date'] = date('Y-m-d');
       }
 
       foreach ($this->_tasksdata as $key => $val) {

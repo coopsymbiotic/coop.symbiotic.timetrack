@@ -2,10 +2,18 @@
 
 class CRM_Timetrack_Page_TimelineData extends CRM_Core_Page {
   function run() {
-    if (! empty($_POST)) {
+    // https://docs.dhtmlx.com/dataprocessor__initialization.html#usingdataprocessorwithrestapi
+    if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       $this->handlePost();
     }
-    else {
+    elseif ($_SERVER['REQUEST_METHOD'] === 'PUT') {
+      // Punch edited
+      $this->handlePut();
+    }
+    elseif ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
+      $this->handleDelete();
+    }
+    elseif ($_SERVER['REQUEST_METHOD'] === 'GET') {
       $this->handleGet();
     }
 
@@ -47,38 +55,87 @@ class CRM_Timetrack_Page_TimelineData extends CRM_Core_Page {
     echo json_encode($punches);
   }
 
-  function handlePost() {
-    $action = CRM_Utils_Request::retrieve('!nativeeditor_status', 'String', $this, FALSE, NULL, 'POST');
+  function handleDelete() {
+    $result = civicrm_api3('Timetrackpunch', 'delete', array(
+      'id' => CRM_Utils_Request::retrieveValue('id', 'Positive', TRUE),
+    ));
 
-    if ($action == 'deleted') {
-      $result = civicrm_api3('Timetrackpunch', 'delete', array(
-        'id' => CRM_Utils_Request::retrieve('punch_id', 'Positive', $this, TRUE, NULL, 'POST'),
-      ));
-    }
-    else {
+    echo json_encode(['action' => 'deleted']);
+  }
+
+  function handlePost() {
+    try {
       // Calculate the punch duration
-      $start_date = CRM_Utils_Request::retrieve('start_date', 'String', $this, TRUE, NULL, 'POST');
-      $end_date = CRM_Utils_Request::retrieve('end_date', 'String', $this, TRUE, NULL, 'POST');
+      $start_date = CRM_Utils_Request::retrieveValue('start_date', 'String', NULL, TRUE);
+      $end_date = CRM_Utils_Request::retrieveValue('end_date', 'String', NULL, TRUE);
       $duration = strtotime($end_date) - strtotime($start_date);
 
       $params = array(
-        'ktask_id' => CRM_Utils_Request::retrieve('ktask_id', 'Positive', $this, TRUE, NULL, 'POST'),
-        'comment' => CRM_Utils_Request::retrieve('text', 'String', $this, TRUE, NULL, 'POST'),
-        'begin' => CRM_Utils_Request::retrieve('start_date', 'String', $this, TRUE, NULL, 'POST'),
-        'contact_id' => CRM_Utils_Request::retrieve('contact_id', 'Positive', $this, TRUE, NULL, 'POST'),
+        'begin' => $start_date,
         'duration' => $duration,
+        'ktask_id' => CRM_Utils_Request::retrieveValue('ktask_id', 'Positive', NULL, TRUE),
+        'comment' => CRM_Utils_Request::retrieveValue('text', 'String', NULL, TRUE),
+        'contact_id' => CRM_Utils_Request::retrieveValue('contact_id', 'Positive', NULL, TRUE),
         'skip_punched_in_check' => 1,
         'skip_open_case_check' => 1,
         'skip_overlap_check' => 1,
       );
 
-      if ($action == 'updated') {
-        if ($punch_id = CRM_Utils_Request::retrieve('punch_id', 'Positive', $this, TRUE, NULL, 'POST')) {
-          $params['punch_id'] = $punch_id;
-        }
+      if ($punch_id = CRM_Utils_Request::retrieveValue('punch_id', 'Positive')) {
+        $params['punch_id'] = $punch_id;
       }
 
-      $result = civicrm_api3('Timetrackpunch', 'create', $params);
+      $t = civicrm_api3('Timetrackpunch', 'create', $params);
+      $result = [
+        'tid' => $t['id'],
+      ];
+    }
+    catch (Exception $e) {
+      $result = [
+        'action' => 'error',
+        'error_message' => $e->getMessage(),
+      ];
+    }
+
+    echo json_encode($result);
+  }
+
+  /**
+   * Handle a punch update.
+   * A bit redundant with 'POST', but we have to extract the put variables.
+   * Also, the punch_id is mandatory.. but we're relying on the API for validation.
+   */
+  function handlePut() {
+    parse_str(file_get_contents("php://input"), $vars);
+
+    try {
+      // Calculate the punch duration
+      $start_date = CRM_Utils_Array::value('start_date', $vars);
+      $end_date = CRM_Utils_Array::value('end_date', $vars);
+      $duration = strtotime($end_date) - strtotime($start_date);
+
+      $params = array(
+        'begin' => $start_date,
+        'duration' => $duration,
+        'punch_id' => CRM_Utils_Array::value('punch_id', $vars),
+        'ktask_id' => CRM_Utils_Array::value('ktask_id', $vars),
+        'comment' => CRM_Utils_Array::value('text', $vars),
+        'contact_id' => CRM_Utils_Array::value('contact_id', $vars),
+        'skip_punched_in_check' => 1,
+        'skip_open_case_check' => 1,
+        'skip_overlap_check' => 1,
+      );
+
+      $t = civicrm_api3('Timetrackpunch', 'create', $params);
+      $result = [
+        'tid' => $t['id'],
+      ];
+    }
+    catch (Exception $e) {
+      $result = [
+        'action' => 'error',
+        'error_message' => $e->getMessage(),
+      ];
     }
 
     echo json_encode($result);
