@@ -45,11 +45,12 @@ function civicrm_api3_timetrackpunchlist_preview($params) {
   $piPat = '\!pi -s';
   $dowDatePat = '[A-Z][a-z][a-z]\s+\d+\/\d+';
   $ymdDatePat = '\d\d\d\d-\d\d-\d\d';
-  $datePat = '(' . $ymdDatePat . '|' . $dowDatePat . ')';
-  $timePat = '(\d?\d:\d\d)';
-  $durPat = '(\d+\.?\d*)(H|h|hr|M|m|min)';
-  $aliasPat = '(\S+)';
-  $commentPat = '(.*)';
+  $datePat = $ymdDatePat . '|' . $dowDatePat;
+  $timePat = '\d?\d:\d\d';
+  $durPat = '\d+\.?\d*';
+  $durUnitPat = 'H|h|hr|M|m|min';
+  $aliasPat = '\S+';
+  $commentPat = '.*';
 
   $defaults = [];
   $defaults['contact_id'] = isset($params['contact_id'])
@@ -69,18 +70,19 @@ function civicrm_api3_timetrackpunchlist_preview($params) {
     if (empty($line) || $line{0} === '#') {
       continue;
     }
-    elseif (preg_match("/^($piPat )?($datePat )?($timePat)?\\+$durPat $aliasPat $commentPat/", $line, $m)) {
+    elseif (preg_match("/^($piPat)? ?($datePat)? ?($timePat)?\\+($durPat)($durUnitPat) ($aliasPat) ($commentPat)$/", $line, $m)) {
+      // print_r(['l'=>$line, 'm'=>$m]);
       $punch = $defaults + [
           'begin' => [
-            'date' => empty($m[3]) ? CRM_Utils_Time::getTime('Y-m-d') : $m[3],
-            'time' => empty($m[5]) ? '12:00' : $m[5],
+            'date' => empty($m[2]) ? CRM_Utils_Time::getTime('Y-m-d') : $m[2],
+            'time' => empty($m[3]) ? '12:00' : $m[3],
           ],
           'duration' => [
-            'qty' => $m[6],
-            'unit' => $m[7],
+            'qty' => $m[4],
+            'unit' => $m[5],
           ],
-          'alias' => $m[8],
-          'comment' => $m[9],
+          'alias' => $m[6],
+          'comment' => $m[7],
         ];
     }
     else {
