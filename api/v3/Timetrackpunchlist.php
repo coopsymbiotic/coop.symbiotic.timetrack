@@ -70,7 +70,7 @@ function civicrm_api3_timetrackpunchlist_preview($params) {
     if (empty($line) || $line{0} === '#') {
       continue;
     }
-    elseif (preg_match("/^($piPat)? ?($datePat)? ?($timePat)?\\+($durPat)($durUnitPat) ($aliasPat) ($commentPat)$/", $line, $m)) {
+    elseif (preg_match("/^($piPat)? ?($datePat)? ?($timePat)?\\+($durPat)($durUnitPat) ($aliasPat)( ?$commentPat)?$/", $line, $m)) {
       // print_r(['l'=>$line, 'm'=>$m]);
       $punch = $defaults + [
           'begin' => [
@@ -82,7 +82,7 @@ function civicrm_api3_timetrackpunchlist_preview($params) {
             'unit' => $m[5],
           ],
           'alias' => $m[6],
-          'comment' => $m[7],
+          'comment' => ltrim($m[7]),
         ];
     }
     else {
@@ -135,6 +135,7 @@ function civicrm_api3_timetrackpunchlist_preview($params) {
       foreach (['contact_id', 'comment', 'alias', 'begin', 'duration'] as $field) {
         if (empty($punch[$field])) {
           $punch = $error_defaults + ['message' => 'Missing required field: ' . $field];
+          break;
         }
       }
     }

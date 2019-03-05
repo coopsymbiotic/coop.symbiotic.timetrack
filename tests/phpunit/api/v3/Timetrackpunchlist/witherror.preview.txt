@@ -9,5 +9,6 @@
 2019-02-03 12:34+1h bad/foo make the foo
 11:00+1.5h mock/bar make the foobar baz
 20:00+30m mock/whiz make the foobarwhiz
+Sun 2/3 14:30+30m mock/whiz
 Sat 2/3 15:30+45m mock/whiz with invalid dow
 Sun 2/3 15:30+30m mock/whiz with valid dow

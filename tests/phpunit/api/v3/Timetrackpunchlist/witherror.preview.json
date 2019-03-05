@@ -9,6 +9,7 @@
   {"error": 1, "lineNo": 9, "line": "2019-02-03 12:34+1h bad/foo make the foo", "message": "Unrecognized task alias (bad/foo)"},
   {"begin": "2019-02-10 11:00", "duration": "5400", "alias": "mock/bar", "comment": "make the foobar baz", "contact_id": "@user_contact_id"},
   {"begin": "2019-02-10 20:00", "duration": "1800", "alias": "mock/whiz", "comment": "make the foobarwhiz", "contact_id": "@user_contact_id"},
-  {"error": 1, "lineNo": 12, "line": "Sat 2/3 15:30+45m mock/whiz with invalid dow", "message": "Day-of-week does not match date"},
+  {"error": 1, "lineNo": 12, "line": "Sun 2/3 14:30+30m mock/whiz", "message": "Missing required field: comment"},
+  {"error": 1, "lineNo": 13, "line": "Sat 2/3 15:30+45m mock/whiz with invalid dow", "message": "Day-of-week does not match date"},
   {"begin": "2019-02-03 15:30", "duration": "1800", "alias": "mock/whiz", "comment": "with valid dow", "contact_id": "@user_contact_id"}
 ]
