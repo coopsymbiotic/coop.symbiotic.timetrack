@@ -47,7 +47,7 @@ function civicrm_api3_timetrackpunchlist_preview($params) {
   $ymdDatePat = '\d\d\d\d-\d\d-\d\d';
   $datePat = '(' . $ymdDatePat . '|' . $dowDatePat . ')';
   $timePat = '(\d?\d:\d\d)';
-  $durPat = '(\d+\.?\d*[HhMm])';
+  $durPat = '(\d+\.?\d*)(H|h|hr|M|m|min)';
   $aliasPat = '(\S+)';
   $commentPat = '(.*)';
 
@@ -72,17 +72,17 @@ function civicrm_api3_timetrackpunchlist_preview($params) {
     elseif (preg_match("/^($piPat )?$datePat $timePat\\+$durPat $aliasPat $commentPat/", $line, $m)) {
       $punch = $defaults + [
           'begin' => ['date' => $m[2], 'time' => $m[3]],
-          'duration' => $m[4],
-          'alias' => $m[5],
-          'comment' => $m[6],
+          'duration' => ['qty' => $m[4], 'unit' => $m[5]],
+          'alias' => $m[6],
+          'comment' => $m[7],
         ];
     }
     elseif (preg_match("/^($piPat )?$timePat\\+$durPat $aliasPat $commentPat/", $line, $m)) {
       $punch = $defaults + [
           'begin' => ['date' => CRM_Utils_Time::getTime('Y-m-d'), 'time' => $m[2]],
-          'duration' => $m[3],
-          'alias' => $m[4],
-          'comment' => $m[5],
+          'duration' => ['qty' => $m[3], 'unit' => $m[4]],
+          'alias' => $m[5],
+          'comment' => $m[6],
         ];
     }
     else {
@@ -189,18 +189,18 @@ function civicrm_api3_timetrackpunchlist_import($params) {
 }
 
 function _civicrm_api3_timetrackpunchlist_normdur($duration) {
-  $len = mb_strlen($duration);
-  $unit = $duration{$len - 1};
   $min = NULL;
-  switch ($unit) {
+  switch ($duration['unit']) {
     case 'h':
+    case 'hr':
     case 'H':
-      $min = round(60 * rtrim($duration, 'hH'));
+      $min = round(60 * $duration['qty']);
       break;
 
     case 'm':
+    case 'min':
     case 'M':
-      $min = rtrim($duration, 'mM');
+      $min = $duration['qty'];
       break;
   }
 
