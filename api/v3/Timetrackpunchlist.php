@@ -42,7 +42,9 @@ function civicrm_api3_timetrackpunchlist_preview($params) {
   $lines = explode("\n", $txt);
 
   $piPat = '\!pi -s';
-  $datePat = '(\d\d\d\d-\d\d-\d\d)';
+  $dowDatePat = '[A-Z][a-z][a-z]\s+\d+\/\d+';
+  $ymdDatePat = '\d\d\d\d-\d\d-\d\d';
+  $datePat = '(' . $ymdDatePat . '|' . $dowDatePat . ')';
   $timePat = '(\d?\d:\d\d)';
   $durPat = '(\d+\.?\d*[HhMm])';
   $aliasPat = '(\S+)';
@@ -68,7 +70,7 @@ function civicrm_api3_timetrackpunchlist_preview($params) {
     }
     elseif (preg_match("/^($piPat )?$datePat $timePat\\+$durPat $aliasPat $commentPat/", $line, $m)) {
       $punch = $defaults + [
-          'begin' => $m[2] . ' ' . $m[3],
+          'begin' => ['date' => $m[2], 'time' => $m[3]],
           'duration' => $m[4],
           'alias' => $m[5],
           'comment' => $m[6],
@@ -76,7 +78,7 @@ function civicrm_api3_timetrackpunchlist_preview($params) {
     }
     elseif (preg_match("/^($piPat )?$timePat\\+$durPat $aliasPat $commentPat/", $line, $m)) {
       $punch = $defaults + [
-          'begin' => CRM_Utils_Time::getTime('Y-m-d') . ' ' . $m[2],
+          'begin' => ['date' => CRM_Utils_Time::getTime('Y-m-d'), 'time' => $m[2]],
           'duration' => $m[3],
           'alias' => $m[4],
           'comment' => $m[5],
@@ -84,6 +86,29 @@ function civicrm_api3_timetrackpunchlist_preview($params) {
     }
     else {
       $punch = $error_defaults + ['message' => 'Failed to parse line'];
+    }
+
+    // The above parsing may yield expressions in non-canonical formats.
+    // Validate/normalize each field - and (if necessary) generate an error.
+
+    if (isset($punch['begin']['date']) && preg_match('/^([A-Z][a-z][a-z])\s+(\d+)\/(\d+)$/', $punch['begin']['date'], $mDate)) {
+      // Translate "Dow mm/dd" to "yyyy-mm-dd".
+      $dow = $mDate[1];
+      $date = sprintf("%s-%02d-%02d", CRM_Utils_Time::getTime('Y'), $mDate[2], $mDate[3]);
+      if ($dow === date('D', strtotime($date . ' ' . $punch['begin']['time']))) {
+        $punch['begin']['date'] = $date;
+      }
+      else {
+        $punch = $error_defaults + ['message' => 'Day-of-week does not match date'];
+      }
+    }
+
+    if (isset($punch['begin']['date']) && !preg_match("/^{$ymdDatePat}$/", $punch['begin']['date'])) {
+      $punch = $error_defaults + ['message' => 'Malformed date'];
+    }
+
+    if (is_array($punch['begin'])) {
+      $punch['begin'] = $punch['begin']['date'] . ' ' . $punch['begin']['time'];
     }
 
     if (isset($punch['duration'])) {

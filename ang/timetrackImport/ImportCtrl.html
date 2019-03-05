@@ -10,12 +10,17 @@
 
       <pre>
 <u>{{ts('Format:')}}</u>
-[!pi -s] [&lt;yyyy-mm-dd&gt;] &lt;hh:mm&gt;+&lt;duration&gt; &lt;alias/task&gt; &lt;comment&gt;
+[!pi -s] [&lt;yyyy-mm-dd&gt; | &lt;dow&gt; &lt;mm/dd&gt;] &lt;hh:mm&gt;+&lt;duration&gt; &lt;alias/task&gt; &lt;comment&gt;
 
 <u>{{ts('Examples:')}}</u>
-2019-02-03 12:34+1h alias/cat1 make the foo
-11:00+1.5h alias/cat2 make the foobar
-!pi -s 20:00+30m alias/cat3 make the foobarwhiz</pre>
+2019-02-03 12:30+1.5h alias/task1 make the foo
+2019-02-04 14:00+30m alias/task2 make the whiz bang
+
+Sun 2/3 12:30+1.5h alias/task1 make the foo
+Mon 2/4 14:00+30m alias/task2 make the whiz bang
+
+12:30+1.5h alias/cat1 make the foobar
+14:00+30m alias/cat2 make the whiz bang</pre>
     </div>
 
 
