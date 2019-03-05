@@ -5,3 +5,7 @@
 # comment
 !pi 11:00+1.5h mock/bar make the foobar
 !pi -s 20:00+30m mock/whiz make the foobarwhiz
+2019-02-03 12:34+1h mock/foo make the foo
+2019-02-03 12:34+1h bad/foo make the foo
+11:00+1.5h mock/bar make the foobar baz
+20:00+30m mock/whiz make the foobarwhiz

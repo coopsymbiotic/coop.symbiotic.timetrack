@@ -1,0 +1,5 @@
+[
+  {"begin": "2019-02-03 12:34", "duration": "3600", "alias": "mock/foo", "comment": "make the foo plain", "contact_id": "@user_contact_id"},
+  {"begin": "2019-02-10 11:00", "duration": "5400", "alias": "mock/bar", "comment": "make the foobar plain", "contact_id": "@user_contact_id"},
+  {"begin": "2019-02-10 20:00", "duration": "1800", "alias": "mock/whiz", "comment": "make the foobarwhiz plain", "contact_id": "@user_contact_id"}
+]

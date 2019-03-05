@@ -41,7 +41,7 @@ function civicrm_api3_timetrackpunchlist_preview($params) {
   $txt = preg_replace('/\s*\n+\s*/', "\n", $txt);
   $lines = explode("\n", $txt);
 
-  $piPat = '\!pi';
+  $piPat = '\!pi -s';
   $datePat = '(\d\d\d\d-\d\d-\d\d)';
   $timePat = '(\d?\d:\d\d)';
   $durPat = '(\d+\.?\d*[HhMm])';
@@ -66,20 +66,20 @@ function civicrm_api3_timetrackpunchlist_preview($params) {
     if (empty($line) || $line{0} === '#') {
       continue;
     }
-    elseif (preg_match("/^$piPat -s $datePat $timePat\\+$durPat $aliasPat $commentPat/", $line, $m)) {
+    elseif (preg_match("/^($piPat )?$datePat $timePat\\+$durPat $aliasPat $commentPat/", $line, $m)) {
       $punch = $defaults + [
-          'begin' => $m[1] . ' ' . $m[2],
+          'begin' => $m[2] . ' ' . $m[3],
+          'duration' => $m[4],
+          'alias' => $m[5],
+          'comment' => $m[6],
+        ];
+    }
+    elseif (preg_match("/^($piPat )?$timePat\\+$durPat $aliasPat $commentPat/", $line, $m)) {
+      $punch = $defaults + [
+          'begin' => CRM_Utils_Time::getTime('Y-m-d') . ' ' . $m[2],
           'duration' => $m[3],
           'alias' => $m[4],
           'comment' => $m[5],
-        ];
-    }
-    elseif (preg_match("/^$piPat -s $timePat\\+$durPat $aliasPat $commentPat/", $line, $m)) {
-      $punch = $defaults + [
-          'begin' => CRM_Utils_Time::getTime('Y-m-d') . ' ' . $m[1],
-          'duration' => $m[2],
-          'alias' => $m[3],
-          'comment' => $m[4],
         ];
     }
     else {
