@@ -69,20 +69,18 @@ function civicrm_api3_timetrackpunchlist_preview($params) {
     if (empty($line) || $line{0} === '#') {
       continue;
     }
-    elseif (preg_match("/^($piPat )?$datePat $timePat\\+$durPat $aliasPat $commentPat/", $line, $m)) {
+    elseif (preg_match("/^($piPat )?($datePat )?($timePat)?\\+$durPat $aliasPat $commentPat/", $line, $m)) {
       $punch = $defaults + [
-          'begin' => ['date' => $m[2], 'time' => $m[3]],
-          'duration' => ['qty' => $m[4], 'unit' => $m[5]],
-          'alias' => $m[6],
-          'comment' => $m[7],
-        ];
-    }
-    elseif (preg_match("/^($piPat )?$timePat\\+$durPat $aliasPat $commentPat/", $line, $m)) {
-      $punch = $defaults + [
-          'begin' => ['date' => CRM_Utils_Time::getTime('Y-m-d'), 'time' => $m[2]],
-          'duration' => ['qty' => $m[3], 'unit' => $m[4]],
-          'alias' => $m[5],
-          'comment' => $m[6],
+          'begin' => [
+            'date' => empty($m[3]) ? CRM_Utils_Time::getTime('Y-m-d') : $m[3],
+            'time' => empty($m[5]) ? '12:00' : $m[5],
+          ],
+          'duration' => [
+            'qty' => $m[6],
+            'unit' => $m[7],
+          ],
+          'alias' => $m[8],
+          'comment' => $m[9],
         ];
     }
     else {
