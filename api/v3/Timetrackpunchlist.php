@@ -39,6 +39,7 @@ function civicrm_api3_timetrackpunchlist_preview($params) {
 
   $txt = $params['text'];
   $txt = preg_replace('/\s*\n+\s*/', "\n", $txt);
+  $txt = preg_replace("/[ \t]+/", " ", $txt);
   $lines = explode("\n", $txt);
 
   $piPat = '\!pi -s';

@@ -1,3 +1,4 @@
 2019-02-03 12:34+1h mock/foo make the foo plain
 11:00+1.5h mock/bar make the foobar plain
 20:00+30m mock/whiz make the foobarwhiz plain
+20:00+20m   mock/whiz	  make the  foobarwhiz plain
