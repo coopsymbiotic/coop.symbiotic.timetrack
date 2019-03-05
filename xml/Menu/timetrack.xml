@@ -49,4 +49,10 @@
     <title>Gitlab</title>
     <access_callback>1</access_callback>
   </item>
+  <item>
+    <path>civicrm/timetrack/import</path>
+    <page_callback>CRM_Timetrack_Page_Import</page_callback>
+    <title>Import</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
 </menu>
