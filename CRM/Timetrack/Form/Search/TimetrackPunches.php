@@ -65,6 +65,7 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
     // in hook_civicrm_searchTasks() ?
     $tasks = array(
       100 => ts('Invoice punches', array('domain' => 'coop.symbiotic.timetrack')),
+      101 => ts('Export punches', array('domain' => 'coop.symbiotic.timetrack')),
     );
 
     return $tasks;

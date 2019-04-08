@@ -243,6 +243,11 @@ function timetrack_civicrm_searchTasks($objectType, &$tasks) {
       'class' => 'CRM_Timetrack_Form_Task_Invoice',
       'result' => TRUE,
     );
+    $tasks[101] = array(
+      'title' => ts('Export punches', array('domain' => 'coop.symbiotic.timetrack')),
+      'class' => 'CRM_Timetrack_Form_Task_Export',
+      'result' => FALSE,
+    );
   }
 }
 
