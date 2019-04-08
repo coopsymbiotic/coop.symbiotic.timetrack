@@ -246,6 +246,11 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
       $clauses[] = 'civicrm_case.id = ' . intval($this->_formValues['case_id']);
     }
 
+    // FIXME: insecure?
+    if (! empty($this->_formValues['comment'])) {
+      $clauses[] = 'kpunch.comment LIKE "%' . CRM_Utils_Type::escape($this->_formValues['comment'], 'String') . '%"';
+    }
+
     $where = implode(' AND ', $clauses);
 
 /* FIXME
