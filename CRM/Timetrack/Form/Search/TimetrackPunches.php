@@ -81,9 +81,6 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
 
     $elements = [];
 
-    // @todo: convert users field to EntityRef; requires https://github.com/civicrm/civicrm-core/pull/13230
-    $users = CRM_Timetrack_Utils::getUsers();
-
     $case_title = CRM_Timetrack_Utils::getCaseSubject($this->case_id);
     $this->setTitle(ts('List of punches for %1', [1 => $case_title]));
 
@@ -97,8 +94,8 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
     $tasks = CRM_Timetrack_Utils::getActivitiesForCase($this->case_id);
     $tasks[''] = ts('- select -');
 
-    $form->add('select', 'ktask', ts('Task'), $tasks);
-    $form->add('select', 'contact_id', ts('Contact'), $users, FALSE, ['class' => 'crm-select2']);
+    $form->add('select', 'ktask', ts('Task'), $tasks, FALSE, ['class' => 'huge crm-select2']);
+    $form->addEntityRef('contact_id', ts('Contact'), ['multiple' => TRUE, 'api' => ['params' => ['uf_user' => 1]]]);
     $form->add('text', 'comment', ts('Comment'), FALSE);
     $form->add('select', 'state', ts('Invoice status'), array_merge(array('' => ts('- select -')), CRM_Timetrack_PseudoConstant::getInvoiceStatuses()));
 
@@ -239,8 +236,8 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
       $clauses[] = 'kpunch.ktask_id = ' . CRM_Utils_Type::escape($this->_formValues['ktask'], 'Positive');
     }
 
-    if (! empty($this->_formValues['contact_id'])) {
-      $clauses[] = 'kpunch.contact_id = ' . CRM_Utils_Type::escape($this->_formValues['contact_id'], 'Positive');
+    if (!empty($this->_formValues['contact_id'])) {
+      $clauses[] = 'kpunch.contact_id IN (' . CRM_Utils_Type::validate($this->_formValues['contact_id'], 'CommaSeparatedIntegers') . ')';
     }
 
     if (! empty($this->_formValues['case_id'])) {
