@@ -9,6 +9,7 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
   protected $_tables;
   protected $_whereTables;
   protected $_permissionWhereClause;
+  private $_displayNames = [];
 
   function __construct(&$formValues) {
     parent::__construct($formValues);
@@ -329,6 +330,9 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
   function alterRow(&$row) {
     $row['duration_hours'] = CRM_Timetrack_Utils::roundUpSeconds($row['duration_hours'], 1);
     $row['duration_rounded'] = CRM_Timetrack_Utils::roundUpSeconds($row['duration_rounded']);
+    $row['real_contact_id'] = isset($this->_displayNames[$row['real_contact_id']]) ? $this->_displayNames[$row['real_contact_id']]
+      : $this->_displayNames[$row['real_contact_id']] = '<a href="' . CRM_Utils_System::url('civicrm/contact/view', ['reset' => 1, 'cid' => $row['real_contact_id']]) . '">' .
+        CRM_Contact_BAO_Contact::displayName($row['real_contact_id']) . '</a>';
 
     // Keep a cache of tasks for each case_id
     // TODO: in 4.6, we won't need this, thanks to CRM-15759
