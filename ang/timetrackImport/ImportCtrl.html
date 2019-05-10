@@ -1,0 +1,81 @@
+<div class="crm-container">
+  <h1 crm-page-title>{{ts('Timetrack: Personal import')}}</h1>
+
+  <div crm-ui-debug="importModel"></div>
+
+  <form name="timetrackImportForm" crm-ui-id-scope>
+
+    <div class="help">
+      <p><em>{{ts('Import a series of time-punches.')}}</em></p>
+
+      <pre>
+<u>{{ts('Format:')}}</u>
+[!pi -s] [&lt;yyyy-mm-dd&gt; | &lt;dow&gt; &lt;mm/dd&gt;] [&lt;hh:mm&gt;]+&lt;duration&gt; &lt;alias/task&gt; &lt;comment&gt;
+
+<u>{{ts('Examples:')}}</u>
+2019-02-03 12:30+1.5h alias/task1 make the foo
+2019-02-04 14:00+30m alias/task2 make the whiz bang
+
+Sun 2/3 12:30+1.5h alias/task1 make the foo
+Mon 2/4 14:00+30m alias/task2 make the whiz bang
+
+12:30+1.5h alias/cat1 make the foobar
+14:00+30m alias/cat2 make the whiz bang</pre>
+    </div>
+
+
+    <div crm-ui-accordion="{title: ts('Import')}">
+      <textarea ng-model="importModel.plaintext" style="width: 90%; height: 10em;"></textarea>
+    </div>
+
+    <div crm-ui-accordion="{title: ts('Errors')}" ng-show="importModel.errors.length > 0">
+      <table>
+        <thead>
+        <tr>
+          <th>{{ts('Line No')}}</th>
+          <th>{{ts('Content')}}</th>
+          <th>{{ts('Error')}}</th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr ng-repeat="punch in importModel.errors">
+          <td class="error">{{punch.lineNo}}</td>
+          <td class="error">{{punch.line}}</td>
+          <td class="error">{{punch.message}}</td>
+        </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div crm-ui-accordion="{title: ts('Preview')}" ng-show="importModel.punches.length > 0">
+      <table>
+        <thead>
+        <tr>
+          <th>{{ts('Contact ID')}}</th>
+          <th>{{ts('Start Time')}}</th>
+          <th>{{ts('Duration')}}</th>
+          <th>{{ts('Task Alias')}}</th>
+          <th>{{ts('Comment')}}</th>
+        </tr>
+        </thead>
+        <tbody>
+          <tr ng-repeat="punch in importModel.punches">
+            <td>{{punch.contact_id}}</td>
+            <td>{{punch.begin}}</td>
+            <td>{{punch.duration / 60 / 60 | number:2}} hr</td>
+            <td>{{punch.alias}}</td>
+            <td>{{punch.comment}}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <br/>
+
+    <div>
+      <button ng-click="submit()" ng-disabled="importModel.punches.length == 0 || importModel.errors.length > 0">{{ts('Import')}}</button>
+    </div>
+
+  </form>
+
+</div>

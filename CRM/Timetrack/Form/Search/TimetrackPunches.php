@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 
+ * Custom search
  */
 class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search_Custom_Base implements CRM_Contact_Form_Search_Interface {
   protected $_formValues;
@@ -9,18 +9,19 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
   protected $_tables;
   protected $_whereTables;
   protected $_permissionWhereClause;
+  private $_displayNames = [];
 
-  function __construct(&$formValues) {
+  public function __construct(&$formValues) {
     parent::__construct($formValues);
 
     $this->_formValues = $formValues;
-    $this->_tables = array();
-    $this->_whereTables = array();
+    $this->_tables = [];
+    $this->_whereTables = [];
 
     /**
      * Define the columns for search result rows
      */
-    $this->_columns = array(
+    $this->_columns = [
       "#" => 'case_id',
       ts('Project') => 'case_subject',
       ts('Task') => 'task',
@@ -31,14 +32,14 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
       ts('Rounded') => 'duration_rounded',
       ts('Comment') => 'comment',
       ts('Billing') => 'invoice_id',
-    );
+    ];
 
     if (empty($this->_formValues['case_id'])) {
       $this->_formValues = array_merge($this->_formValues, $this->setDefaultValues());
     }
 
     // Needs to be set in form for the export tasks?
-    if (! empty($formValues['case_id'])) {
+    if (!empty($formValues['case_id'])) {
       $this->case_id = $formValues['case_id'];
     }
     else {
@@ -63,9 +64,10 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
   public function buildTaskList(CRM_Core_Form_Search $form) {
     // [ML] If I understand correctly, this refers to the tasks we defined
     // in hook_civicrm_searchTasks() ?
-    $tasks = array(
-      100 => ts('Invoice punches', array('domain' => 'coop.symbiotic.timetrack')),
-    );
+    $tasks = [
+      100 => ts('Invoice punches', ['domain' => 'coop.symbiotic.timetrack']),
+      101 => ts('Export punches', ['domain' => 'coop.symbiotic.timetrack']),
+    ];
 
     return $tasks;
   }
@@ -73,14 +75,11 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
   /**
    * @param CRM_Core_Form $form
    */
-  function buildForm(&$form) {
+  public function buildForm(&$form) {
     // Needs to be set in the $form, so that we don't loose it after filter/task submit.
     $this->case_id = CRM_Utils_Request::retrieve('case_id', 'Integer', $form, FALSE, NULL);
 
     $elements = [];
-
-    // @todo: convert users field to EntityRef; requires https://github.com/civicrm/civicrm-core/pull/13230
-    $users = CRM_Timetrack_Utils::getUsers();
 
     $case_title = CRM_Timetrack_Utils::getCaseSubject($this->case_id);
     $this->setTitle(ts('List of punches for %1', [1 => $case_title]));
@@ -95,10 +94,10 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
     $tasks = CRM_Timetrack_Utils::getActivitiesForCase($this->case_id);
     $tasks[''] = ts('- select -');
 
-    $form->add('select', 'ktask', ts('Task'), $tasks);
-    $form->add('select', 'contact_id', ts('Contact'), $users, FALSE, ['class' => 'crm-select2']);
+    $form->add('select', 'ktask', ts('Task'), $tasks, FALSE, ['class' => 'huge crm-select2']);
+    $form->addEntityRef('contact_id', ts('Contact'), ['multiple' => TRUE, 'api' => ['params' => ['uf_user' => 1]]]);
     $form->add('text', 'comment', ts('Comment'), FALSE);
-    $form->add('select', 'state', ts('Invoice status'), array_merge(array('' => ts('- select -')), CRM_Timetrack_PseudoConstant::getInvoiceStatuses()));
+    $form->add('select', 'state', ts('Invoice status'), array_merge(['' => ts('- select -')], CRM_Timetrack_PseudoConstant::getInvoiceStatuses()));
 
     array_push($elements, 'case_id');
     array_push($elements, 'start_date');
@@ -118,8 +117,8 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
     Civi::resources()->addStyle('.crm-search-results tbody > tr > td:last-child { display: none; }');
   }
 
-  function setDefaultValues() {
-    $defaults = array();
+  public function setDefaultValues() {
+    $defaults = [];
 
     if (empty($this->_formValues['case_id'])) {
       $this->case_id = CRM_Utils_Request::retrieve('case_id', 'Integer', $this, FALSE, NULL);
@@ -134,7 +133,7 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
     return $defaults;
   }
 
-  function templateFile() {
+  public function templateFile() {
     return 'CRM/Timetrack/Form/Search/TimetrackPunches.tpl';
   }
 
@@ -142,7 +141,7 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
    * Implements all().
    * Defines the default select and sort clauses.
    */
-  function all($offset = 0, $rowcount = 0, $sort = null, $includeContactIDs = FALSE, $onlyIDs = FALSE) {
+  public function all($offset = 0, $rowcount = 0, $sort = NULL, $includeContactIDs = FALSE, $onlyIDs = FALSE) {
     // XXX: kpunch.id as contact_id is a hack because the tasks require it for the checkboxes.
     $select = "kpunch.id as pid, kpunch.id as contact_id, kpunch.contact_id as real_contact_id, from_unixtime(kpunch.begin) as begin, kpunch.duration as duration_hours,
                kpunch.duration as duration_rounded, kpunch.comment, kpunch.korder_id as invoice_id,
@@ -172,9 +171,9 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
 
     $sql = "SELECT $select FROM $from WHERE $where";
 
-    if (! $onlyIDs) {
+    if (!$onlyIDs) {
       // Define ORDER BY for query in $sort, with default value
-      if (! empty($sort)) {
+      if (!empty($sort)) {
         if (is_string($sort)) {
           $sql .= " ORDER BY $sort ";
         }
@@ -198,17 +197,17 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
    * Implements from().
    * Returns a list of tables to select from.
    */
-  function from() {
+  public function from() {
     return implode(' ', $this->_tables);
   }
 
   /**
    * Implements where().
    */
-  function where($includeContactIDs = false){
-    $clauses = array();
+  public function where($includeContactIDs = FALSE) {
+    $clauses = [];
 
-    if (! empty($this->_formValues['start_date'])) {
+    if (!empty($this->_formValues['start_date'])) {
       // Convert to unix timestamp (FIXME)
       $start = $this->_formValues['start_date'];
       $start = strtotime($start);
@@ -216,7 +215,7 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
       $clauses[] = 'kpunch.begin >= ' . $start;
     }
 
-    if (! empty($this->_formValues['end_date'])) {
+    if (!empty($this->_formValues['end_date'])) {
       // Convert to unix timestamp (FIXME)
       $end = $this->_formValues['end_date'] . ' 23:59:59';
       $end = strtotime($end);
@@ -233,22 +232,27 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
       }
     }
 
-    if (! empty($this->_formValues['ktask'])) {
+    if (!empty($this->_formValues['ktask'])) {
       $clauses[] = 'kpunch.ktask_id = ' . CRM_Utils_Type::escape($this->_formValues['ktask'], 'Positive');
     }
 
-    if (! empty($this->_formValues['contact_id'])) {
-      $clauses[] = 'kpunch.contact_id = ' . CRM_Utils_Type::escape($this->_formValues['contact_id'], 'Positive');
+    if (!empty($this->_formValues['contact_id'])) {
+      $clauses[] = 'kpunch.contact_id IN (' . CRM_Utils_Type::validate($this->_formValues['contact_id'], 'CommaSeparatedIntegers') . ')';
     }
 
-    if (! empty($this->_formValues['case_id'])) {
+    if (!empty($this->_formValues['case_id'])) {
       $clauses[] = 'civicrm_case.id = ' . intval($this->_formValues['case_id']);
+    }
+
+    // FIXME: insecure?
+    if (!empty($this->_formValues['comment'])) {
+      $clauses[] = 'kpunch.comment LIKE "%' . CRM_Utils_Type::escape($this->_formValues['comment'], 'String') . '%"';
     }
 
     $where = implode(' AND ', $clauses);
 
 /* FIXME
-    if(! empty($this->_permissionWhereClause)){
+    if(!empty($this->_permissionWhereClause)){
       if (empty($where)) {
         $where = "$this->_permissionWhereClause";
       }
@@ -264,7 +268,7 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
   /**
    * Implements groupby().
    */
-  function groupby() {
+  public function groupby() {
     $groupby = '';
     return $groupby;
   }
@@ -272,15 +276,15 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
   /**
    * Implements having().
    */
-  function having() {
+  public function having() {
     $having = '';
     return $having;
   }
 
- /**
+  /**
    * Implements counts().
    */
-  function count() {
+  public function count() {
     $sql = $this->all();
     $dao = CRM_Core_DAO::executeQuery($sql, CRM_Core_DAO::$_nullArray);
     return $dao->N;
@@ -289,14 +293,14 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
   /**
    * Not sure if mandatory or not. Was in the base example I re-used.
    */
-  function contactIDs($offset = 0, $rowcount = 0, $sort = NULL, $returnSQL = FALSE) {
+  public function contactIDs($offset = 0, $rowcount = 0, $sort = NULL, $returnSQL = FALSE) {
     return $this->all($offset, $rowcount, $sort, FALSE, TRUE);
   }
 
   /**
    * Implements columns().
    */
-  function &columns() {
+  public function &columns() {
     return $this->_columns;
   }
 
@@ -304,7 +308,7 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
    * Sets the page title.
    * Called from buildForm().
    */
-  function setTitle($title) {
+  public function setTitle($title) {
     if ($title) {
       CRM_Utils_System::setTitle($title);
     }
@@ -313,31 +317,34 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
     }
   }
 
-  function summary() {
+  public function summary() {
     return NULL;
   }
 
   /**
    * Implements alterRow().
    */
-  function alterRow(&$row) {
+  public function alterRow(&$row) {
     $row['duration_hours'] = CRM_Timetrack_Utils::roundUpSeconds($row['duration_hours'], 1);
     $row['duration_rounded'] = CRM_Timetrack_Utils::roundUpSeconds($row['duration_rounded']);
+    $row['real_contact_id'] = isset($this->_displayNames[$row['real_contact_id']]) ? $this->_displayNames[$row['real_contact_id']]
+      : $this->_displayNames[$row['real_contact_id']] = '<a href="' . CRM_Utils_System::url('civicrm/contact/view', ['reset' => 1, 'cid' => $row['real_contact_id']]) . '">' .
+        CRM_Contact_BAO_Contact::displayName($row['real_contact_id']) . '</a>';
 
     // Keep a cache of tasks for each case_id
     // TODO: in 4.6, we won't need this, thanks to CRM-15759
     // which can lookup option values when necessary (i.e. if the user clicks a field).
-    static $task_cache = array();
+    static $task_cache = [];
     $case_id = $row['case_id'];
     $pid = $row['pid'];
 
-    if (! isset($task_cache[$case_id])) {
-      $task_cache[$case_id] = array();
+    if (!isset($task_cache[$case_id])) {
+      $task_cache[$case_id] = [];
 
-      $result = civicrm_api3('Timetracktask', 'get', array(
+      $result = civicrm_api3('Timetracktask', 'get', [
         'case_id' => $case_id,
         'option.limit' => 1000,
-      ));
+      ]);
 
       foreach ($result['values'] as $key => $val) {
         $task_cache[$case_id][$key] = $val['title'];
@@ -345,7 +352,7 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
     }
 
     // Link the pid to the punch edit form
-    $url = CRM_Utils_System::url('civicrm/timetrack/punch', array('reset' => 1, 'cid' => $case_id, 'pid' => $pid));
+    $url = CRM_Utils_System::url('civicrm/timetrack/punch', ['reset' => 1, 'cid' => $case_id, 'pid' => $pid]);
     $row['pid'] = "<a class='crm-popup' href='$url'>" . $row['pid'] . '</a>';
 
     // Allow user to edit punch duration, comment and task type.
@@ -355,16 +362,17 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
     $options = json_encode($task_cache[$case_id]);
     $row['task'] = "<div class='crm-entity' data-entity='Timetrackpunch' data-id='{$pid}'><div class='crm-editable' data-field='ktask_id' data-type='select' data-options='$options'>" . $row['task'] . '</div></div>';
 
-    if (! empty($row['case_subject'])) {
+    if (!empty($row['case_subject'])) {
       $contact_id = CRM_Timetrack_Utils::getCaseContact($case_id);
 
-      $row['case_subject'] = CRM_Utils_System::href($row['case_subject'], 'civicrm/contact/view/case', array(
+      $row['case_subject'] = CRM_Utils_System::href($row['case_subject'], 'civicrm/contact/view/case', [
         'reset' => 1,
         'id' => $case_id,
         'cid' => $contact_id,
         'action' => 'view',
         'context' => 'case',
-      ));
+      ]);
     }
   }
+
 }

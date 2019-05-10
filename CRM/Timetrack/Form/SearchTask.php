@@ -49,7 +49,7 @@ class CRM_Timetrack_Form_SearchTask extends CRM_Core_Form {
    * @param bool $useTable
    */
   public static function preProcessCommon(&$form, $useTable = FALSE) {
-    $ids = array();
+    $ids = [];
     $values = $form->controller->exportValues($form->get('searchFormName'));
     $form->_task = $values['task'];
 
@@ -64,9 +64,9 @@ class CRM_Timetrack_Form_SearchTask extends CRM_Core_Form {
       // FIXME: this duplicates codes from CRM_Timetrack_Form_Search_TimetrackPunches
       // it might not really be necessary, if the 'contact' hack works?
       // but might be better to keep it (and refactor), so that we can avoid that hack.
-      $clauses = array();
+      $clauses = [];
 
-      if (! empty($values['start_date'])) {
+      if (!empty($values['start_date'])) {
         // Convert to unix timestamp (FIXME)
         $start = $values['start_date'];
         $start = strtotime($start);
@@ -74,7 +74,7 @@ class CRM_Timetrack_Form_SearchTask extends CRM_Core_Form {
         $clauses[] = 'kpunch.begin >= ' . $start;
       }
 
-      if (! empty($values['end_date'])) {
+      if (!empty($values['end_date'])) {
         // Convert to unix timestamp (FIXME)
         $end = $values['end_date'] . ' 23:59:59';
         $end = strtotime($end);
@@ -91,11 +91,11 @@ class CRM_Timetrack_Form_SearchTask extends CRM_Core_Form {
         }
       }
 
-      if (! empty($values['ktask'])) {
+      if (!empty($values['ktask'])) {
         $clauses[] = 'kpunch.ktask_id = ' . CRM_Utils_Type::escape($values['ktask'], 'Positive');
       }
 
-      if (! empty($values['case_id'])) {
+      if (!empty($values['case_id'])) {
         $clauses[] = 'civicrm_case.id = ' . intval($values['case_id']);
       }
 
@@ -161,17 +161,17 @@ class CRM_Timetrack_Form_SearchTask extends CRM_Core_Form {
    * @param bool $submitOnce
    */
   public function addDefaultButtons($title, $nextType = 'next', $backType = 'back', $submitOnce = FALSE) {
-    $this->addButtons(array(
-      array(
+    $this->addButtons([
+      [
         'type' => $nextType,
         'name' => $title,
         'isDefault' => TRUE,
-      ),
-      array(
+      ],
+      [
         'type' => $backType,
         'name' => ts('Cancel'),
-      ),
-    ));
+      ],
+    ]);
   }
 
 }
