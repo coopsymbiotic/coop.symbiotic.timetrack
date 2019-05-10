@@ -1,7 +1,7 @@
 <?php
 
 class CRM_Timetrack_Page_Timeline extends CRM_Core_Page {
-  function run() {
+  public function run() {
     Civi::resources()
       ->addScriptFile('coop.symbiotic.timetrack', 'js/timeline.js')
       ->addScriptFile('coop.symbiotic.timetrack', 'dist/dhtmlxscheduler/codebase/dhtmlxscheduler.js')
@@ -10,37 +10,38 @@ class CRM_Timetrack_Page_Timeline extends CRM_Core_Page {
 
     // TODO: currently we only show a timeline for the current user.
     // Get info on the current user.
-    $users = array();
+    $users = [];
     $session = CRM_Core_Session::singleton();
 
-    $contact = civicrm_api3('Contact', 'getsingle', array(
+    $contact = civicrm_api3('Contact', 'getsingle', [
       'contact_id' => $session->get('userID'),
-    ));
+    ]);
 
-    $users[] = array(
+    $users[] = [
       'key' => $session->get('userID'),
       'label' => $contact['display_name'],
-    );
+    ];
 
     // Get info on cases (contracts) and possible tasks.
     // then reformat the array for the format required by timeline.
-    $tasks = array();
+    $tasks = [];
     $tmp = CRM_Timetrack_Utils::getCaseActivityTypes();
 
     foreach ($tmp as $key => $val) {
-      $tasks[] = array(
+      $tasks[] = [
         'key' => $key,
         'label' => $val,
-      );
+      ];
     }
 
-    CRM_Core_Resources::singleton()->addSetting(array(
-      'timetrack' => array(
+    CRM_Core_Resources::singleton()->addSetting([
+      'timetrack' => [
         'users' => $users,
         'tasks' => $tasks,
-      )
-    ));
+      ]
+    ]);
 
     parent::run();
   }
+
 }

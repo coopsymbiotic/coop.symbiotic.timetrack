@@ -4,7 +4,7 @@ require_once 'timetrack.civix.php';
 use CRM_Timetrack_ExtensionUtil as E;
 
 /**
- * Implementation of hook_civicrm_config
+ * Implements hook_civicrm_config().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_config
  */
@@ -13,7 +13,7 @@ function timetrack_civicrm_config(&$config) {
 }
 
 /**
- * Implementation of hook_civicrm_xmlMenu
+ * Implements hook_civicrm_xmlMenu().
  *
  * @param $files array(string)
  *
@@ -24,7 +24,7 @@ function timetrack_civicrm_xmlMenu(&$files) {
 }
 
 /**
- * Implementation of hook_civicrm_install
+ * Implements hook_civicrm_install().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_install
  */
@@ -33,7 +33,7 @@ function timetrack_civicrm_install() {
 }
 
 /**
- * Implementation of hook_civicrm_uninstall
+ * Implements hook_civicrm_uninstall().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_uninstall
  */
@@ -42,7 +42,7 @@ function timetrack_civicrm_uninstall() {
 }
 
 /**
- * Implementation of hook_civicrm_enable
+ * Implements hook_civicrm_enable().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_enable
  */
@@ -51,7 +51,7 @@ function timetrack_civicrm_enable() {
 }
 
 /**
- * Implementation of hook_civicrm_disable
+ * Implements hook_civicrm_disable().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_disable
  */
@@ -60,7 +60,7 @@ function timetrack_civicrm_disable() {
 }
 
 /**
- * Implementation of hook_civicrm_upgrade
+ * Implements hook_civicrm_upgrade().
  *
  * @param $op string, the type of operation being performed; 'check' or 'enqueue'
  * @param $queue CRM_Queue_Queue, (for 'enqueue') the modifiable list of pending up upgrade tasks
@@ -75,7 +75,7 @@ function timetrack_civicrm_upgrade($op, CRM_Queue_Queue $queue = NULL) {
 }
 
 /**
- * Implementation of hook_civicrm_managed
+ * Implements hook_civicrm_managed().
  *
  * Generate a list of entities to create/deactivate/delete when this module
  * is installed, disabled, uninstalled.
@@ -87,7 +87,7 @@ function timetrack_civicrm_managed(&$entities) {
 }
 
 /**
- * Implementation of hook_civicrm_caseTypes
+ * Implements hook_civicrm_caseTypes().
  *
  * Generate a list of case-types
  *
@@ -114,7 +114,7 @@ function timetrack_civicrm_angularModules(&$angularModules) {
 }
 
 /**
- * Implementation of hook_civicrm_alterSettingsFolders
+ * Implements hook_civicrm_alterSettingsFolders().
  *
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_alterSettingsFolders
  */
@@ -123,7 +123,7 @@ function timetrack_civicrm_alterSettingsFolders(&$metaDataFolders = NULL) {
 }
 
 /**
- * Implements hook_civicrm_buildForm() is a completely overkill way.
+ * Implements hook_civicrm_buildForm() in a completely overkill way.
  * Searches for an override class named after the initial $formName
  * and calls its buildForm().
  *
@@ -143,7 +143,7 @@ function timetrack_civicrm_buildForm($formName, &$form) {
 
   if (file_exists($filename)) {
     require_once $filename;
-    $foo = new $formName;
+    $foo = new $formName();
 
     if (method_exists($foo, 'buildForm')) {
       $foo->buildForm($form);
@@ -162,7 +162,7 @@ function timetrack_civicrm_validateForm($formName, &$fields, &$files, &$form, &$
 
   if (file_exists($filename)) {
     require_once $filename;
-    $foo = new $formName;
+    $foo = new $formName();
 
     if (method_exists($foo, 'validateForm')) {
       $foo->validateForm($fields, $files, $form, $errors);
@@ -187,7 +187,7 @@ function timetrack_civicrm_postProcess($formName, &$form) {
 
   if (file_exists($filename)) {
     require_once $filename;
-    $foo = new $formName;
+    $foo = new $formName();
 
     if (method_exists($foo, 'postProcess')) {
       $foo->postProcess($form);
@@ -215,7 +215,7 @@ function timetrack_civicrm_pageRun(&$page) {
 
   if (file_exists($filename)) {
     require_once $filename;
-    $foo = new $pageName;
+    $foo = new $pageName();
 
     if (method_exists($foo, 'pageRun')) {
       $foo->pageRun($form);
@@ -224,7 +224,7 @@ function timetrack_civicrm_pageRun(&$page) {
 }
 
 /**
- * Implements hook_civicrm_caseSummary();
+ * Implements hook_civicrm_caseSummary().
  */
 function timetrack_civicrm_caseSummary($case_id) {
   require_once dirname(__FILE__) . '/CRM/Timetrack/Case/Page/CaseView.php';
@@ -238,16 +238,16 @@ function timetrack_civicrm_caseSummary($case_id) {
 function timetrack_civicrm_searchTasks($objectType, &$tasks) {
   // FIXME: how to define our own object?
   if ($objectType == 'contact') {
-    $tasks[100] = array(
-      'title' => ts('Invoice punches', array('domain' => 'coop.symbiotic.timetrack')),
+    $tasks[100] = [
+      'title' => ts('Invoice punches', ['domain' => 'coop.symbiotic.timetrack']),
       'class' => 'CRM_Timetrack_Form_Task_Invoice',
       'result' => TRUE,
-    );
-    $tasks[101] = array(
-      'title' => ts('Export punches', array('domain' => 'coop.symbiotic.timetrack')),
+    ];
+    $tasks[101] = [
+      'title' => ts('Export punches', ['domain' => 'coop.symbiotic.timetrack']),
       'class' => 'CRM_Timetrack_Form_Task_Export',
       'result' => FALSE,
-    );
+    ];
   }
 }
 
@@ -255,12 +255,12 @@ function timetrack_civicrm_searchTasks($objectType, &$tasks) {
  * Implements hook_civicrm_triggerInfo().
  */
 function timetrack_civicrm_triggerInfo(&$info, $tableName) {
-  $info[] = array(
-    'table' => array('korder'),
+  $info[] = [
+    'table' => ['korder'],
     'when' => 'BEFORE',
-    'event' => array('INSERT'),
+    'event' => ['INSERT'],
     'sql' => "\nSET NEW.created_date = CURRENT_TIMESTAMP;\n",
-  );
+  ];
 }
 
 /**
@@ -271,24 +271,24 @@ function timetrack_civicrm_alterAPIPermissions($entity, $action, &$params, &$per
   // 'CiviCase: access my cases and activities' ?
   // .. or some custom permission?
 
-  $permissions['timetrackpunch'] = array(
-    'get' => array(
+  $permissions['timetrackpunch'] = [
+    'get' => [
       'access CiviCRM',
-    ),
-    'create' => array(
+    ],
+    'create' => [
       'access CiviCRM',
-    ),
-    'punchout' => array(
+    ],
+    'punchout' => [
       'access CiviCRM',
-    ),
-  );
+    ],
+  ];
 
-  $permissions['timetracktask'] = array(
-    'get' => array(
+  $permissions['timetracktask'] = [
+    'get' => [
       'access CiviCRM',
-    ),
-    'create' => array(
+    ],
+    'create' => [
       'access CiviCRM',
-    ),
-  );
+    ],
+  ];
 }

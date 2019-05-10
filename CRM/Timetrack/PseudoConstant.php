@@ -17,29 +17,30 @@ class CRM_Timetrack_PseudoConstant extends CRM_Core_PseudoConstant {
    * Returns a list of statuses for punch invoices.
    * TODO: should be option values.
    */
-  static function getInvoiceStatuses() {
-    return array(
-      // 0 => ts('New'), // FIXME : this is weird! (kproject had 'new')
-      self::INVOICE_DRAFT => ts('Draft', array('domain' => 'coop.symbiotic.timetrack')),
+  public static function getInvoiceStatuses() {
+    return [
+      // 0 => ts('New'), // FIXME : this is weird!(kproject had 'new')
+      self::INVOICE_DRAFT => ts('Draft', ['domain' => 'coop.symbiotic.timetrack']),
       // 2 => ts('Ordered', array('domain' => 'coop.symbiotic.timetrack')),
-      self::INVOICE_SENT => ts('Sent / Pending payment', array('domain' => 'coop.symbiotic.timetrack')),
-      self::INVOICE_PAID => ts('Paid', array('domain' => 'coop.symbiotic.timetrack')),
-      self::INVOICE_LOST => ts('Lost', array('domain' => 'coop.symbiotic.timetrack')),
-      self::INVOICE_LEGACY => ts('Legacy', array('domain' => 'coop.symbiotic.timetrack')),
-    );
+      self::INVOICE_SENT => ts('Sent / Pending payment', ['domain' => 'coop.symbiotic.timetrack']),
+      self::INVOICE_PAID => ts('Paid', ['domain' => 'coop.symbiotic.timetrack']),
+      self::INVOICE_LOST => ts('Lost', ['domain' => 'coop.symbiotic.timetrack']),
+      self::INVOICE_LEGACY => ts('Legacy', ['domain' => 'coop.symbiotic.timetrack']),
+    ];
   }
 
   /**
    * Returns a list of statuses for tasks.
    * TODO: should be option values.
    */
-  static function getTaskStatuses() {
-    return array(
+  public static function getTaskStatuses() {
+    return [
       self::TASK_NEW => ts('New'), // FIXME: kproject legacy..
       self::TASK_OPEN => ts('Opened / In progress'),
       self::TASK_STALLED => ts('Stalled'),
       self::TASK_COMPLETED => ts('Completed / Resolved'),
       self::TASK_CANCELLED => ts('Cancelled / Rejected'),
-    );
+    ];
   }
+
 }

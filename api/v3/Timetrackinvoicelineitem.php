@@ -4,18 +4,16 @@
  * Retrieve one or more timetrackinvoicelineitem, given a set of search params
  * Implements Timetrackinvoicelineitem.get
  *
- * @param  array  input parameters
+ * @param array $params
  *
  * @return array API Result Array
  * (@getfields timetrackinvoicelineitem_get}
- * @static void
- * @access public
  */
 function civicrm_api3_timetrackinvoicelineitem_get($params) {
-  $options = array();
-  $lineitems = array();
+  $options = [];
+  $lineitems = [];
 
-  $sqlparams = array();
+  $sqlparams = [];
 
   $sql = 'SELECT *
             FROM korder_line
@@ -25,28 +23,28 @@ function civicrm_api3_timetrackinvoicelineitem_get($params) {
   // except that the 'create' API kind of depends on it, until we rename the DAO..
   if ($order_id = CRM_Utils_Array::value('order_id', $params)) {
     $sql .= ' AND order_id = %1';
-    $sqlparams[1] = array($order_id, 'Positive');
+    $sqlparams[1] = [$order_id, 'Positive'];
   }
 
   if ($invoice_id = CRM_Utils_Array::value('invoice_id', $params)) {
     $sql .= ' AND order_id = %1';
-    $sqlparams[1] = array($invoice_id, 'Positive');
+    $sqlparams[1] = [$invoice_id, 'Positive'];
   }
 
   if ($order_line_id = CRM_Utils_Array::value('order_line_id', $params)) {
     $sql .= ' AND id = %2';
-    $sqlparams[2] = array($order_line_id, 'Positive');
+    $sqlparams[2] = [$order_line_id, 'Positive'];
   }
 
   if ($invoice_line_id = CRM_Utils_Array::value('invoice_line_id', $params)) {
     $sql .= ' AND id = %2';
-    $sqlparams[2] = array($invoice_line_id, 'Positive');
+    $sqlparams[2] = [$invoice_line_id, 'Positive'];
   }
 
   $dao = CRM_Core_DAO::executeQuery($sql, $sqlparams);
 
   while ($dao->fetch()) {
-    $line = array(
+    $line = [
       'order_line_id' => $dao->id,
       'order_id' => $dao->order_id,
       'title' => $dao->title,
@@ -54,12 +52,12 @@ function civicrm_api3_timetrackinvoicelineitem_get($params) {
       'hours_billed' => $dao->hours_billed,
       'unit' => $dao->unit,
       'cost' => $dao->cost,
-    );
+    ];
 
     // Calculate the time of included punches
-    $dao2 = CRM_Core_DAO::executeQuery('SELECT sum(duration) as total FROM kpunch WHERE korder_line_id = %1', array(
-      1 => array($dao->id, 'Positive'),
-    ));
+    $dao2 = CRM_Core_DAO::executeQuery('SELECT sum(duration) as total FROM kpunch WHERE korder_line_id = %1', [
+      1 => [$dao->id, 'Positive'],
+    ]);
 
     if ($dao2->fetch()) {
       $line['total_included'] = $dao2->total;
@@ -89,11 +87,11 @@ function civicrm_api3_timetrackinvoicelineitem_create($params) {
   $item->copyValues($params);
   $item->save();
 
-  if (is_null($item)) { 
+  if (is_null($item)) {
     return civicrm_api3_create_error('Entity not created (Timetrackinvoicelineitem create)');
   }
 
-  $values = array();
+  $values = [];
   _civicrm_api3_object_to_array($item, $values[$item->id]);
   return civicrm_api3_create_success($values, $params, NULL, 'create', $item);
 }

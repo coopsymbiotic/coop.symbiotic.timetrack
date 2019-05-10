@@ -1,7 +1,7 @@
 <?php
 
 class CRM_Timetrack_Utils {
-  static function roundUpSeconds($seconds, $roundToMinutes = 15) {
+  public static function roundUpSeconds($seconds, $roundToMinutes = 15) {
     // 1- we round the seconds to the closest 15 mins
     // 2- we convert the seconds to hours, so 3600 seconds = 1h.
     // 3- round to max 2 decimals, in case we're rounding to the minute.
@@ -11,16 +11,16 @@ class CRM_Timetrack_Utils {
   /**
    * Returns the main contact (client) of a case.
    */
-  static function getCaseContact($case_id) {
-    static $case_contact_cache = array();
+  public static function getCaseContact($case_id) {
+    static $case_contact_cache = [];
 
     if (isset($case_contact_cache[$case_id])) {
       return $case_contact_cache[$case_id];
     }
 
-    $dao = CRM_Core_DAO::executeQuery('SELECT contact_id FROM civicrm_case_contact WHERE case_id = %1', array(
-      1 => array($case_id, 'Positive'),
-    ));
+    $dao = CRM_Core_DAO::executeQuery('SELECT contact_id FROM civicrm_case_contact WHERE case_id = %1', [
+      1 => [$case_id, 'Positive'],
+    ]);
 
     if ($dao->fetch()) {
       $case_contact_cache[$case_id] = $dao->contact_id;
@@ -34,11 +34,11 @@ class CRM_Timetrack_Utils {
   /**
    * For a given case_id, return the URL of the case (involves looking up the main contact_id of the case).
    */
-  static function getCaseUrl($case_id) {
+  public static function getCaseUrl($case_id) {
     $contact_id = self::getCaseContact($case_id);
 
-    if (! $contact_id) {
-      CRM_Core_Error::fatal(ts('Could not find a contact for the case ID %1', array(1 => $case_id)));
+    if (!$contact_id) {
+      CRM_Core_Error::fatal(ts('Could not find a contact for the case ID %1', [1 => $case_id]));
     }
 
     return CRM_Utils_System::url('civicrm/contact/view/case', 'reset=1&id=' . $case_id . '&cid=' . $contact_id . '&action=view');
@@ -48,7 +48,7 @@ class CRM_Timetrack_Utils {
    * Returns an array of all case+activities.
    * TODO: we should add an option to restrict using contract relations.
    */
-  static function getCaseActivityTypes($add_select = TRUE) {
+  public static function getCaseActivityTypes($add_select = TRUE) {
     return self::getActivitiesForCase(0, $add_select);
   }
 
@@ -59,17 +59,17 @@ class CRM_Timetrack_Utils {
    * @param Int $case_id
    * @returns Array List of activities, keyed by activity ID.
    */
-  static function getActivitiesForCase($case_id, $add_select = TRUE) {
-    $tasks = array();
+  public static function getActivitiesForCase($case_id, $add_select = TRUE) {
+    $tasks = [];
 
     if ($add_select) {
-      $tasks = array('' => ts('- select -'));
+      $tasks = ['' => ts('- select -')];
     }
 
-    $params = array(
+    $params = [
       'option.limit' => 0,
       'sort' => 'case_subject ASC, title ASC',
-    );
+    ];
 
     if ($case_id) {
       $params['case_id'] = $case_id;
@@ -87,11 +87,11 @@ class CRM_Timetrack_Utils {
   /**
    * Returns the case subject (contract name).
    */
-  static function getCaseSubject($case_id) {
-    $result = civicrm_api3('Case', 'getsingle', array(
+  public static function getCaseSubject($case_id) {
+    $result = civicrm_api3('Case', 'getsingle', [
       'id' => $case_id,
       'return.subject' => 1,
-    ));
+    ]);
 
     return $result['subject'];
   }
@@ -99,18 +99,18 @@ class CRM_Timetrack_Utils {
   /**
    * Returns case status IDs that equal to 'open'.
    */
-  static function getCaseOpenStatuses() {
-    static $cache = array();
+  public static function getCaseOpenStatuses() {
+    static $cache = [];
 
-    if (! empty($cache)) {
+    if (!empty($cache)) {
       return $cache;
     }
 
-    $result = civicrm_api3('OptionValue', 'get', array(
+    $result = civicrm_api3('OptionValue', 'get', [
       'option_group_name' => 'case_status',
       'grouping' => 'Opened',
       'is_active' => 1,
-    ));
+    ]);
 
     foreach ($result['values'] as $v) {
       $cache[] = $v['value'];
@@ -118,4 +118,5 @@ class CRM_Timetrack_Utils {
 
     return $cache;
   }
+
 }
