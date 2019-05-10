@@ -148,7 +148,7 @@ class CRM_Timetrack_Case_Page_CaseView {
       }
 
       $rows[] = [
-        'title' => CRM_Utils_System::href($task['title'], 'civicrm/timetrack/task', ['tid' => $task['task_id']]),
+        'title' => '<a class="crm-popup" href="' . CRM_Utils_System::url('civicrm/timetrack/task', ['tid' => $task['task_id']]) . '">' . htmlspecialchars($task['title']) . '</a>',
         'description' => $task['description'],
         'estimate' => $task['estimate'],
         'total_included' => $included_hours,
