@@ -196,34 +196,6 @@ function timetrack_civicrm_postProcess($formName, &$form) {
 }
 
 /**
- * Implements hook_civicrm_pageRun() is a completely overkill way.
- * Searches for an override class named after the initial $formName
- * and calls its buildForm().
- *
- * Ex: for a $formName "CRM_Case_Form_CaseView", it will:
- * - try to find * CRM/Timetrack/Case/Page/CaseView.php,
- * - require_once the file, instanciate an object, and
- * - call its pageRun() function.
- *
- * See @timetrack_civicrm_buildForm() for more background info.
- */
-function timetrack_civicrm_pageRun(&$page) {
-  $pageName = get_class($page);
-  $pageName = str_replace('CRM_', 'CRM_Timetrack_', $pageName);
-  $parts = explode('_', $pageName);
-  $filename = dirname(__FILE__) . '/' . implode('/', $parts) . '.php';
-
-  if (file_exists($filename)) {
-    require_once $filename;
-    $foo = new $pageName();
-
-    if (method_exists($foo, 'pageRun')) {
-      $foo->pageRun($form);
-    }
-  }
-}
-
-/**
  * Implements hook_civicrm_caseSummary().
  */
 function timetrack_civicrm_caseSummary($case_id) {
