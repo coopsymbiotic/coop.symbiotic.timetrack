@@ -79,8 +79,6 @@ class CRM_Timetrack_Form_Punch extends CRM_Core_Form {
     $limit_case = ($this->_pid ? 0 : $this->_cid);
     $tasks = CRM_Timetrack_Utils::getActivitiesForCase($limit_case);
 
-    // @todo: convert users field to EntityRef; requires https://github.com/civicrm/civicrm-core/pull/13230
-    $users = CRM_Timetrack_Utils::getUsers();
     $case_title = CRM_Timetrack_Utils::getCaseSubject($this->_cid);
 
     if ($this->_pid) {
@@ -94,7 +92,7 @@ class CRM_Timetrack_Form_Punch extends CRM_Core_Form {
     $this->add('hidden', 'pid', $this->_pid);
 
     $this->add('select', 'activity_id', ts('Activity'), $tasks, TRUE, ['class' => 'crm-select2 huge']);
-    $this->add('select', 'contact_id', ts('Contact'), $users, TRUE, ['class' => 'crm-select2']);
+    $this->addEntityRef('contact_id', ts('Contact'), ['api' => ['params' => ['uf_user' => 1]]]);
 
     $this->add('datepicker', 'begin', ts('Start'), [], TRUE);
     $this->add('datepicker', 'end', ts('End'));

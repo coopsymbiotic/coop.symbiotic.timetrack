@@ -56,8 +56,9 @@ class CRM_Timetrack_Utils {
    * Returns a list of activities for a case.
    * Mostly an API wrapper / transition mechanism.
    *
-   * @param Int $case_id
-   * @returns Array List of activities, keyed by activity ID.
+   * @param int $case_id
+   * @return array
+   *   List of activities, keyed by activity ID.
    */
   public static function getActivitiesForCase($case_id, $add_select = TRUE) {
     $tasks = [];
@@ -86,6 +87,8 @@ class CRM_Timetrack_Utils {
 
   /**
    * Returns the case subject (contract name).
+   *
+   * @return string
    */
   public static function getCaseSubject($case_id) {
     $result = civicrm_api3('Case', 'getsingle', [
@@ -94,6 +97,28 @@ class CRM_Timetrack_Utils {
     ]);
 
     return $result['subject'];
+  }
+
+  /**
+   * Returns a list of contacts who have CMS access.
+   * Should probably return contacts from a certain subtype/group/permission..?
+   *
+   * @return array
+   */
+  public static function getUsers() {
+    $users = ['' => ts('- select -')];
+
+    $sql = 'SELECT c.id, c.display_name
+              FROM civicrm_uf_match uf
+        INNER JOIN civicrm_contact c ON (uf.contact_id = c.id)';
+
+    $dao = CRM_Core_DAO::executeQuery($sql);
+
+    while ($dao->fetch()) {
+      $users[$dao->id] = $dao->display_name;
+    }
+
+    return $users;
   }
 
   /**
