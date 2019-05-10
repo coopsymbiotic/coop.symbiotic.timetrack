@@ -4,7 +4,7 @@
  * Retrieve one or more timetrackinvoice, given a set of search params
  * Implements Timetrackinvoice.get
  *
- * @param  array  input parameters
+ * @param array $params
  *
  * @return array API Result Array
  * (@getfields timetrackinvoices_get}
@@ -12,10 +12,10 @@
  * @access public
  */
 function civicrm_api3_timetrackinvoice_get($params) {
-  $options = array();
-  $invoices = array();
+  $options = [];
+  $invoices = [];
 
-  $sqlparams = array();
+  $sqlparams = [];
 
   // XXX: assuming cases only have 1 client contact.
   $sql = 'SELECT ko.id, ko.id as invoice_id, ko.state, ko.title, ko.deposit_date,
@@ -31,20 +31,20 @@ function civicrm_api3_timetrackinvoice_get($params) {
 
   if ($invoice_id = CRM_Utils_Array::value('invoice_id', $params)) {
     $sql .= ' AND ko.id = %1';
-    $sqlparams[1] = array($invoice_id, 'Positive');
+    $sqlparams[1] = [$invoice_id, 'Positive'];
   }
   elseif ($invoice_id = CRM_Utils_Array::value('timetrack_invoice_id', $params)) {
     $sql .= ' AND ko.id = %1';
-    $sqlparams[1] = array($invoice_id, 'Positive');
+    $sqlparams[1] = [$invoice_id, 'Positive'];
   }
   elseif ($invoice_id = CRM_Utils_Array::value('id', $params)) {
     $sql .= ' AND ko.id = %1';
-    $sqlparams[1] = array($invoice_id, 'Positive');
+    $sqlparams[1] = [$invoice_id, 'Positive'];
   }
 
   if ($case_id = CRM_Utils_Array::value('case_id', $params)) {
     $sql .= ' AND c.id = %2';
-    $sqlparams[2] = array($case_id, 'Positive');
+    $sqlparams[2] = [$case_id, 'Positive'];
   }
 
   if ($title = CRM_Utils_Array::value('title', $params)) {
@@ -58,7 +58,7 @@ function civicrm_api3_timetrackinvoice_get($params) {
   $dao = CRM_Core_DAO::executeQuery($sql, $sqlparams);
 
   while ($dao->fetch()) {
-    $invoice = array(
+    $invoice = [
       'id' => $dao->id,
       'invoice_id' => $dao->id,
       'created_date' => $dao->created_date,
@@ -77,12 +77,12 @@ function civicrm_api3_timetrackinvoice_get($params) {
       'deposit_reference' => $dao->deposit_reference,
       'details_public' => $dao->details_public,
       'details_private' => $dao->details_private,
-    );
+    ];
 
     // Calculate the time of included punches
-    $dao2 = CRM_Core_DAO::executeQuery('SELECT sum(duration) as total FROM kpunch WHERE korder_id = %1', array(
-      1 => array($dao->invoice_id, 'Positive'),
-    ));
+    $dao2 = CRM_Core_DAO::executeQuery('SELECT sum(duration) as total FROM kpunch WHERE korder_id = %1', [
+      1 => [$dao->invoice_id, 'Positive'],
+    ]);
 
     if ($dao2->fetch()) {
       $invoice['total_included'] = $dao2->total;
@@ -116,7 +116,7 @@ function civicrm_api3_timetrackinvoice_create($params) {
     return civicrm_api3_create_error('Entity not created (Timetrackinvoice create)');
   }
 
-  $values = array();
+  $values = [];
   _civicrm_api3_object_to_array($invoice, $values[$invoice->id]);
   return civicrm_api3_create_success($values, $params, NULL, 'create', $invoice);
 }
@@ -154,7 +154,7 @@ function _civicrm_api3_timetrackinvoice_DAO() {
 /**
  * Implements Timetrackinvoice.setvalue
  *
- * @param  array  input parameters
+ * @param array $params
  */
 function civicrm_api3_timetrackinvoice_setvalue($params) {
   $entity = 'CRM_Timetrack_DAO_Invoice';
@@ -174,10 +174,10 @@ function civicrm_api3_timetrackinvoice_setvalue($params) {
 
   if ($object->find(TRUE)) {
     if ($field == 'deposit_date') {
-      CRM_Core_DAO::executeQuery('UPDATE korder SET deposit_date = %1 WHERE id = %2', array(
-        1 => array(CRM_Utils_Date::isoToMysql($value), 'Timestamp'),
-        2 => array($id, 'Positive')
-      ));
+      CRM_Core_DAO::executeQuery('UPDATE korder SET deposit_date = %1 WHERE id = %2', [
+        1 => [CRM_Utils_Date::isoToMysql($value), 'Timestamp'],
+        2 => [$id, 'Positive']
+      ]);
 
       $result = TRUE;
     }

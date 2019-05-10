@@ -21,11 +21,7 @@ class CRM_Timetrack_Form_Task_Export extends CRM_Timetrack_Form_SearchTask {
   }
 
   /**
-   * process the form after the input has been submitted and validated
-   *
-   * @access public
-   *
-   * @return None
+   * Process the form after the input has been submitted and validated
    */
   public function postProcess() {
     $case_id = $this->getCaseID();
@@ -65,7 +61,7 @@ class CRM_Timetrack_Form_Task_Export extends CRM_Timetrack_Form_SearchTask {
    * Assuming the punches are all linked to a same case, we find the client name
    * from a random punch.
    */
-  function getCaseID() {
+  public function getCaseID() {
     $pid = $this->_componentIds[0];
 
     $sql = "SELECT case_id
@@ -73,12 +69,13 @@ class CRM_Timetrack_Form_Task_Export extends CRM_Timetrack_Form_SearchTask {
             LEFT JOIN ktask kt ON (kt.id = kpunch.ktask_id)
             WHERE kpunch.id = %1";
 
-    return CRM_Core_DAO::singleValueQuery($sql, array(
-      1 => array($pid, 'Positive'),
-    ));
+    return CRM_Core_DAO::singleValueQuery($sql, [
+      1 => [$pid, 'Positive'],
+    ]);
   }
 
-  function getPunchIds() {
+  public function getPunchIds() {
     return $this->_componentIds;
   }
+
 }
