@@ -74,7 +74,7 @@ class api_v3_TimetrackpunchlistTest extends \PHPUnit_Framework_TestCase implemen
       return $item;
     }, $expectArray);
 
-    $result = civicrm_api3('Timetrackpunchlist', 'Preview', array('text' => $textInput));
+    $result = civicrm_api3('Timetrackpunchlist', 'Preview', ['text' => $textInput]);
     $this->assertEquals($expectArray, $result['values']);
   }
 

@@ -5,17 +5,16 @@ General idea: you have activities and can track time with activities.
 However, you may have some activities are done over various moments in a
 day/week/month, and you want to track your time in a more granular way.
 
-This extension adds a new entities for "contracts", "tasks" and "punches",
-which have a begin date/time, duration and comment. The punches are linked to
-tasks of a case.
+This extension adds a new entities for "tasks" and "punches", which have
+a begin date/time, duration and comment. The punches are linked to tasks
+of a case.
 
 Punches can then be invoiced to the client (making it easy to know which work
 has been invoiced or not). The extension can generate invoices in OpenDocument
 (odt) format using the tinybutstrong (opentbs) library (see "Invoicing").
 
 Timetrack also includes reports, custom searches and new APIs to manipulate the
-punches and make it easy to punch using 3rd-party systems, such as Mattermost
-or IRC bots.
+punches and make it easy to punch using 3rd-party systems, such as Mattermost.
 
 Here are a few screenshots:
 
@@ -25,22 +24,15 @@ Here are a few screenshots:
 * https://www.bidon.ca/files/timetrack/timetrack-search-inline-edit2.gif (600 KB)
 
 To download the latest version of this module:  
-https://github.com/coopsymbiotic/coop.symbiotic.timetrack
-
-Status
-======
-
-This extension is mostly usable out of the box, but might have some rough edges.
-Expect some surprises and be ready to contribute patches or request paid
-support.
-
-It is not currently fully possible to upgrade from kproject (see 'History').
-See the sql/kproject_upgrade.sql file for more information.
+https://lab.civicrm.org/extensions/timetrack
 
 Requirements
 ============
 
-- CiviCRM >= 4.6, CiviCRM 4.7 recommended.
+- CiviCRM 5.7+
+- PHP 7.0+
+
+Timetrack does not (yet) work with the CiviCase v5 extension.
 
 Installation
 ============
@@ -56,7 +48,7 @@ Install as any other regular CiviCRM extension:
 History
 =======
 
-Timetrack is a fork/rewrite of "kproject"[1], a time management tool written by
+Timetrack is a partial rewrite of "kproject"[1], a time management tool written by
 Koumbit.org. It was written as a Drupal 6 module, and was an awesome time
 tracker, which included an IRC bot and a few planning features suitable for
 small-medium organisations.
@@ -67,21 +59,20 @@ CiviCRM, causing some duplication of information (list of clients, contact
 information), this extension attempts to implement in CiviCRM some of the
 features of kproject.
 
-The "client" in kproject becomes a CiviCRM "contact" (and you can create new
-entity sub-types in CiviCRM, such as 'Clients' based off the 'Organisation'
-entity).
+The "client" in kproject becomes a CiviCRM Contact, and the kproject contract
+becomes a CiviCRM Case. In reality, Timetrack does not use many CiviCase features,
+but it provides a good way to have multiple contracts for an organisation.
 
-The "contract" in kproject becomes a "case" in CiviCRM. You can create different
-case types depending on your type of contracts (ex: consultation, support), and
-you can create standart timelines for them.
+You can also create different case types depending on your type of contracts
+(ex: consultation, support), and you can create standart timelines for them.
 
 The "task", "punch" and "order" in kproject are mostly kept as is. Orders also
 have an "order_line" in order to keep more granular tracking in invoices.
 
   [1] https://www.drupal.org/project/kproject
 
-Punching using an IRC bot
-=========================
+Punching using a bot
+====================
 
 The following assumes you generally understand how IRC and bots work.
 
@@ -194,8 +185,8 @@ General assumptions that might need fixing:
 Support
 =======
 
-Please post bug reports in the issue tracker of this project on github:  
-https://github.com/coopsymbiotic/coop.symbiotic.timetrack/issues
+Please post bug reports in the issue tracker of this project on CiviCRM's Gitlab:  
+https://lab.civicrm.org/extensions/timetrack/issues
 
 For general questions and support, please post on the CiviCRM Stack Exchange
 and tag your question with "timetrack":  
@@ -208,7 +199,7 @@ While we do our best to provide volunteer support for this extension, please
 consider financially contributing to support or development of this extension
 if you can.
 
-Commercial support via Coop SymbioTIC:  
+Support via Coop SymbioTIC:  
 https://www.symbiotic.coop/en
 
 License
@@ -217,13 +208,12 @@ License
 Distributed under the terms of the GNU Affero General public license (AGPL).
 See LICENSE.txt for details.
 
-(C) 2014-2016 Mathieu Lutfy <mathieu@bidon.ca>
-(C) 2016 Mathieu Lutfy <mathieu@symbiotic.coop>
-(C) 2016 Coop SymbioTIC <info@symbiotic.coop>
+(C) 2014-2019 Mathieu Lutfy <mathieu@bidon.ca>
+(C) 2016-2019 Mathieu Lutfy <mathieu@symbiotic.coop>
+(C) 2016-2019 Coop SymbioTIC <info@symbiotic.coop>
 
 Includes code based on "kproject"  
 https://drupal.org/project/kproject  
-https://redmine.koumbit.net/projects/kproject
 
 (C) 2008-2011 Yann Rocq  
 (C) 2008-2011 Samuel Vanhove

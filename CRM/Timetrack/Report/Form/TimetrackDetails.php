@@ -5,10 +5,10 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
   protected $_emailField = FALSE;
   protected $_summary = NULL;
 
-  protected $_customGroupExtends = array();
+  protected $_customGroupExtends = [];
   protected $_customGroupGroupBy = FALSE;
 
-  function __construct() {
+  public function __construct() {
     parent::__construct();
 
     $this->_groupFilter = FALSE;
@@ -18,129 +18,129 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
 
     $all_projects = $this->getAllProjects();
 
-    $this->_columns = array(
-      'civicrm_case' => array(
+    $this->_columns = [
+      'civicrm_case' => [
         'dao' => 'CRM_Case_DAO_Case',
         'alias' => 'case',
-        'fields' => array(
-          'id' => array(
+        'fields' => [
+          'id' => [
             'title' => ts('Project ID'),
             'default' => TRUE,
             'required' => TRUE,
             'type' => CRM_Utils_Type::T_INT,
-          ),
-          'subject' => array(
+          ],
+          'subject' => [
             'title' => ts('Project'),
             'default' => TRUE,
             'type' => CRM_Utils_Type::T_STRING,
-          ),
-        ),
-        'filters' => array(
+          ],
+        ],
+        'filters' => [
           // TODO: case type, case status?
-          'id' => array(
+          'id' => [
             'title' => ts('Project'),
             'operatorType' => CRM_Report_Form::OP_SELECT,
             'type' => CRM_Utils_Type::T_INT,
             'options' => $all_projects,
-          ),
-        ),
-      ),
-      'task' => array(
+          ],
+        ],
+      ],
+      'task' => [
         'dao' => 'CRM_Timetrack_DAO_Task',
         'alias' => 'task',
-        'fields' => array(
-          'title' => array(
+        'fields' => [
+          'title' => [
             'title' => ts('Task'),
             'default' => TRUE,
             'type' => CRM_Utils_Type::T_STRING,
-          ),
-        ),
-        'filters' => array(
+          ],
+        ],
+        'filters' => [
           // TODO: activity type?
-        ),
-      ),
-      'punch' => array(
+        ],
+      ],
+      'punch' => [
         'dao' => 'CRM_Timetrack_DAO_Punch',
         'alias' => 'punch',
-        'fields' => array(
-          'pid' => array(
+        'fields' => [
+          'pid' => [
             'name' => 'id',
             'title' => ts('PID'),
             'default' => TRUE,
             'type' => CRM_Utils_Type::T_INT,
-          ),
-          'contact_id' => array(
+          ],
+          'contact_id' => [
             'title' => ts('Contact'),
             'default' => TRUE,
             'type' => CRM_Utils_Type::T_STRING,
-          ),
-          'begin' => array(
+          ],
+          'begin' => [
             'title' => ts('Begin'),
             'default' => TRUE,
             'type' => CRM_Utils_Type::T_TIME, // FIXME, currently a timestamp
-          ),
-          'duration' => array(
+          ],
+          'duration' => [
             'title' => ts('Duration (h)'),
             'default' => TRUE,
             'type' => CRM_Utils_Type::T_FLOAT,
-          ),
-          'duration_rounded' => array(
+          ],
+          'duration_rounded' => [
             'title' => ts('Duration (rounded, h)'),
             'default' => TRUE,
             'type' => CRM_Utils_Type::T_FLOAT,
             'dbAlias' => 'duration', // we round later
-          ),
-          'comment' => array(
+          ],
+          'comment' => [
             'title' => ts('Comment'),
             'default' => TRUE,
             'type' => CRM_Utils_Type::T_STRING,
-          ),
-        ),
-        'filters' => array(
-          'begin' => array(
+          ],
+        ],
+        'filters' => [
+          'begin' => [
             'title' => ts('Period'),
             'operatorType' => CRM_Report_Form::OP_DATE,
             'type' => CRM_Utils_Type::T_DATE,
-          ),
-          'contact_id' => array(
+          ],
+          'contact_id' => [
             'title' => ts('User'),
             'operatorType' => CRM_Report_Form::OP_SELECT,
             'type' => CRM_Utils_Type::T_INT,
             'options' => CRM_Timetrack_Utils::getUsers(),
-          ),
-        ),
-        'order_bys' => array(
-          'begin' => array(
+          ],
+        ],
+        'order_bys' => [
+          'begin' => [
             'title' => ts('Begin'),
             'default' => TRUE,
             'default_weight' => 1,
             'default_order' => 'ASC',
-          ),
-        ),
-      ),
-      'invoice' => array(
+          ],
+        ],
+      ],
+      'invoice' => [
         'dao' => 'CRM_Timetrack_DAO_Invoice',
         'alias' => 'invoice',
-        'fields' => array(
-          'state' => array(
+        'fields' => [
+          'state' => [
             'title' => ts('Invoice status'),
             'default' => TRUE,
             'type' => CRM_Utils_Type::T_INT,
-          ),
-        ),
-        'filters' => array(
-          'state' => array(
+          ],
+        ],
+        'filters' => [
+          'state' => [
             'title' => ts('Invoice status'),
             'operatorType' => CRM_Report_Form::OP_SELECT,
             'type' => CRM_Utils_Type::T_INT,
-            'options' => array_merge(array('' => ts('- select -')), CRM_Timetrack_PseudoConstant::getInvoiceStatuses()),
-          ),
-        ),
-      ),
-    );
+            'options' => array_merge(['' => ts('- select -')], CRM_Timetrack_PseudoConstant::getInvoiceStatuses()),
+          ],
+        ],
+      ],
+    ];
   }
 
-  function preProcess() {
+  public function preProcess() {
     $this->assign('reportTitle', ts("Timetrack detailed report"));
     Civi::resources()->addStyleFile('coop.symbiotic.timetrack', 'css/crm-timetrack-report-timetrackdetails.css');
 
@@ -151,8 +151,8 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
    * Generic select function.
    * Most reports who declare columns implicitely will call this and also define more columnHeaders.
    */
-  function select() {
-    $select = $this->_columnHeaders = array();
+  public function select() {
+    $select = $this->_columnHeaders = [];
 
     foreach ($this->_columns as $tableName => $table) {
       if (array_key_exists('fields', $table)) {
@@ -177,7 +177,7 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
     $this->_select = str_replace('task_civireport.title as task_title', "CONCAT(case_civireport.subject, ' > ', task_civireport.title) as task_title", $this->_select);
   }
 
-  function from() {
+  public function from() {
     $this->_from = 'FROM kpunch as punch_civireport
               LEFT JOIN ktask as task_civireport ON (task_civireport.id = punch_civireport.ktask_id)
               LEFT JOIN korder as invoice_civireport ON (invoice_civireport.id = punch_civireport.korder_id)
@@ -189,8 +189,8 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
    * This is only to apply the date filters. It is the template code from CiviCRM reports.
    * Child reports are expected to apply their own filters on the query as well.
    */
-  function where() {
-    $clauses = array();
+  public function where() {
+    $clauses = [];
     foreach ($this->_columns as $tableName => $table) {
       if (array_key_exists('filters', $table)) {
         foreach ($table['filters'] as $fieldName => $field) {
@@ -218,7 +218,7 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
           }
 
           // Handling exception for "punch status"
-          if ($tableName == 'invoice' && $fieldName == 'state' && ! empty($clause)) {
+          if ($tableName == 'invoice' && $fieldName == 'state' && !empty($clause)) {
             $clause = str_replace(' = 0', ' is NULL', $clause);
           }
 
@@ -241,19 +241,19 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
     $this->_where = preg_replace('/( \d{8} )/', 'UNIX_TIMESTAMP(\1)', $this->_where);
   }
 
-  function beginPostProcess() {
+  public function beginPostProcess() {
     parent::beginPostProcess();
   }
 
-  function setDefaultValues($freeze = TRUE) {
+  public function setDefaultValues($freeze = TRUE) {
     parent::setDefaultValues($freeze);
     return $this->_defaults;
   }
 
-  function postProcess() {
+  public function postProcess() {
     $this->beginPostProcess();
 
-    $rows = array();
+    $rows = [];
 
     $this->select();
     $this->from();
@@ -268,38 +268,38 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
     $this->endPostProcess($rows);
   }
 
-  function alterDisplay(&$rows) {
-    $crmEditable = array(
+  public function alterDisplay(&$rows) {
+    $crmEditable = [
       'punch_contact_idd' => 'punch_contact_id',
       'punch_begin' => 'punch_begin',
       'punch_duration' => 'punch_duration',
       'punch_comment' => 'punch_comment',
       'task_title' => 'ktask_id',
-     );
+     ];
 
     // TODO: in 4.6, see CRM-15759
     // and see also duplicate code in CRM/Timetrack/Form/Search/TimetrackPunches.php
-    $optionsCache = array(
+    $optionsCache = [
       'ktask_id' => json_encode(CRM_Timetrack_Utils::getActivitiesForCase(), JSON_HEX_APOS),
       'punch_contact_id' => json_encode(CRM_Timetrack_Utils::getUsers(), JSON_HEX_APOS),
-    );
+    ];
 
     foreach ($rows as &$row) {
       // Link the case subject to the case itself.
-      if (! empty($row['civicrm_case_subject'])) {
+      if (!empty($row['civicrm_case_subject'])) {
         $contact_id = CRM_Timetrack_Utils::getCaseContact($row['civicrm_case_id']);
 
-        $row['civicrm_case_subject'] = CRM_Utils_System::href($row['civicrm_case_subject'], 'civicrm/contact/view/case', array(
+        $row['civicrm_case_subject'] = CRM_Utils_System::href($row['civicrm_case_subject'], 'civicrm/contact/view/case', [
           'reset' => 1,
           'id' => $row['civicrm_case_id'],
           'cid' => $contact_id,
           'action' => 'view',
           'context' => 'case',
-        ));
+        ]);
       }
 
       // Keep the plain/orig values for the statistics().
-      if (! empty($row['punch_duration'])) {
+      if (!empty($row['punch_duration'])) {
         $row['punch_duration_rounded'] = sprintf('%.2f', CRM_Timetrack_Utils::roundUpSeconds($row['punch_duration']));
         $row['punch_duration'] = sprintf('%.2f', CRM_Timetrack_Utils::roundUpSeconds($row['punch_duration'], 1));
       }
@@ -321,12 +321,12 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
       }
 
       // Make punch ID link to the punch edit form (and add the crm-popup class).
-      $row['punch_pid'] = CRM_Utils_System::href($row['punch_pid'], 'civicrm/timetrack/punch', array('reset' => 1, 'pid' => $row['punch_pid'], 'action' => 'edit'));
+      $row['punch_pid'] = CRM_Utils_System::href($row['punch_pid'], 'civicrm/timetrack/punch', ['reset' => 1, 'pid' => $row['punch_pid'], 'action' => 'edit']);
       $row['punch_pid'] = str_replace('a href', 'a class="crm-popup" href', $row['punch_pid']);
     }
   }
 
-  function statistics(&$rows) {
+  public function statistics(&$rows) {
     $statistics = parent::statistics($rows);
 
     $nb_weeks_worked = 0;
@@ -354,60 +354,60 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
       $total_hours_rounded += $r['punch_duration_rounded'];
     }
 
-    $statistics['counts']['totaltime'] = array(
+    $statistics['counts']['totaltime'] = [
       'title' => ts('Total Time'),
-      'value' => ts('%1 hours', array(1 => sprintf('%.2f', $total_seconds_orig))),
+      'value' => ts('%1 hours', [1 => sprintf('%.2f', $total_seconds_orig)]),
       'type' => CRM_Utils_Type::T_STRING,
-    );
+    ];
 
-    $statistics['counts']['totalroundedtime'] = array(
+    $statistics['counts']['totalroundedtime'] = [
       'title' => ts('Total rounded time'),
-      'value' => ts('%1 hours', array(1 => sprintf('%.2f', $total_hours_rounded))),
+      'value' => ts('%1 hours', [1 => sprintf('%.2f', $total_hours_rounded)]),
       'type' => CRM_Utils_Type::T_STRING,
-    );
+    ];
 
-    $statistics['counts']['weeksworked'] = array(
+    $statistics['counts']['weeksworked'] = [
       'title' => ts('Weeks worked'),
-      'value' => ts('Aprox %1 weeks', array(1 => $nb_weeks_worked)),
+      'value' => ts('Aprox %1 weeks', [1 => $nb_weeks_worked]),
       'type' => CRM_Utils_Type::T_STRING,
-    );
+    ];
 
-    $statistics['counts']['avgperweek'] = array(
+    $statistics['counts']['avgperweek'] = [
       'title' => ts('Average per week worked'),
-      'value' => ts('%1 hours', array(1 => sprintf('%.2f', $total_hours_rounded / $nb_weeks_worked))),
+      'value' => ts('%1 hours', [1 => sprintf('%.2f', $total_hours_rounded / $nb_weeks_worked)]),
       'type' => CRM_Utils_Type::T_STRING,
-    );
+    ];
 
-    $statistics['counts']['daysworked'] = array(
+    $statistics['counts']['daysworked'] = [
       'title' => ts('Days worked'),
-      'value' => ts('%1 days', array(1 => $nb_days_worked)),
+      'value' => ts('%1 days', [1 => $nb_days_worked]),
       'type' => CRM_Utils_Type::T_STRING,
-    );
+    ];
 
     $avg_per_day = ($nb_days_worked > 0 ? $total_seconds_orig / $nb_days_worked : 0);
 
-    $statistics['counts']['avgperday'] = array(
+    $statistics['counts']['avgperday'] = [
       'title' => ts('Average per day worked'),
-      'value' => ts('%1 hours', array(1 => sprintf('%.2f', $avg_per_day))),
+      'value' => ts('%1 hours', [1 => sprintf('%.2f', $avg_per_day)]),
       'type' => CRM_Utils_Type::T_STRING,
-    );
+    ];
 
     return $statistics;
   }
 
-  function getAllProjects() {
+  public function getAllProjects() {
     $caseStatuses = CRM_Timetrack_Utils::getCaseOpenStatuses();
 
-    $projects = array(
+    $projects = [
       '' => ts('- select -'),
-    );
+    ];
 
     $sql = 'SELECT c.id, cont.display_name, c.subject
               FROM civicrm_case as c
               INNER JOIN civicrm_case_contact as cc ON (cc.case_id = c.id)
               INNER JOIN civicrm_contact as cont ON (cont.id = cc.contact_id)
               WHERE c.status_id IN (' . implode(',', $caseStatuses) . ')
-              ORDER BY cont.display_name ASC, c.subject ASC'; 
+              ORDER BY cont.display_name ASC, c.subject ASC';
 
     $dao = CRM_Core_DAO::executeQuery($sql);
 
@@ -417,4 +417,5 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
 
     return $projects;
   }
+
 }

@@ -4,42 +4,42 @@ class CRM_Timetrack_Case_Page_CaseView {
   /**
    * Implements hook_civicrm_caseSummary().
    */
-  function caseSummary($case_id) {
-    $summary = array();
+  public function caseSummary($case_id) {
+    $summary = [];
 
     Civi::resources()->addStyleFile('coop.symbiotic.timetrack', 'css/crm-timetrack-case-page-caseview.css');
 
-    $dao = CRM_Core_DAO::executeQuery('SELECT * FROM kcontract WHERE case_id = %1', array(
-      1 => array($case_id, 'Positive'),
-    ));
+    $dao = CRM_Core_DAO::executeQuery('SELECT * FROM kcontract WHERE case_id = %1', [
+      1 => [$case_id, 'Positive'],
+    ]);
 
     if ($dao->fetch()) {
-      $actions = array(
-        array(
+      $actions = [
+        [
           'label' => ts('Add punch'),
-          'url' => CRM_Utils_System::url('civicrm/timetrack/punch', array('reset' => 1, 'cid' => $case_id, 'action' => 'create')),
+          'url' => CRM_Utils_System::url('civicrm/timetrack/punch', ['reset' => 1, 'cid' => $case_id, 'action' => 'create']),
           'classes' => 'icon ui-icon-plus',
-        ),
-        array(
+        ],
+        [
           'label' => ts('Add task'),
-          'url' => CRM_Utils_System::url('civicrm/timetrack/task', array('reset' => 1, 'cid' => $case_id, 'action' => 'create')),
+          'url' => CRM_Utils_System::url('civicrm/timetrack/task', ['reset' => 1, 'cid' => $case_id, 'action' => 'create']),
           'classes' => 'icon ui-icon-circle-plus',
-        ),
-      );
+        ],
+      ];
 
       // These actions should not open in a popup, otherwise actions buttons are broken.
-      $actionsreg = array(
-        array(
+      $actionsreg = [
+        [
           'label' => ts('View/invoice punches'),
-          'url' => CRM_Utils_System::url('civicrm/contact/search/custom', array('csid' => 16, 'case_id' => $case_id, 'force' => 1, 'crmSID' => '6_d')),
+          'url' => CRM_Utils_System::url('civicrm/contact/search/custom', ['csid' => 16, 'case_id' => $case_id, 'force' => 1, 'crmSID' => '6_d']),
           'classes' => 'icon ui-icon-search',
-        ),
-        array(
+        ],
+        [
           'label' => ts('Invoice other items'),
-          'url' => CRM_Utils_System::url('civicrm/timetrack/invoice', array('case_id' => $case_id, 'reset' => 1)),
+          'url' => CRM_Utils_System::url('civicrm/timetrack/invoice', ['case_id' => $case_id, 'reset' => 1]),
           'classes' => 'icon ui-icon-circle-plus',
-        ),
-      );
+        ],
+      ];
 
       $actions_html = '';
 
@@ -51,65 +51,65 @@ class CRM_Timetrack_Case_Page_CaseView {
         $actions_html .= "<a href='{$action['url']}' style='display: inline-block; padding-left: 1em;'><span><div class='{$action['classes']}'></div>{$action['label']}</span></a>";
       }
 
-      $summary['timetrack_actions'] = array(
+      $summary['timetrack_actions'] = [
         'label' => ts('Time tracking:'),
         'value' => '<div>' . $actions_html . '</div>',
-      );
+      ];
 
-      $summary['timetrack_billing_status'] = array(
+      $summary['timetrack_billing_status'] = [
         'label' => ts('Billing status:'),
-        'value' => ts('%1 unbilled hour(s)', array(1 => CRM_Timetrack_Utils::roundUpSeconds($this->getUnbilledHours($case_id)))),
-      );
+        'value' => ts('%1 unbilled hour(s)', [1 => CRM_Timetrack_Utils::roundUpSeconds($this->getUnbilledHours($case_id))]),
+      ];
 
-      $summary['timetrack_irc_alias'] = array(
+      $summary['timetrack_irc_alias'] = [
         'label' => ts('Chat alias:'),
         'value' => ($dao->alias ? $dao->alias : ts('n/a')),
-      );
+      ];
     }
     else {
       // TODO: we should probably have a way to enable/disable timetracking per case type.
       // so that if we don't find any info, it's perfectly normal to have an option to edit.
-      $summary['timetrack_warning'] = array(
+      $summary['timetrack_warning'] = [
         'label' => ts('Timetrack:'),
         'value' => 'No timetracking information was found for this case.',
-      );
+      ];
     }
 
-    $url = CRM_Utils_System::url('civicrm/timetrack/case', array('reset' => 1, 'cid' => $case_id));
+    $url = CRM_Utils_System::url('civicrm/timetrack/case', ['reset' => 1, 'cid' => $case_id]);
 
-    $summary['timetrack_edit'] = array(
+    $summary['timetrack_edit'] = [
       'label' => '',
       'value' => "<div><a href='{$url}' class='crm-popup'><span><div class='icon ui-icon-pencil'></div>" . ts('Edit') . "</span></a></div>",
-    );
+    ];
 
-    $summary['timetrack_tasks'] = array(
+    $summary['timetrack_tasks'] = [
       'label' => '',
       'value' => $this->getListOfTasks($case_id),
-    );
+    ];
 
-    $summary['timetrack_invoices'] = array(
+    $summary['timetrack_invoices'] = [
       'label' => '',
       'value' => $this->getListOfInvoice($case_id),
-    );
+    ];
 
-    $summary['timetrack_invoice_task_overview'] = array(
+    $summary['timetrack_invoice_task_overview'] = [
       'label' => '',
       'value' => $this->getInvoiceTaskOverview($case_id),
-    );
+    ];
 
     return $summary;
   }
 
-  function getListOfTasks($case_id) {
+  public function getListOfTasks($case_id) {
     $smarty = CRM_Core_Smarty::singleton();
 
     $smarty->assign('timetrack_header_idcss', 'caseview-tasks');
-    $smarty->assign('timetrack_header_title', ts('Tasks', array('domain' => 'coop.symbiotic.timetrack')));
+    $smarty->assign('timetrack_header_title', ts('Tasks', ['domain' => 'coop.symbiotic.timetrack']));
 
     $taskStatuses = CRM_Timetrack_PseudoConstant::getTaskStatuses();
 
     // FIXME ts() domain.
-    $headers = array(
+    $headers = [
       'title' => ts('Task'),
       'estimate' => ts('Estimate'),
       'total_included' => ts('Punches'),
@@ -117,13 +117,13 @@ class CRM_Timetrack_Case_Page_CaseView {
       'state' => ts('Status'),
       'begin' => ts('Begin'),
       'end' => ts('End'),
-    );
+    ];
 
     $smarty->assign('timetrack_headers', $headers);
 
-    $rows = array();
+    $rows = [];
 
-    $total = array(
+    $total = [
       'title' => ts('Total'),
       'estimate' => 0,
       'total_included' => 0,
@@ -131,13 +131,13 @@ class CRM_Timetrack_Case_Page_CaseView {
       'state' => '',
       'begin' => '',
       'end' => '',
-    );
+    ];
 
-    $result = civicrm_api3('Timetracktask', 'get', array(
+    $result = civicrm_api3('Timetracktask', 'get', [
       'case_id' => $case_id,
       'skip_open_case_check' => 1,
       'option.limit' => 0,
-    ));
+    ]);
 
     foreach ($result['values'] as $task) {
       $included_hours = CRM_Timetrack_Utils::roundUpSeconds($task['total_included'], 1);
@@ -147,8 +147,8 @@ class CRM_Timetrack_Case_Page_CaseView {
         $percent_done = round($included_hours / $task['estimate'] * 100) . '%';
       }
 
-      $rows[] = array(
-        'title' => CRM_Utils_System::href($task['title'], 'civicrm/timetrack/task', array('tid' => $task['task_id'])),
+      $rows[] = [
+        'title' => '<a class="crm-popup" href="' . CRM_Utils_System::url('civicrm/timetrack/task', ['tid' => $task['task_id']]) . '">' . htmlspecialchars($task['title']) . '</a>',
         'description' => $task['description'],
         'estimate' => $task['estimate'],
         'total_included' => $included_hours,
@@ -156,9 +156,9 @@ class CRM_Timetrack_Case_Page_CaseView {
         'state' => $taskStatuses[$task['state']],
         'begin' => substr($task['begin'], 0, 10), // TODO format date l10n
         'end' => substr($task['end'], 0, 10), // TODO format date l10n
-      );
+      ];
 
-      $total['estimate'] += $task['estimate'];
+      $total['estimate'] += $task['estimate'] ?: 0;
       $total['total_included'] += $task['total_included'];
     }
 
@@ -171,44 +171,44 @@ class CRM_Timetrack_Case_Page_CaseView {
     return $smarty->fetch('CRM/Timetrack/Page/Snippets/AccordionTable.tpl');
   }
 
-  function getListOfInvoice($case_id) {
+  public function getListOfInvoice($case_id) {
     $smarty = CRM_Core_Smarty::singleton();
 
     $smarty->assign('timetrack_header_idcss', 'caseview-invoices');
-    $smarty->assign('timetrack_header_title', ts('Invoices', array('domain' => 'coop.symbiotic.timetrack')));
+    $smarty->assign('timetrack_header_title', ts('Invoices', ['domain' => 'coop.symbiotic.timetrack']));
 
     // FIXME ts() domain.
-    $headers = array(
-      'ledger_id' => ts('Ledger ID', array('domain' => 'coop.symbiotic.timetrack')),
-      'created_date' => ts('Invoice date', array('domain' => 'coop.symbiotic.timetrack')),
-      'total' => ts('Total punches', array('domain' => 'coop.symbiotic.timetrack')),
-      'invoiced' => ts('Invoiced', array('domain' => 'coop.symbiotic.timetrack')),
-      'invoiced_pct' => ts('% invoiced', array('domain' => 'coop.symbiotic.timetrack')),
-      'state' => ts('Status', array('domain' => 'coop.symbiotic.timetrack')),
-      'deposit_date' => ts('Deposit', array('domain' => 'coop.symbiotic.timetrack')),
-      'deposit_reference' => ts('Reference', array('domain' => 'coop.symbiotic.timetrack')),
-      'generate' => ts('Actions', array('domain' => 'coop.symbiotic.timetrack')),
-    );
+    $headers = [
+      'ledger_id' => ts('Ledger ID', ['domain' => 'coop.symbiotic.timetrack']),
+      'created_date' => ts('Invoice date', ['domain' => 'coop.symbiotic.timetrack']),
+      'total' => ts('Total punches', ['domain' => 'coop.symbiotic.timetrack']),
+      'invoiced' => ts('Invoiced', ['domain' => 'coop.symbiotic.timetrack']),
+      'invoiced_pct' => ts('% invoiced', ['domain' => 'coop.symbiotic.timetrack']),
+      'state' => ts('Status', ['domain' => 'coop.symbiotic.timetrack']),
+      'deposit_date' => ts('Deposit', ['domain' => 'coop.symbiotic.timetrack']),
+      'deposit_reference' => ts('Reference', ['domain' => 'coop.symbiotic.timetrack']),
+      'generate' => ts('Actions', ['domain' => 'coop.symbiotic.timetrack']),
+    ];
 
     $smarty->assign('timetrack_headers', $headers);
 
-    $rows = array();
+    $rows = [];
 
-    $result = civicrm_api3('Timetrackinvoice', 'get', array(
+    $result = civicrm_api3('Timetrackinvoice', 'get', [
       'case_id' => $case_id,
       'option.limit' => 0,
-    ));
+    ]);
 
-    $invoice_status_options = civicrm_api3('Timetrackinvoice', 'getoptions', array(
+    $invoice_status_options = civicrm_api3('Timetrackinvoice', 'getoptions', [
       'field' => 'state',
       'option.limit' => 0,
-    ));
+    ]);
 
     foreach ($result['values'] as $invoice) {
       $included_hours = CRM_Timetrack_Utils::roundUpSeconds($invoice['total_included'], 1);
 
-      $rows[] = array(
-        'ledger_id' => CRM_Utils_System::href($invoice['ledger_bill_id'], 'civicrm/timetrack/invoice', array('invoice_id' => $invoice['invoice_id'])),
+      $rows[] = [
+        'ledger_id' => CRM_Utils_System::href($invoice['ledger_bill_id'], 'civicrm/timetrack/invoice', ['invoice_id' => $invoice['invoice_id']]),
         'created_date' => substr($invoice['created_date'], 0, 10),
         'total' => $included_hours,
         'invoiced' => $invoice['hours_billed'], // already in hours
@@ -222,10 +222,10 @@ class CRM_Timetrack_Case_Page_CaseView {
         'deposit_reference' => "<div class='crm-entity' data-entity='Timetrackinvoice' data-id='{$invoice['id']}'>"
           . "<div class='crm-editable' data-type='text' data-field='deposit_reference'>" . $invoice['deposit_reference'] . '</div>'
           . '</div>',
-        'generate' => CRM_Utils_System::href('<i class="fa fa-pencil" aria-hidden="true" title="' . ts('Edit invoice', array('escape' => 'js', 'domain' => 'coop.symbiotic.timetrack')). '"></i>', 'civicrm/timetrack/invoice', array('invoice_id' => $invoice['invoice_id']))
-          . ' ' . CRM_Utils_System::href('<i class="fa fa-cogs" aria-hidden="true" title="' . ts('Generate invoice', array('escape' => 'js', 'domain' => 'coop.symbiotic.timetrack')) . '"></i>', 'civicrm/timetrack/invoice/generate', array('invoice_id' => $invoice['invoice_id']))
-          . ' ' . CRM_Utils_System::href('<i class="fa fa-files-o" aria-hidden="true" title="' . ts('Copy invoice as new', array('escape' => 'js', 'domain' => 'coop.symbiotic.timetrack')) . '"></i>', 'civicrm/timetrack/invoice', array('invoice_id' => $invoice['invoice_id'], 'action' => 'clone'))
-      );
+        'generate' => CRM_Utils_System::href('<i class="fa fa-pencil" aria-hidden="true" title="' . ts('Edit invoice', ['escape' => 'js', 'domain' => 'coop.symbiotic.timetrack']) . '"></i>', 'civicrm/timetrack/invoice', ['invoice_id' => $invoice['invoice_id']])
+          . ' ' . CRM_Utils_System::href('<i class="fa fa-cogs" aria-hidden="true" title="' . ts('Generate invoice', ['escape' => 'js', 'domain' => 'coop.symbiotic.timetrack']) . '"></i>', 'civicrm/timetrack/invoice/generate', ['invoice_id' => $invoice['invoice_id']])
+          . ' ' . CRM_Utils_System::href('<i class="fa fa-files-o" aria-hidden="true" title="' . ts('Copy invoice as new', ['escape' => 'js', 'domain' => 'coop.symbiotic.timetrack']) . '"></i>', 'civicrm/timetrack/invoice', ['invoice_id' => $invoice['invoice_id'], 'action' => 'clone'])
+      ];
     }
 
     $smarty->assign('timetrack_rows', $rows);
@@ -236,30 +236,30 @@ class CRM_Timetrack_Case_Page_CaseView {
   /**
    * Returns a rendered HTML table overview of the invoicing, per task.
    */
-  function getInvoiceTaskOverview($case_id) {
+  public function getInvoiceTaskOverview($case_id) {
     $smarty = CRM_Core_Smarty::singleton();
 
     $smarty->assign('timetrack_header_idcss', 'caseview-invoice-task-recap');
-    $smarty->assign('timetrack_header_title', ts('Invoicing, per task', array('domain' => 'coop.symbiotic.timetrack')));
+    $smarty->assign('timetrack_header_title', ts('Invoicing, per task', ['domain' => 'coop.symbiotic.timetrack']));
 
     $rows = [];
 
     // FIXME ts() domain.
-    $headers = array(
+    $headers = [
       'title' => ts('Task'),
       'estimate' => ts('Estimate'),
-    );
+    ];
 
     $rows = [];
     $tasks = [];
 
     // Fetch all tasks on the project, to make sure we list them all in the overview,
     // not just list tasks that have been invoiced already.
-    $result = civicrm_api3('Timetracktask', 'get', array(
+    $result = civicrm_api3('Timetracktask', 'get', [
       'case_id' => $case_id,
       'skip_open_case_check' => 1,
       'option.limit' => 0,
-    ));
+    ]);
 
     foreach ($result['values'] as $key => $val) {
       $rows[$key] = [
@@ -269,10 +269,10 @@ class CRM_Timetrack_Case_Page_CaseView {
       ];
     }
 
-    $total = array(
+    $total = [
       'title' => ts('Total'),
       'estimate' => 0,
-    );
+    ];
 
     $dao = CRM_Core_DAO::executeQuery('SELECT o.ledger_bill_id, o.title, t.title as ktask_title, t.estimate, t.id as ktask_id, l.hours_billed
       FROM korder_line l
@@ -316,8 +316,8 @@ class CRM_Timetrack_Case_Page_CaseView {
     // Calculate the total estimates, per task
     // as well as the available budget left.
     foreach ($rows as $key => $val) {
-      $total['estimate'] += $val['estimate'];
-      $rows[$key]['available'] = $val['estimate'] - $val['total'];
+      $total['estimate'] += $val['estimate'] ?: 0;
+      $rows[$key]['available'] = ($val['estimate'] ?: 0) - $val['total'];
     }
 
     // Now calculate the total of totals, and total available budget.
@@ -336,16 +336,17 @@ class CRM_Timetrack_Case_Page_CaseView {
     return $smarty->fetch('CRM/Timetrack/Page/Snippets/AccordionTable.tpl');
   }
 
-  function getUnbilledHours($case_id) {
+  public function getUnbilledHours($case_id) {
     // TODO: move to API ?
     $dao = CRM_Core_DAO::executeQuery('SELECT sum(duration) as total
       FROM kpunch
       INNER JOIN ktask on (ktask.id = kpunch.ktask_id AND ktask.case_id = %1)
-      WHERE korder_id is NULL', array(
-      1 => array($case_id, 'Positive'),
-    ));
+      WHERE korder_id is NULL', [
+      1 => [$case_id, 'Positive'],
+    ]);
 
     $dao->fetch();
     return $dao->total;
   }
+
 }

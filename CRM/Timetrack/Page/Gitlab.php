@@ -70,7 +70,8 @@ class CRM_Timetrack_Page_Gitlab extends CRM_Core_Page {
   }
 
   /**
-   * Repond "OK" on the standard output.
+   * Respond "OK" on the standard output.
+   * @param string $output
    */
   private function done($output = 'OK') {
     echo $output;
