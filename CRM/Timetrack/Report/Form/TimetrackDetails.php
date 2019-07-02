@@ -279,7 +279,7 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
     // TODO: in 4.6, see CRM-15759
     // and see also duplicate code in CRM/Timetrack/Form/Search/TimetrackPunches.php
     $optionsCache = [
-      'ktask_id' => json_encode(CRM_Timetrack_Utils::getActivitiesForCase(), JSON_HEX_APOS),
+      'ktask_id' => json_encode(CRM_Timetrack_Utils::getActivitiesForCase(0), JSON_HEX_APOS),
       'punch_contact_id' => json_encode(CRM_Timetrack_Utils::getUsers(), JSON_HEX_APOS),
     ];
 
