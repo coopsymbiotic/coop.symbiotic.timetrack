@@ -148,7 +148,7 @@ class CRM_Timetrack_Case_Page_CaseView {
       }
 
       $rows[] = [
-        'title' => CRM_Utils_System::href($task['title'], 'civicrm/timetrack/task', ['tid' => $task['task_id']]),
+        'title' => '<a class="crm-popup" href="' . CRM_Utils_System::url('civicrm/timetrack/task', ['tid' => $task['task_id']]) . '">' . htmlspecialchars($task['title']) . '</a>',
         'description' => $task['description'],
         'estimate' => $task['estimate'],
         'total_included' => $included_hours,
@@ -158,7 +158,7 @@ class CRM_Timetrack_Case_Page_CaseView {
         'end' => substr($task['end'], 0, 10), // TODO format date l10n
       ];
 
-      $total['estimate'] += $task['estimate'];
+      $total['estimate'] += $task['estimate'] ?: 0;
       $total['total_included'] += $task['total_included'];
     }
 
@@ -316,8 +316,8 @@ class CRM_Timetrack_Case_Page_CaseView {
     // Calculate the total estimates, per task
     // as well as the available budget left.
     foreach ($rows as $key => $val) {
-      $total['estimate'] += $val['estimate'];
-      $rows[$key]['available'] = $val['estimate'] - $val['total'];
+      $total['estimate'] += $val['estimate'] ?: 0;
+      $rows[$key]['available'] = ($val['estimate'] ?: 0) - $val['total'];
     }
 
     // Now calculate the total of totals, and total available budget.

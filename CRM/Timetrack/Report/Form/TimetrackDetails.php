@@ -237,7 +237,8 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
 
     // FIXME: hacks because the where clause includes mysql date,
     // but our DB still uses unix timestamps.
-    $this->_where = preg_replace('/(\d{8})/', 'UNIX_TIMESTAMP(\1)', $this->_where);
+    $this->_where = preg_replace('/( \d{14} )/', 'UNIX_TIMESTAMP(\1)', $this->_where);
+    $this->_where = preg_replace('/( \d{8} )/', 'UNIX_TIMESTAMP(\1)', $this->_where);
   }
 
   public function beginPostProcess() {
