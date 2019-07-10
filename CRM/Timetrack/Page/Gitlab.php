@@ -5,14 +5,15 @@ class CRM_Timetrack_Page_Gitlab extends CRM_Core_Page {
 
   public function run() {
     $alias = $_SERVER['HTTP_X_GITLAB_TOKEN'];
+    $supported_hooks = ['Issue Hook', 'Merge Request Hook'];
 
-    if ($_SERVER['HTTP_X_GITLAB_EVENT'] != 'Issue Hook') {
-      Civi::log()->warning('Timetrack/Gitlab: received a webhook event other than an Issue Hook', [
+    if (!in_array($_SERVER['HTTP_X_GITLAB_EVENT'], $supported_hooks)) {
+      Civi::log()->warning('Timetrack/Gitlab: received an unsupported webhook event type', [
         'token' => $_SERVER['HTTP_X_GITLAB_TOKEN'],
         'type' => $_SERVER['HTTP_X_GITLAB_EVENT'],
       ]);
 
-      self::done("We only listen to Issue hooks");
+      self::done("Unsupported webhook event type");
     }
 
     $body = file_get_contents('php://input');
@@ -41,7 +42,8 @@ class CRM_Timetrack_Page_Gitlab extends CRM_Core_Page {
     $username = $data['user']['username'];
     $time_spent = $data['changes']['total_time_spent']['current'] - $data['changes']['total_time_spent']['previous'];
     $title = $data['object_attributes']['title'];
-    $ref = $data['project']['path_with_namespace'] . '#' . $data['object_attributes']['iid'];
+    $separator = ($data['event_type'] == 'merge_request' ? '!' : '#');
+    $ref = $data['project']['path_with_namespace'] . $separator . $data['object_attributes']['iid'];
 
     $date_end = $date['object_attributes']['updated_at'];
 
@@ -75,6 +77,11 @@ class CRM_Timetrack_Page_Gitlab extends CRM_Core_Page {
    */
   private function done($output = 'OK') {
     echo $output;
+
+    if ($output != 'OK') {
+      CRM_Utils_System::setHttpHeader("Status", "500 Internal Server Error");
+    }
+
     CRM_Utils_System::civiExit();
   }
 
