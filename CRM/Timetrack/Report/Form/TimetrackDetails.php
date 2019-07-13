@@ -250,14 +250,22 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
     $this->_where = preg_replace('/current_contact = 0/', 'contact_id != ' . $session->get('userID'), $this->_where);
   }
 
+  /**
+   * Enable crm-editable on some columns.
+   */
   public function alterDisplay(&$rows) {
+    $has_civicase_access = CRM_Core_Permission::access('CiviCase');
+
     $crmEditable = [
-      'punch_contact_idd' => 'punch_contact_id',
       'punch_begin' => 'punch_begin',
       'punch_duration' => 'punch_duration',
       'punch_comment' => 'punch_comment',
-      'task_title' => 'ktask_id',
      ];
+
+     // This is a bit more sensitive, because it includes a list of all projects
+     if ($has_civicase_access) {
+       $crmEditable['task_title'] = 'ktask_id';
+     }
 
     // TODO: in 4.6, see CRM-15759
     // and see also duplicate code in CRM/Timetrack/Form/Search/TimetrackPunches.php
