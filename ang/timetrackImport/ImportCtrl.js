@@ -14,6 +14,8 @@
     var ts = $scope.ts = CRM.ts('timetrack');
     var hs = $scope.hs = crmUiHelp({file: 'CRM/timetrackImport/ImportCtrl'}); // See: templates/CRM/timetrackImport/ImportCtrl.hlp
 
+    $scope.timetrack_help_url = CRM.timetrackImport.timetrack_help_url;
+
     function newModel() {
       return {
         plaintext: '',

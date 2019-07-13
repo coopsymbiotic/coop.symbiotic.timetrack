@@ -14,7 +14,6 @@ class CRM_Timetrack_Form_Invoice extends CRM_Core_Form {
   protected $_tasksdata;
 
   const EXTRA_LINES = 5;
-  const DEFAULT_HOURLY_RATE = 85;
 
   public function preProcess() {
     $this->_caseid = CRM_Utils_Request::retrieve('case_id', 'Integer', $this, FALSE, NULL);
@@ -86,7 +85,7 @@ class CRM_Timetrack_Form_Invoice extends CRM_Core_Form {
         $defaults['task_' . $key . '_hours'] = $val['hours'];
         $defaults['task_' . $key . '_hours_billed'] = $val['hours_billed'];
         $defaults['task_' . $key . '_unit'] = ts('hour'); // FIXME
-        $defaults['task_' . $key . '_cost'] = (isset($val['cost']) ? $val['cost'] : self::DEFAULT_HOURLY_RATE); // FIXME
+        $defaults['task_' . $key . '_cost'] = CRM_Utils_Array::value('cost', $val);
         $defaults['task_' . $key . '_amount'] = $defaults['task_' . $key . '_hours_billed'] * $defaults['task_' . $key . '_cost'];
       }
     }

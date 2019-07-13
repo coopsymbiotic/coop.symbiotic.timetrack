@@ -14,7 +14,7 @@ class CRM_Timetrack_Page_Import extends CRM_Core_Page {
       'defaultRoute' => '/import',
     ]);
     $loader->load();
-    CRM_Utils_System::setTitle('CiviCRM');
+    CRM_Utils_System::setTitle(E::ts('Timetrack: Import time-punches'));
     parent::run();
   }
 

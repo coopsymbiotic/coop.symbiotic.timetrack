@@ -57,7 +57,7 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Timetrack_Form_SearchTask {
       $this->defaults['task_' . $key . '_hours'] = $this->getTotalHours($val['punches'], 'duration');
       $this->defaults['task_' . $key . '_hours_billed'] = $this->getTotalHours($val['punches'], 'duration_rounded');
       $this->defaults['task_' . $key . '_unit'] = ts('hour'); // FIXME
-      $this->defaults['task_' . $key . '_cost'] = CRM_Timetrack_Form_Invoice::DEFAULT_HOURLY_RATE; // FIXME
+      $this->defaults['task_' . $key . '_cost'] = Civi::settings()->get('timetrack_hourly_rate_default'); // FIXME (per-case rate)
 
       // This gets recalculated in JS on page load / change.
       $this->defaults['task_' . $key . '_amount'] = $this->defaults['task_' . $key . '_hours_billed'] * $this->defaults['task_' . $key . '_cost'];

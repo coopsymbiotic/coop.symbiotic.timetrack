@@ -55,4 +55,9 @@
     <title>Import</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
+  <item>
+     <path>civicrm/admin/setting/timetrack</path>
+     <title>Timetrack settings</title>
+     <page_callback>CRM_Admin_Form_Generic</page_callback>
+  </item>
 </menu>
