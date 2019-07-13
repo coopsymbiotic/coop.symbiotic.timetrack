@@ -14,8 +14,6 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
     $this->_groupFilter = FALSE;
     $this->_tagFilter = FALSE;
 
-    parent::__construct();
-
     $all_projects = $this->getAllProjects();
 
     $this->_columns = [
@@ -108,6 +106,11 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
             'type' => CRM_Utils_Type::T_INT,
             'options' => CRM_Timetrack_Utils::getUsers(),
           ],
+          'current_contact' => [
+            'title' => ts('Current Contact'),
+            'type' => CRM_Utils_Type::T_BOOLEAN,
+            'pseudofield' => TRUE,
+          ],
         ],
         'order_bys' => [
           'begin' => [
@@ -140,10 +143,11 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
     ];
   }
 
+  /**
+   * Load our custom CSS
+   */
   public function preProcess() {
-    $this->assign('reportTitle', ts("Timetrack detailed report"));
     Civi::resources()->addStyleFile('coop.symbiotic.timetrack', 'css/crm-timetrack-report-timetrackdetails.css');
-
     parent::preProcess();
   }
 
@@ -239,33 +243,11 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
     // but our DB still uses unix timestamps.
     $this->_where = preg_replace('/( \d{14} )/', 'UNIX_TIMESTAMP(\1)', $this->_where);
     $this->_where = preg_replace('/( \d{8} )/', 'UNIX_TIMESTAMP(\1)', $this->_where);
-  }
 
-  public function beginPostProcess() {
-    parent::beginPostProcess();
-  }
-
-  public function setDefaultValues($freeze = TRUE) {
-    parent::setDefaultValues($freeze);
-    return $this->_defaults;
-  }
-
-  public function postProcess() {
-    $this->beginPostProcess();
-
-    $rows = [];
-
-    $this->select();
-    $this->from();
-    $this->where();
-
-    $sql = $this->_select . $this->_from . $this->_where;
-
-    $this->buildRows($sql, $rows);
-
-    $this->formatDisplay($rows);
-    $this->doTemplateAssignment($rows);
-    $this->endPostProcess($rows);
+    // Fix the 'current_contact = 1' clause, since this is not a real database table field
+    $session = CRM_Core_Session::singleton();
+    $this->_where = preg_replace('/current_contact = 1/', 'contact_id = ' . $session->get('userID'), $this->_where);
+    $this->_where = preg_replace('/current_contact = 0/', 'contact_id != ' . $session->get('userID'), $this->_where);
   }
 
   public function alterDisplay(&$rows) {
