@@ -273,6 +273,9 @@ function timetrack_civicrm_alterAPIPermissions($entity, $action, &$params, &$per
     'preview' => [
       'create timetrack punch',
     ],
+    'import' => [
+      'create timetrack punch',
+    ],
   ];
 
   $permissions['timetracktask'] = [
