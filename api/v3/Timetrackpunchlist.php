@@ -180,7 +180,7 @@ function civicrm_api3_timetrackpunchlist_import($params) {
   CRM_Core_Transaction::create(TRUE)
     ->run(function () use ($plannedItems, &$result) {
       foreach ($plannedItems['values'] as $itemNum => $item) {
-        $params = $item + ['check_permissions' => 1];
+        $params = $item + ['check_permissions' => 1, 'skip_punched_in_check' => 1];
         $create = civicrm_api3('Timetrackpunch', 'create', $params);
         $result[$itemNum] = $create['values'];
       }
