@@ -236,6 +236,20 @@ function timetrack_civicrm_triggerInfo(&$info, $tableName) {
 }
 
 /**
+ * Implements hook_civicrm_permission().
+ */
+function timetrack_civicrm_permission(&$permissions) {
+  $permissions['create timetrack punch'] = array(
+    E::ts('CiviCRM Timetrack: %1', [1 => E::ts('create Timetrack punch')]),
+    E::ts('Create or Edit Timetrack punches'),
+  );
+  $permissions['generate timetrack invoice'] = array(
+    E::ts('CiviCRM Timetrack: %1', [1 => E::ts('generate Timetrack invoice')]),
+    E::ts('Generate a Timetrack invoice (ODT document)'),
+  );
+}
+
+/**
  * Implements hook_civicrm_alterAPIPermissions().
  */
 function timetrack_civicrm_alterAPIPermissions($entity, $action, &$params, &$permissions) {
@@ -248,10 +262,16 @@ function timetrack_civicrm_alterAPIPermissions($entity, $action, &$params, &$per
       'access CiviCRM',
     ],
     'create' => [
-      'access CiviCRM',
+      'create timetrack punch',
     ],
     'punchout' => [
-      'access CiviCRM',
+      'create timetrack punch',
+    ],
+  ];
+
+  $permissions['timetrackpunchlist'] = [
+    'preview' => [
+      'create timetrack punch',
     ],
   ];
 

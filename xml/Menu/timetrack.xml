@@ -16,7 +16,7 @@
     <path>civicrm/timetrack/punch</path>
     <page_callback>CRM_Timetrack_Form_Punch</page_callback>
     <title>Punch</title>
-    <access_arguments>access CiviCRM</access_arguments>
+    <access_arguments>create timetrack punch</access_arguments>
   </item>
   <item>
     <path>civicrm/timetrack/timeline</path>
@@ -40,7 +40,7 @@
     <path>civicrm/timetrack/invoice/generate</path>
     <page_callback>CRM_Timetrack_Page_GenerateInvoice</page_callback>
     <title>Generate invoice</title>
-    <access_arguments>access CiviCRM</access_arguments>
+    <access_arguments>generate timetrack invoice</access_arguments>
     <is_ssl>true</is_ssl>
   </item>
   <item>
@@ -53,7 +53,7 @@
     <path>civicrm/timetrack/import</path>
     <page_callback>CRM_Timetrack_Page_Import</page_callback>
     <title>Import</title>
-    <access_arguments>access CiviCRM</access_arguments>
+    <access_arguments>create timetrack punch</access_arguments>
   </item>
   <item>
      <path>civicrm/admin/setting/timetrack</path>
