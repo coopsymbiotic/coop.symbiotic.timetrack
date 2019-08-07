@@ -11,8 +11,8 @@ class CRM_Timetrack_Form_Task extends CRM_Core_Form {
   protected $_taskdata;
 
   public function preProcess() {
-    $this->_caseid = CRM_Utils_Request::retrieve('cid', 'Integer', $this, FALSE, NULL);
-    $this->_taskid = CRM_Utils_Request::retrieve('tid', 'Integer', $this, FALSE, NULL);
+    $this->_caseid = CRM_Utils_Request::retrieveValue('cid', 'Integer');
+    $this->_taskid = CRM_Utils_Request::retrieveValue('tid', 'Integer');
 
     if ($this->_taskid) {
       // Editing an existing task. Fetch the task data for setDefaultValues() later.
