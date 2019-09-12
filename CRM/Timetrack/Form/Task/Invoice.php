@@ -50,6 +50,24 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Timetrack_Form_SearchTask {
     $this->defaults['ledger_order_id'] = '';
     $this->defaults['ledger_invoice_id'] = '';
 
+    // The rates depend on:
+    // - the global default
+    // - the per-case default
+    // - (not implemented yet) per-task rate
+    $default_hourly_rate = Civi::settings()->get('timetrack_hourly_rate_default');
+
+    if ($cfid = Civi::settings()->get('timetrack_hourly_rate_cfid')) {
+      try {
+        $default_hourly_rate = civicrm_api3('Case', 'getsingle', [
+          'id' => $case_id,
+          'return' => 'custom_' . $cfid,
+        ])['custom_' . $cfid];
+      }
+      catch (Exception $e) {
+        Civi::log()->warning('Timetrack: failed to get the hourly rate from case (' . $case_id . ')');
+      }
+    }
+
     $tasks = $this->getBillingPerTasks();
 
     foreach ($tasks as $key => $val) {
@@ -57,7 +75,7 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Timetrack_Form_SearchTask {
       $this->defaults['task_' . $key . '_hours'] = $this->getTotalHours($val['punches'], 'duration');
       $this->defaults['task_' . $key . '_hours_billed'] = $this->getTotalHours($val['punches'], 'duration_rounded');
       $this->defaults['task_' . $key . '_unit'] = ts('hour'); // FIXME
-      $this->defaults['task_' . $key . '_cost'] = Civi::settings()->get('timetrack_hourly_rate_default'); // FIXME (per-case rate)
+      $this->defaults['task_' . $key . '_cost'] = $default_hourly_rate;
 
       // This gets recalculated in JS on page load / change.
       $this->defaults['task_' . $key . '_amount'] = $this->defaults['task_' . $key . '_hours_billed'] * $this->defaults['task_' . $key . '_cost'];
