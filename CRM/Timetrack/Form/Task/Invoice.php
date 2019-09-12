@@ -42,6 +42,10 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Timetrack_Form_SearchTask {
 
     CRM_Utils_System::setTitle(ts('New invoice for %1', [1 => $contact['display_name']]));
 
+    // Default the 'from' to the default organization
+    $domain_id = CRM_Core_Config::domainID();
+    $this->defaults['invoice_from_id'] = civicrm_api3('Domain', 'getsingle', ['id' => $domain_id])['contact_id'];
+
     $this->defaults['client_name'] = $contact['display_name'];
     $this->defaults['title'] = $contact['display_name'] . ' ' . substr($period_end, 0, 10);
     $this->defaults['invoice_period_start'] = $period_start;
