@@ -11,8 +11,8 @@ class CRM_Timetrack_Form_Task extends CRM_Core_Form {
   protected $_taskdata;
 
   public function preProcess() {
-    $this->_caseid = CRM_Utils_Request::retrieveValue('cid', 'Integer');
-    $this->_taskid = CRM_Utils_Request::retrieveValue('tid', 'Integer');
+    $this->_caseid = CRM_Utils_Request::retrieve('cid', 'Integer', $this, FALSE, NULL);
+    $this->_taskid = CRM_Utils_Request::retrieve('tid', 'Integer', $this, FALSE, NULL);
 
     if ($this->_taskid) {
       // Editing an existing task. Fetch the task data for setDefaultValues() later.
@@ -141,7 +141,7 @@ class CRM_Timetrack_Form_Task extends CRM_Core_Form {
       $contact_id = CRM_Core_DAO::singleValueQuery('select contact_id from civicrm_case_contact where case_id = %1 limit 1', [
         1 => [$this->_caseid, 'Positive'],
       ]);
-      $session->replaceUserContext(CRM_Utils_System::url(
+      CRM_Utils_System::redirect(CRM_Utils_System::url(
         'civicrm/contact/view/case',
         'reset=1&action=view&context=case&id=' . $this->_caseid . '&cid=' . $contact_id
       ));
