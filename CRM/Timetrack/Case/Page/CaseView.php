@@ -1,5 +1,7 @@
 <?php
 
+use CRM_Timetrack_ExtensionUtil as E;
+
 class CRM_Timetrack_Case_Page_CaseView {
   /**
    * Implements hook_civicrm_caseSummary().
@@ -223,7 +225,7 @@ class CRM_Timetrack_Case_Page_CaseView {
           . "<div class='crm-editable' data-type='text' data-field='deposit_reference'>" . $invoice['deposit_reference'] . '</div>'
           . '</div>',
         'generate' => CRM_Utils_System::href('<i class="fa fa-pencil" aria-hidden="true" title="' . ts('Edit invoice', ['escape' => 'js', 'domain' => 'coop.symbiotic.timetrack']) . '"></i>', 'civicrm/timetrack/invoice', ['invoice_id' => $invoice['invoice_id']])
-          . ' ' . CRM_Utils_System::href('<i class="fa fa-cogs" aria-hidden="true" title="' . ts('Generate invoice', ['escape' => 'js', 'domain' => 'coop.symbiotic.timetrack']) . '"></i>', 'civicrm/timetrack/invoice/generate', ['invoice_id' => $invoice['invoice_id']])
+          . ' ' . CRM_Utils_System::href('<i class="fa fa-file-word-o" aria-hidden="true" title="' . E::ts('Export invoice as a text document', ['escape' => 'js']) . '"></i>', 'civicrm/timetrack/invoice/generate', ['invoice_id' => $invoice['invoice_id']])
           . ' ' . CRM_Utils_System::href('<i class="fa fa-files-o" aria-hidden="true" title="' . ts('Copy invoice as new', ['escape' => 'js', 'domain' => 'coop.symbiotic.timetrack']) . '"></i>', 'civicrm/timetrack/invoice', ['invoice_id' => $invoice['invoice_id'], 'action' => 'clone'])
       ];
     }
