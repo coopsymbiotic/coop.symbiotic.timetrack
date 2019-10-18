@@ -18,12 +18,12 @@ class CRM_Timetrack_Case_Page_CaseView {
     if ($dao->fetch()) {
       $actions = [
         [
-          'label' => ts('Add punch'),
+          'label' => E::ts('Add punch'),
           'url' => CRM_Utils_System::url('civicrm/timetrack/punch', ['reset' => 1, 'cid' => $case_id, 'action' => 'create']),
           'classes' => 'icon ui-icon-plus',
         ],
         [
-          'label' => ts('Add task'),
+          'label' => E::ts('Add task'),
           'url' => CRM_Utils_System::url('civicrm/timetrack/task', ['reset' => 1, 'cid' => $case_id, 'action' => 'create']),
           'classes' => 'icon ui-icon-circle-plus',
         ],
@@ -32,12 +32,12 @@ class CRM_Timetrack_Case_Page_CaseView {
       // These actions should not open in a popup, otherwise actions buttons are broken.
       $actionsreg = [
         [
-          'label' => ts('View/invoice punches'),
+          'label' => E::ts('View/invoice punches'),
           'url' => CRM_Utils_System::url('civicrm/contact/search/custom', ['csid' => 16, 'case_id' => $case_id, 'force' => 1, 'crmSID' => '6_d']),
           'classes' => 'icon ui-icon-search',
         ],
         [
-          'label' => ts('Invoice other items'),
+          'label' => E::ts('Invoice other items'),
           'url' => CRM_Utils_System::url('civicrm/timetrack/invoice', ['case_id' => $case_id, 'reset' => 1]),
           'classes' => 'icon ui-icon-circle-plus',
         ],
@@ -54,17 +54,17 @@ class CRM_Timetrack_Case_Page_CaseView {
       }
 
       $summary['timetrack_actions'] = [
-        'label' => ts('Time tracking:'),
+        'label' => E::ts('Time tracking:'),
         'value' => '<div>' . $actions_html . '</div>',
       ];
 
       $summary['timetrack_billing_status'] = [
-        'label' => ts('Billing status:'),
-        'value' => ts('%1 unbilled hour(s)', [1 => CRM_Timetrack_Utils::roundUpSeconds($this->getUnbilledHours($case_id))]),
+        'label' => E::ts('Billing status:'),
+        'value' => E::ts('%1 unbilled hour(s)', [1 => CRM_Timetrack_Utils::roundUpSeconds($this->getUnbilledHours($case_id))]),
       ];
 
       $summary['timetrack_irc_alias'] = [
-        'label' => ts('Chat alias:'),
+        'label' => E::ts('Task alias:'),
         'value' => ($dao->alias ? $dao->alias : ts('n/a')),
       ];
     }
@@ -72,7 +72,7 @@ class CRM_Timetrack_Case_Page_CaseView {
       // TODO: we should probably have a way to enable/disable timetracking per case type.
       // so that if we don't find any info, it's perfectly normal to have an option to edit.
       $summary['timetrack_warning'] = [
-        'label' => ts('Timetrack:'),
+        'label' => E::ts('Timetrack:'),
         'value' => 'No timetracking information was found for this case.',
       ];
     }
@@ -224,9 +224,9 @@ class CRM_Timetrack_Case_Page_CaseView {
         'deposit_reference' => "<div class='crm-entity' data-entity='Timetrackinvoice' data-id='{$invoice['id']}'>"
           . "<div class='crm-editable' data-type='text' data-field='deposit_reference'>" . $invoice['deposit_reference'] . '</div>'
           . '</div>',
-        'generate' => CRM_Utils_System::href('<i class="fa fa-pencil" aria-hidden="true" title="' . ts('Edit invoice', ['escape' => 'js', 'domain' => 'coop.symbiotic.timetrack']) . '"></i>', 'civicrm/timetrack/invoice', ['invoice_id' => $invoice['invoice_id']])
+        'generate' => CRM_Utils_System::href('<i class="fa fa-pencil" aria-hidden="true" title="' . E::ts('Edit invoice', ['escape' => 'js']) . '"></i>', 'civicrm/timetrack/invoice', ['invoice_id' => $invoice['invoice_id']])
           . ' ' . CRM_Utils_System::href('<i class="fa fa-file-word-o" aria-hidden="true" title="' . E::ts('Export invoice as a text document', ['escape' => 'js']) . '"></i>', 'civicrm/timetrack/invoice/generate', ['invoice_id' => $invoice['invoice_id']])
-          . ' ' . CRM_Utils_System::href('<i class="fa fa-files-o" aria-hidden="true" title="' . ts('Copy invoice as new', ['escape' => 'js', 'domain' => 'coop.symbiotic.timetrack']) . '"></i>', 'civicrm/timetrack/invoice', ['invoice_id' => $invoice['invoice_id'], 'action' => 'clone'])
+          . ' ' . CRM_Utils_System::href('<i class="fa fa-files-o" aria-hidden="true" title="' . E::ts('Copy invoice as new', ['escape' => 'js']) . '"></i>', 'civicrm/timetrack/invoice', ['invoice_id' => $invoice['invoice_id'], 'action' => 'clone'])
       ];
     }
 
@@ -242,14 +242,13 @@ class CRM_Timetrack_Case_Page_CaseView {
     $smarty = CRM_Core_Smarty::singleton();
 
     $smarty->assign('timetrack_header_idcss', 'caseview-invoice-task-recap');
-    $smarty->assign('timetrack_header_title', ts('Invoicing, per task', ['domain' => 'coop.symbiotic.timetrack']));
+    $smarty->assign('timetrack_header_title', E::ts('Invoicing, per task'));
 
     $rows = [];
 
-    // FIXME ts() domain.
     $headers = [
-      'title' => ts('Task'),
-      'estimate' => ts('Estimate'),
+      'title' => E::ts('Task'),
+      'estimate' => E::ts('Estimate'),
     ];
 
     $rows = [];
@@ -272,7 +271,7 @@ class CRM_Timetrack_Case_Page_CaseView {
     }
 
     $total = [
-      'title' => ts('Total'),
+      'title' => E::ts('Total'),
       'estimate' => 0,
     ];
 
@@ -307,8 +306,8 @@ class CRM_Timetrack_Case_Page_CaseView {
       $tasks[$dao->ktask_id] += $dao->hours_billed;
     }
 
-    $headers['total'] = ts('Total');
-    $headers['available'] = ts('Available');
+    $headers['total'] = E::ts('Total');
+    $headers['available'] = E::ts('Available');
 
     // Calculate the total time invoiced, per task
     foreach ($tasks as $key => $val) {
