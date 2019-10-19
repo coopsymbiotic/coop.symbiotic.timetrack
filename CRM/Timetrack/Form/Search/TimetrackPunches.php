@@ -100,6 +100,7 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
     $form->addEntityRef('contact_id', E::ts('Contact'), ['multiple' => TRUE, 'api' => ['params' => ['uf_user' => 1]]]);
     $form->add('text', 'comment', E::ts('Comment'), FALSE);
     $form->add('select', 'state', E::ts('Invoice status'), array_merge(['' => E::ts('- select -')], CRM_Timetrack_PseudoConstant::getInvoiceStatuses()));
+    $form->add('text', 'invoice_id', E::ts('Invoice ID'));
 
     array_push($elements, 'case_id');
     array_push($elements, 'start_date');
@@ -108,6 +109,7 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
     array_push($elements, 'contact_id');
     array_push($elements, 'comment');
     array_push($elements, 'state');
+    array_push($elements, 'invoice_id');
 
     $form->assign('elements', $elements);
 
@@ -122,6 +124,9 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
   public function setDefaultValues() {
     $defaults = [];
 
+    // New punches by default
+    $defaults['state'] = 0;
+
     if (empty($this->_formValues['case_id'])) {
       $this->case_id = CRM_Utils_Request::retrieve('case_id', 'Integer', $this, FALSE, NULL);
       if ($this->case_id) {
@@ -129,8 +134,13 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
       }
     }
 
-    // New punches by default
-    $defaults['state'] = 0;
+    if (empty($this->_formValues['invoice_id'])) {
+      $this->invoice_id = CRM_Utils_Request::retrieve('invoice_id', 'Integer', $this, FALSE, NULL);
+      if ($this->invoice_id) {
+        $defaults['invoice_id'] = $this->invoice_id;
+        unset($defaults['state']);
+      }
+    }
 
     return $defaults;
   }
@@ -244,6 +254,10 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
 
     if (!empty($this->_formValues['case_id'])) {
       $clauses[] = 'civicrm_case.id = ' . intval($this->_formValues['case_id']);
+    }
+
+    if (!empty($this->_formValues['invoice_id'])) {
+      $clauses[] = 'kpunch.korder_id = ' . intval($this->_formValues['invoice_id']);
     }
 
     // FIXME: insecure?
