@@ -11,6 +11,11 @@ class CRM_Timetrack_Case_Page_CaseView {
 
     Civi::resources()->addStyleFile('coop.symbiotic.timetrack', 'css/crm-timetrack-case-page-caseview.css');
 
+    $csid = civicrm_api3('CustomSearch', 'getsingle', [
+      'name' => 'CRM_Timetrack_Form_Search_TimetrackPunches',
+      'return' => 'value',
+    ])['value'];
+
     $dao = CRM_Core_DAO::executeQuery('SELECT * FROM kcontract WHERE case_id = %1', [
       1 => [$case_id, 'Positive'],
     ]);
@@ -33,7 +38,7 @@ class CRM_Timetrack_Case_Page_CaseView {
       $actionsreg = [
         [
           'label' => E::ts('View/invoice punches'),
-          'url' => CRM_Utils_System::url('civicrm/contact/search/custom', ['csid' => 16, 'case_id' => $case_id, 'force' => 1, 'crmSID' => '6_d']),
+          'url' => CRM_Utils_System::url('civicrm/contact/search/custom', ['csid' => $csid, 'case_id' => $case_id, 'force' => 1, 'crmSID' => '6_d']),
           'classes' => 'icon ui-icon-search',
         ],
         [
@@ -224,8 +229,9 @@ class CRM_Timetrack_Case_Page_CaseView {
         'deposit_reference' => "<div class='crm-entity' data-entity='Timetrackinvoice' data-id='{$invoice['id']}'>"
           . "<div class='crm-editable' data-type='text' data-field='deposit_reference'>" . $invoice['deposit_reference'] . '</div>'
           . '</div>',
-        'generate' => CRM_Utils_System::href('<i class="fa fa-pencil" aria-hidden="true" title="' . E::ts('Edit invoice', ['escape' => 'js']) . '"></i>', 'civicrm/timetrack/invoice', ['invoice_id' => $invoice['invoice_id']])
-          . ' ' . CRM_Utils_System::href('<i class="fa fa-file-word-o" aria-hidden="true" title="' . E::ts('Export invoice as a text document', ['escape' => 'js']) . '"></i>', 'civicrm/timetrack/invoice/generate', ['invoice_id' => $invoice['invoice_id']])
+        'generate' => CRM_Utils_System::href('<i class="fa fa-search" aria-hidden="true" title="' . E::ts('View punches', ['escape' => 'js']) . '"></i>', 'civicrm/contact/search/custom', ['csid' => $csid, 'case_id' => $case_id, 'invoice_id' => $invoice['invoice_id'], 'force' => 1, 'crmSID' => '6_d']) . ' '
+          . CRM_Utils_System::href('<i class="fa fa-pencil" aria-hidden="true" title="' . E::ts('Edit invoice', ['escape' => 'js']) . '"></i>', 'civicrm/timetrack/invoice', ['invoice_id' => $invoice['invoice_id']]) . ' '
+          . ' ' . CRM_Utils_System::href('<i class="fa fa-file-word-o" aria-hidden="true" title="' . E::ts('Export invoice as a text document', ['escape' => 'js']) . '"></i>', 'civicrm/timetrack/invoice/generate', ['invoice_id' => $invoice['invoice_id']]) . ' '
           . ' ' . CRM_Utils_System::href('<i class="fa fa-files-o" aria-hidden="true" title="' . E::ts('Copy invoice as new', ['escape' => 'js']) . '"></i>', 'civicrm/timetrack/invoice', ['invoice_id' => $invoice['invoice_id'], 'action' => 'clone'])
       ];
     }
