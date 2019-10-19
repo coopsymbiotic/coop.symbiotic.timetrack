@@ -1,5 +1,7 @@
 <?php
 
+use CRM_Timetrack_ExtensionUtil as E;
+
 /**
  * Custom search
  */
@@ -23,15 +25,15 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
      */
     $this->_columns = [
       "#" => 'case_id',
-      ts('Project') => 'case_subject',
-      ts('Task') => 'task',
-      ts('Punch') => 'pid',
-      ts('Contact') => 'real_contact_id',
-      ts('Begin') => 'begin',
-      ts('Duration') => 'duration_hours',
-      ts('Rounded') => 'duration_rounded',
-      ts('Comment') => 'comment',
-      ts('Billing') => 'invoice_id',
+      E::ts('Project') => 'case_subject',
+      E::ts('Task') => 'task',
+      E::ts('Punch') => 'pid',
+      E::ts('Contact') => 'real_contact_id',
+      E::ts('Begin') => 'begin',
+      E::ts('Duration') => 'duration_hours',
+      E::ts('Rounded') => 'duration_rounded',
+      E::ts('Comment') => 'comment',
+      E::ts('Billing') => 'invoice_id',
     ];
 
     if (empty($this->_formValues['case_id'])) {
@@ -65,8 +67,8 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
     // [ML] If I understand correctly, this refers to the tasks we defined
     // in hook_civicrm_searchTasks() ?
     $tasks = [
-      100 => ts('Invoice punches', ['domain' => 'coop.symbiotic.timetrack']),
-      101 => ts('Export punches', ['domain' => 'coop.symbiotic.timetrack']),
+      100 => E::ts('Invoice punches'),
+      101 => E::ts('Export punches'),
     ];
 
     return $tasks;
@@ -82,22 +84,22 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
     $elements = [];
 
     $case_title = CRM_Timetrack_Utils::getCaseSubject($this->case_id);
-    $this->setTitle(ts('List of punches for %1', [1 => $case_title]));
+    $this->setTitle(E::ts('List of punches for %1', [1 => $case_title]));
 
     // Punch filters
     // NB: ktask select must not be named 'task' or it will conflict with the 'task' select in the results.
     $form->addElement('hidden', 'case_id', $this->case_id);
 
-    $form->add('datepicker', 'start_date', ts('Punch start date'), [], FALSE, ['time' => FALSE]);
-    $form->add('datepicker', 'end_date', ts('Punch end date'), [], FALSE, ['time' => FALSE]);
+    $form->add('datepicker', 'start_date', E::ts('Punch start date'), [], FALSE, ['time' => FALSE]);
+    $form->add('datepicker', 'end_date', E::ts('Punch end date'), [], FALSE, ['time' => FALSE]);
 
     $tasks = CRM_Timetrack_Utils::getActivitiesForCase($this->case_id);
-    $tasks[''] = ts('- select -');
+    $tasks[''] = E::ts('- select -');
 
-    $form->add('select', 'ktask', ts('Task'), $tasks, FALSE, ['class' => 'huge crm-select2']);
-    $form->addEntityRef('contact_id', ts('Contact'), ['multiple' => TRUE, 'api' => ['params' => ['uf_user' => 1]]]);
-    $form->add('text', 'comment', ts('Comment'), FALSE);
-    $form->add('select', 'state', ts('Invoice status'), array_merge(['' => ts('- select -')], CRM_Timetrack_PseudoConstant::getInvoiceStatuses()));
+    $form->add('select', 'ktask', E::ts('Task'), $tasks, FALSE, ['class' => 'huge crm-select2']);
+    $form->addEntityRef('contact_id', E::ts('Contact'), ['multiple' => TRUE, 'api' => ['params' => ['uf_user' => 1]]]);
+    $form->add('text', 'comment', E::ts('Comment'), FALSE);
+    $form->add('select', 'state', E::ts('Invoice status'), array_merge(['' => E::ts('- select -')], CRM_Timetrack_PseudoConstant::getInvoiceStatuses()));
 
     array_push($elements, 'case_id');
     array_push($elements, 'start_date');
@@ -313,7 +315,7 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
       CRM_Utils_System::setTitle($title);
     }
     else {
-      CRM_Utils_System::setTitle(ts('Search'));
+      CRM_Utils_System::setTitle(E::ts('Search'));
     }
   }
 
