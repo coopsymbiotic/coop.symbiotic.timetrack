@@ -5,6 +5,10 @@ class CRM_Timetrack_Utils {
     // 1- we round the seconds to the closest 15 mins
     // 2- we convert the seconds to hours, so 3600 seconds = 1h.
     // 3- round to max 2 decimals, in case we're rounding to the minute.
+    if (!$seconds) {
+      $seconds = 0;
+    }
+
     return round(ceil($seconds / ($roundToMinutes * 60)) * ($roundToMinutes * 60) / 3600, 2);
   }
 

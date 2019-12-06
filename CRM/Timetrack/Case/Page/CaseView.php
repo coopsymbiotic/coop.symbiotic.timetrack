@@ -168,7 +168,7 @@ class CRM_Timetrack_Case_Page_CaseView {
       ];
 
       $total['estimate'] += $task['estimate'] ?: 0;
-      $total['total_included'] += $task['total_included'];
+      $total['total_included'] += $task['total_included'] ?: 0;
     }
 
     $total['total_included'] = CRM_Timetrack_Utils::roundUpSeconds($total['total_included'], 1);
