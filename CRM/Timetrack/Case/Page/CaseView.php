@@ -3,6 +3,12 @@
 use CRM_Timetrack_ExtensionUtil as E;
 
 class CRM_Timetrack_Case_Page_CaseView {
+
+  /**
+   * Custom Search ID for the punch search.
+   */
+  protected $csid;
+
   /**
    * Implements hook_civicrm_caseSummary().
    */
@@ -10,11 +16,7 @@ class CRM_Timetrack_Case_Page_CaseView {
     $summary = [];
 
     Civi::resources()->addStyleFile('coop.symbiotic.timetrack', 'css/crm-timetrack-case-page-caseview.css');
-
-    $csid = civicrm_api3('CustomSearch', 'getsingle', [
-      'name' => 'CRM_Timetrack_Form_Search_TimetrackPunches',
-      'return' => 'value',
-    ])['value'];
+    $csid = $this->getPunchesCSID();
 
     $dao = CRM_Core_DAO::executeQuery('SELECT * FROM kcontract WHERE case_id = %1', [
       1 => [$case_id, 'Positive'],
@@ -181,6 +183,7 @@ class CRM_Timetrack_Case_Page_CaseView {
   public function getListOfInvoice($case_id) {
     $smarty = CRM_Core_Smarty::singleton();
 
+    $csid = $this->getPunchesCSID();
     $smarty->assign('timetrack_header_idcss', 'caseview-invoices');
     $smarty->assign('timetrack_header_title', ts('Invoices', ['domain' => 'coop.symbiotic.timetrack']));
 
@@ -354,6 +357,22 @@ class CRM_Timetrack_Case_Page_CaseView {
 
     $dao->fetch();
     return $dao->total;
+  }
+
+  /**
+   * Returns (and caches) the Custom Search ID for the TimetrackPunches search.
+   */
+  private function getPunchesCSID() {
+    if ($this->csid) {
+      return $this->csid;
+    }
+
+    $this->csid = civicrm_api3('CustomSearch', 'getsingle', [
+      'name' => 'CRM_Timetrack_Form_Search_TimetrackPunches',
+      'return' => 'value',
+    ])['value'];
+
+    return $this->csid;
   }
 
 }
