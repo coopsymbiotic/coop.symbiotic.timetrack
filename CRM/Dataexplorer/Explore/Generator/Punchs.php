@@ -124,43 +124,41 @@ class CRM_Dataexplorer_Explore_Generator_Punchs extends CRM_Dataexplorer_Explore
       $this->queryAlterOtherCase();
     }
 
-    // Force to select 'where' clauses, otherwise queries will be too heavy.
-    if ($where = $this->whereClause($params)) {
-      $has_data = FALSE;
+    $where = $this->whereClause($params);
+    $has_data = FALSE;
 
-      $sql = 'SELECT ' . implode(', ', $this->_select) . ' '
-           . ' FROM ' . implode(' ', $this->_from)
-           . ' WHERE ' . $where
-           . (! empty($this->_group) ? ' GROUP BY ' . implode(', ', $this->_group) : '');
+    $sql = 'SELECT ' . implode(', ', $this->_select) . ' '
+         . ' FROM ' . implode(' ', $this->_from)
+         . (!empty($where) ? ' WHERE ' . $where : '')
+         . (!empty($this->_group) ? ' GROUP BY ' . implode(', ', $this->_group) : '');
 
-      $dao = CRM_Core_DAO::executeQuery($sql, $params);
+    $dao = CRM_Core_DAO::executeQuery($sql, $params);
 
-      while ($dao->fetch()) {
-        if ($dao->x && $dao->y) {
-          $has_data = TRUE;
-          $x = $dao->x;
+    while ($dao->fetch()) {
+      if ($dao->x && $dao->y) {
+        $has_data = TRUE;
+        $x = $dao->x;
 
-          if (isset($this->_config['x_translate']) && isset($this->_config['x_translate'][$x])) {
-            $x = $this->_config['x_translate'][$x];
-          }
+        if (isset($this->_config['x_translate']) && isset($this->_config['x_translate'][$x])) {
+          $x = $this->_config['x_translate'][$x];
+        }
 
-          if (! empty($dao->yy)) {
-            $data[$x][$dao->yy] = $dao->y;
-          }
-          else {
-            $ylabel = $this->_options['y_label'];
-            $data[$x][$ylabel] = $dao->y;
-          }
+        if (!empty($dao->yy)) {
+          $data[$x][$dao->yy] = $dao->y;
+        }
+        else {
+          $ylabel = $this->_options['y_label'];
+          $data[$x][$ylabel] = $dao->y;
         }
       }
+    }
 
-      // FIXME: if we don't have any results, and we are querying two
-      // types of data, the 2nd column of results (CSV) might get bumped into
-      // the first column. This really isn't ideal, should fix the CSV merger.
-      if (! $has_data) {
-        $tlabel = $this->_config['axis_x']['label'];
-        $data[$tlabel][$ylabel] = 0;
-      }
+    // FIXME: if we don't have any results, and we are querying two
+    // types of data, the 2nd column of results (CSV) might get bumped into
+    // the first column. This really isn't ideal, should fix the CSV merger.
+    if (! $has_data) {
+      $tlabel = $this->_config['axis_x']['label'];
+      $data[$tlabel][$ylabel] = 0;
     }
 
     return $data;
@@ -171,9 +169,6 @@ class CRM_Dataexplorer_Explore_Generator_Punchs extends CRM_Dataexplorer_Explore
     $where_extra = '';
 
     $this->whereClauseCommon($params);
-
-    // completed transactions
-    # $where_clauses[] = 'is_deleted <> 0';
 
     foreach ($this->_filters as $filter) {
       // foo[0] will have 'period-start' and foo[1] will have 2014-09-01
