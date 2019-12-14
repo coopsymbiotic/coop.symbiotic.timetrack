@@ -2,6 +2,9 @@
 <extension key="coop.symbiotic.timetrack" type="module">
   <file>timetrack</file>
   <name>Timetracker</name>
+  <classloader>
+    <psr4 prefix="Civi\" path="Civi"/>
+  </classloader>
   <description>Timetracker for CiviCRM</description>
   <license>AGPL-3.0</license>
   <maintainer>

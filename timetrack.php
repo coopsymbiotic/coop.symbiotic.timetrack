@@ -9,6 +9,11 @@ use CRM_Timetrack_ExtensionUtil as E;
  * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_config
  */
 function timetrack_civicrm_config(&$config) {
+  if (isset(Civi::$statics[__FUNCTION__])) { return; }
+  Civi::$statics[__FUNCTION__] = 1;
+
+  Civi::dispatcher()->addListener('dataexplorer.boot', ['\Civi\Timetrack\Events', 'fireDataExplorerBoot']);
+
   _timetrack_civix_civicrm_config($config);
 }
 
