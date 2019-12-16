@@ -1,6 +1,6 @@
 <?php
 
-class CRM_Dataexplorer_Explore_Generator_Punchs_Duration extends CRM_Dataexplorer_Explore_Generator_Punchs {
+class CRM_Dataexplorer_Explore_Generator_Punch_Duration extends CRM_Dataexplorer_Explore_Generator_Punch {
   function __construct() {
     parent::__construct();
   }

@@ -1,6 +1,6 @@
 <?php
 
-class CRM_Dataexplorer_Explore_Generator_Punchs extends CRM_Dataexplorer_Explore_Generator {
+class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_Generator {
   protected $_options;
 
   function __construct() {
@@ -36,7 +36,7 @@ class CRM_Dataexplorer_Explore_Generator_Punchs extends CRM_Dataexplorer_Explore
           'label' => $this->_options['y_label'],
           'type' => $this->_options['y_type'],
           'series' => $this->_options['y_series'],
-          'id' => 1,
+          'id' => 90, // FIXME: for CSV merge, ugly.
         );
 
         $this->_select[] = '"Total" as x';
