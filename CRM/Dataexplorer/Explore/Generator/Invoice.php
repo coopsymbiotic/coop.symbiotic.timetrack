@@ -94,9 +94,6 @@ class CRM_Dataexplorer_Explore_Generator_Invoice extends CRM_Dataexplorer_Explor
     // This makes it easier to check specific exceptions later on.
     $this->config();
 
-    // Get donations by day
-    // $this->_select[] = "sum(amount) as y";
-
     $this->_from[] = "korder as ko ";
                       
     if (in_array('period-year', $this->_groupBy)) {
@@ -184,11 +181,11 @@ class CRM_Dataexplorer_Explore_Generator_Invoice extends CRM_Dataexplorer_Explor
 
         if ($bar[1] == 'start' && ! empty($foo[1])) {
           $params[1] = array($foo[1], 'Timestamp');
-          $where_clauses[] = 'FROM_UNIXTIME(ko.created_date) >= %1';
+          $where_clauses[] = 'ko.created_date >= %1';
         }
         elseif ($bar[1] == 'end' && ! empty($foo[1])) {
           $params[2] = array($foo[1] . '235959', 'Timestamp');
-          $where_clauses[] = 'FROM_UNIXTIME(ko.created_date) <= %2';
+          $where_clauses[] = 'ko.created_date <= %2';
         }
       }
     }
@@ -214,10 +211,10 @@ class CRM_Dataexplorer_Explore_Generator_Invoice extends CRM_Dataexplorer_Explor
   function configGroupByPeriodYear() {
     // Assume that if we are grouping by year, it's always a line chart.
     // that's why we check for the period groupby first.
-    $this->_config['axis_x'] = array(
-      'label' => 'Année',
+    $this->_config['axis_x'] = [
+      'label' => ts('Year'),
       'type' => 'date',
-    );
+    ];
 
     $this->_select[] = "DATE_FORMAT(FROM_UNIXTIME(ko.created_date), '%Y') as x";
   }
@@ -226,7 +223,7 @@ class CRM_Dataexplorer_Explore_Generator_Invoice extends CRM_Dataexplorer_Explor
     // Assume that if we are grouping by month, it's always a line chart.
     // that's why we check for the period groupby first.
     $this->_config['axis_x'] = array(
-      'label' => 'Mois',
+      'label' => ts('Month'),
       'type' => 'date',
     );
 
@@ -237,7 +234,7 @@ class CRM_Dataexplorer_Explore_Generator_Invoice extends CRM_Dataexplorer_Explor
     // Assume that if we are grouping by week, it's always a line chart.
     // that's why we check for the period groupby first.
     $this->_config['axis_x'] = array(
-      'label' => 'Week',
+      'label' => ts('Week'),
       'type' => 'date',
     );
 
@@ -248,7 +245,7 @@ class CRM_Dataexplorer_Explore_Generator_Invoice extends CRM_Dataexplorer_Explor
     // Assume that if we are grouping by month, it's always a line chart.
     // that's why we check for the period groupby first.
     $this->_config['axis_x'] = array(
-      'label' => 'Jour',
+      'label' => ts('Day'),
       'type' => 'date',
     );
 
