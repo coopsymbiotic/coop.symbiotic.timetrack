@@ -14,7 +14,7 @@ class CRM_Dataexplorer_Explore_Generator_Invoice extends CRM_Dataexplorer_Explor
 
     $defaults = array(
       'y_label' => 'Invoiced',
-      'y_series' => 'Invoiced',
+      'y_series' => 'hours',
       'y_type' => 'number',
     );
 
@@ -216,7 +216,7 @@ class CRM_Dataexplorer_Explore_Generator_Invoice extends CRM_Dataexplorer_Explor
       'type' => 'date',
     ];
 
-    $this->_select[] = "DATE_FORMAT(FROM_UNIXTIME(ko.created_date), '%Y') as x";
+    $this->_select[] = "DATE_FORMAT(ko.created_date, '%Y') as x";
   }
 
   function configGroupByPeriodMonth() {
@@ -227,7 +227,7 @@ class CRM_Dataexplorer_Explore_Generator_Invoice extends CRM_Dataexplorer_Explor
       'type' => 'date',
     );
 
-    $this->_select[] = "DATE_FORMAT(FROM_UNIXTIME(ko.created_date), '%Y-%m') as x";
+    $this->_select[] = "DATE_FORMAT(ko.created_date, '%Y-%m') as x";
   }
 
   function configGroupByPeriodWeek() {
@@ -238,7 +238,7 @@ class CRM_Dataexplorer_Explore_Generator_Invoice extends CRM_Dataexplorer_Explor
       'type' => 'date',
     );
 
-    $this->_select[] = "YEARWEEK(FROM_UNIXTIME(ko.created_date)) as x";
+    $this->_select[] = "YEARWEEK(ko.created_date) as x";
   }
 
   function configGroupByPeriodDay() {
@@ -249,7 +249,7 @@ class CRM_Dataexplorer_Explore_Generator_Invoice extends CRM_Dataexplorer_Explor
       'type' => 'date',
     );
 
-    $this->_select[] = "DATE_FORMAT(FROM_UNIXTIME(ko.created_date), '%Y-%m-%d') as x";
+    $this->_select[] = "DATE_FORMAT(ko.created_date, '%Y-%m-%d') as x";
   }
 
   /**
@@ -259,16 +259,16 @@ class CRM_Dataexplorer_Explore_Generator_Invoice extends CRM_Dataexplorer_Explor
     // NB: date itself has already been put in the select[] by config().
     switch ($type) {
       case 'year':
-        $this->_group[] = "DATE_FORMAT(FROM_UNIXTIME(ko.created_date), '%Y')";
+        $this->_group[] = "DATE_FORMAT(ko.created_date, '%Y')";
         break;
       case 'month':
-        $this->_group[] = "DATE_FORMAT(FROM_UNIXTIME(ko.created_date), '%Y-%m')";
+        $this->_group[] = "DATE_FORMAT(ko.created_date, '%Y-%m')";
         break;
       case 'week':
-        $this->_group[] = "YEARWEEK(FROM_UNIXTIME(ko.created_date))";
+        $this->_group[] = "YEARWEEK(ko.created_date)";
         break;
       case 'day':
-        $this->_group[] = "DATE_FORMAT(FROM_UNIXTIME(ko.created_date), '%Y-%m-%d')";
+        $this->_group[] = "DATE_FORMAT(ko.created_date, '%Y-%m-%d')";
         break;
       default:
         CRM_Core_Error::fatal('Unknown type of period');
