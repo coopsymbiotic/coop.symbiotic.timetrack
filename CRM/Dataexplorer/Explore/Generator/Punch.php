@@ -7,16 +7,16 @@ class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_
     parent::__construct();
   }
 
-  function config($options = array()) {
+  function config($options = []) {
     if ($this->_configDone) {
       return $this->_config;
     }
 
-    $defaults = array(
+    $defaults = [
       'y_label' => 'Punchs',
-      'y_series' => 'Punchs',
+      'y_series' => 'hours',
       'y_type' => 'number',
-    );
+    ];
 
     $this->_options = array_merge($defaults, $options);
 
