@@ -88,14 +88,11 @@ class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_
   }
 
   function data() {
-    $data = array();
-    $params = array();
+    $data = [];
+    $params = [];
 
     // This makes it easier to check specific exceptions later on.
     $this->config();
-
-    // Get donations by day
-    // $this->_select[] = "sum(amount) as y";
 
     $this->_from[] = "kpunch as p ";
                       
@@ -132,7 +129,7 @@ class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_
          . (!empty($where) ? ' WHERE ' . $where : '')
          . (!empty($this->_group) ? ' GROUP BY ' . implode(', ', $this->_group) : '');
 
-    $dao = CRM_Core_DAO::executeQuery($sql, $params);
+    $dao = $this->executeQuery($sql, $params);
 
     while ($dao->fetch()) {
       if ($dao->x && $dao->y) {
@@ -144,7 +141,13 @@ class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_
         }
 
         if (!empty($dao->yy)) {
-          $data[$x][$dao->yy] = $dao->y;
+          if (isset($this->_config['y_translate']) && isset($this->_config['y_translate'][$dao->yy])) {
+            $yy = $this->_config['y_translate'][$dao->yy];
+            $data[$x][$yy] = $dao->y;
+          }
+          else {
+            $data[$x][$dao->yy] = $dao->y;
+          }
         }
         else {
           $ylabel = $this->_options['y_label'];
@@ -191,6 +194,18 @@ class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_
           $where_clauses[] = 'FROM_UNIXTIME(p.begin) <= %2';
         }
       }
+      elseif ($bar[0] == 'punchinvoiced') {
+        if ($bar[1] == 1) {
+          $where_clauses[] = 'korder_id IS NOT NULL';
+        }
+        elseif ($bar[1] == 2) {
+          $where_clauses[] = 'korder_id IS NULL';
+        }
+      }
+    }
+
+    if (! empty($this->_config['filters']['punchinvoiced'])) {
+
     }
 
     if (! empty($this->_config['filters']['campaigns'])) {
@@ -287,29 +302,30 @@ class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_
     $params = [];
     $where = $this->whereClause($params);
 
-    if (empty($where)) {
-      return;
+    if ($where) {
+      $where = ' WHERE ' . $where;
     }
 
-    $dao = CRM_Core_DAO::executeQuery("SELECT distinct p.contact_id, c.display_name FROM kpunch p LEFT JOIN civicrm_contact c ON (c.id = p.contact_id) WHERE $where", $params);
+    $dao = CRM_Core_DAO::executeQuery("SELECT distinct p.contact_id, c.display_name FROM kpunch p LEFT JOIN civicrm_contact c ON (c.id = p.contact_id) $where", $params);
 
     while ($dao->fetch()) {
       $contacts[$dao->contact_id] = $dao->display_name;
     }
 
+    // FIXME: Odd assumption? or clarify the code comment?
     if (empty($this->_config['axis_x'])) {
       // If X is empty, it's a bar chart.
-      $this->_config['axis_x'] = array(
-        'label' => 'Supprimé',
+      $this->_config['axis_x'] = [
+        'label' => 'Contact',
         'type' => 'number',
-      );
+      ];
 
-      $this->_config['axis_y'][] = array(
+      $this->_config['axis_y'][] = [
         'label' => $this->_options['y_label'],
         'type' => $this->_options['y_type'],
         'series' => $this->_options['y_series'],
         'id' => 1,
-      );
+      ];
 
       $this->_config['x_translate'] = $contacts;
       $this->_select[] = 'contact_id as x';
@@ -318,15 +334,16 @@ class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_
 
     foreach ($contacts as $key => $val) {
       if (empty($this->_config['filters']['contact']) || in_array($key, $this->_config['filters']['contact'])) {
-        $this->_config['axis_y'][] = array(
+        $this->_config['axis_y'][] = [
           'label' => $val,
           'type' => $this->_options['y_type'],
           'series' => $this->_options['y_series'],
           'id' => $key,
-        );
+        ];
       }
     }
 
+    $this->_config['y_translate'] = $contacts;
     $this->_select[] = 'contact_id as yy';
   }
 
@@ -343,11 +360,11 @@ class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_
     $params = [];
     $where = $this->whereClause($params);
 
-    if (empty($where)) {
-      return;
+    if ($where) {
+      $where = ' WHERE ' . $where;
     }
 
-    $dao = CRM_Core_DAO::executeQuery("SELECT distinct c.id, c.subject FROM kpunch p LEFT JOIN ktask ON (p.ktask_id = ktask.id) LEFT JOIN civicrm_case c ON (c.id = ktask.case_id) WHERE $where", $params);
+    $dao = CRM_Core_DAO::executeQuery("SELECT distinct c.id, c.subject FROM kpunch p LEFT JOIN ktask ON (p.ktask_id = ktask.id) LEFT JOIN civicrm_case c ON (c.id = ktask.case_id) $where", $params);
 
     while ($dao->fetch()) {
       $cases[$dao->id] = $dao->subject;
@@ -367,22 +384,23 @@ class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_
         'id' => 1,
       );
 
-      $this->_config['x_translate'] = $contacts;
+      $this->_config['x_translate'] = $cases;
       $this->_select[] = 'case_id as x';
       return;
     }
 
     foreach ($cases as $key => $val) {
       if (empty($this->_config['filters']['case']) || in_array($key, $this->_config['filters']['case'])) {
-        $this->_config['axis_y'][] = array(
+        $this->_config['axis_y'][] = [
           'label' => $val,
           'type' => $this->_options['y_type'],
           'series' => $this->_options['y_series'],
           'id' => $key,
-        );
+        ];
       }
     }
 
+    $this->_config['y_translate'] = $cases;
     $this->_select[] = 'case_id as yy';
   }
 
