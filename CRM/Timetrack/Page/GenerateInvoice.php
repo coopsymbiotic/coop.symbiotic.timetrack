@@ -17,6 +17,18 @@ class CRM_Timetrack_Page_GenerateInvoice extends CRM_Core_Page {
     $lineitems = $this->getLineItems($invoice_id);
     $subtotal = $this->getLineItemsTotal($lineitems);
 
+    // Check if we have a template for the pref language of the client.
+    $lang_code = strtoupper(substr($client['preferred_language'], 0, 2));
+    $template = Civi::settings()->get('TimetrackInvoiceTemplate' . $lang_code);
+
+    if (empty($template)) {
+      $template = Civi::settings()->get('TimetrackInvoiceTemplateDefault');
+    } else {
+      // Reformat numbers according to the template's language
+      $subtotal = $this->formatNumber($subtotal, $lang_code);
+      $lineitems = $this->formatNumbers($lineitems, $lang_code);
+    }
+
     $vars = [
       'ClientName' => $client['display_name'],
       'ClientId' => $client['contact_id'],
@@ -32,16 +44,8 @@ class CRM_Timetrack_Page_GenerateInvoice extends CRM_Core_Page {
       'InvoiceDate' => substr($invoice['created_date'], 0, 10), // FIXME date format using civi prefs
       'InvoiceId' => $invoice['invoice_id'],
       'ProjectPeriod' => 'XXXXXXXXXXXXXXXX', // FIXME, needs to be saved in DB
-      'SubTotal' => CRM_Utils_Money::format($subtotal),
+      'SubTotal' => $subtotal //CRM_Utils_Money::format($subtotal),
     ];
-
-    // Check if we have a template for the pref language of the client.
-    $lang_code = strtoupper(substr($client['preferred_language'], 0, 2));
-    $template = Civi::settings()->get('TimetrackInvoiceTemplate' . $lang_code);
-
-    if (empty($template)) {
-      $template = Civi::settings()->get('TimetrackInvoiceTemplateDefault');
-    }
 
     $TBS->LoadTemplate($template, OPENTBS_ALREADY_UTF8);
     $TBS->VarRef = &$vars;
@@ -92,7 +96,8 @@ class CRM_Timetrack_Page_GenerateInvoice extends CRM_Core_Page {
         'qty' => $i['hours_billed'], // FIXME rename to qty in DB.
         'cost' => $i['cost'],
         'unit' => $i['unit'],
-        'amount' => CRM_Utils_Money::format($i['cost'] * $i['hours_billed']), // FIXME rename
+        'amount' => $i['cost'] * $i['hours_billed'], // template will take care of formatting...
+        //'amount' => CRM_Utils_Money::format($i['cost'] * $i['hours_billed']), // FIXME rename
       ];
     }
 
@@ -107,6 +112,35 @@ class CRM_Timetrack_Page_GenerateInvoice extends CRM_Core_Page {
     }
 
     return $total;
+  }
+
+  public function formatNumber($number, $lang_code='EN') {
+
+    $format = CRM_Utils_Array::value($lang_code, [
+      'FR' => [2, ',', ''],
+    ]);
+
+    if ($format) {
+      list($decimals, $decimals_sep, $thousands_sep) = $format;
+      $number = number_format($number, $decimals, $decimals_sep, $thousands_sep);
+    }
+
+    return $number;
+  }
+
+  public function formatNumbers($array, $lang_code='EN') {
+
+    $formatted = $array;
+    foreach ($array as $key => $item) {
+      if (is_array($item)) {
+        $formatted[$key] = $this->formatNumbers($item, $lang_code);
+      }
+      elseif (is_numeric($item)) {
+        $formatted[$key] = $this->formatNumber($item, $lang_code);
+      }
+    }
+
+    return $formatted;
   }
 
 }
