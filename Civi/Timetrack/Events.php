@@ -9,9 +9,23 @@ class Events {
 
   static public function fireDataExplorerBoot(DataExplorerEvent $event) {
     $sources = $event->getDataSources();
-    $sources['punch'] = E::ts('Timetrack Punch duration');
-    $sources['invoice'] = E::ts('Timetrack Hours invoiced');
+    $sources['punch'] = E::ts('Timetrack Punchs');
+    $sources['invoice'] = E::ts('Timetrack Invoices');
     $event->setDataSources($sources);
+
+    $filters = $event->getFilters();
+    $filters['punchinvoiced'] = [
+      'type' => 'items',
+      'label' => 'Punch Invoiced',
+      'items' => [
+        1 => ts('Yes'),
+        2 => ts('No'),
+      ],
+      'depends' => [
+        'punch',
+      ],
+    ];
+    $event->setFilters($filters);
   }
 
 }
