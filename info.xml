@@ -8,20 +8,20 @@
   <description>Timetracker for CiviCRM</description>
   <license>AGPL-3.0</license>
   <maintainer>
-    <author>Mathieu Lutfy</author>
-    <email>mathieu@symbiotic.coop</email>
+    <author>Coop Symbiotic</author>
+    <email>info@symbiotic.coop</email>
   </maintainer>
-  <releaseDate>2014-09-01</releaseDate>
-  <version>1.0</version>
-  <develStage>alpha</develStage>
+  <releaseDate>2020-07-15</releaseDate>
+  <version>1.1</version>
+  <develStage>beta</develStage>
   <compatibility>
     <ver>5.9</ver>
   </compatibility>
-  <comments>See the README.md file for more information.</comments>
+  <comments></comments>
   <urls>
-    <url desc="Main Extension Page">https://github.com/coopsymbiotic/coop.symbiotic.timetrack</url>
-    <url desc="Documentation">https://github.com/coopsymbiotic/coop.symbiotic.timetrack/blob/master/README.txt</url>
-    <url desc="Support">https://www.symbiotic.coop/en</url>
+    <url desc="Main Extension Page">https://lab.civicrm.org/extensions/timetrack</url>
+    <url desc="Documentation">https://lab.civicrm.org/extensions/timetrack/blob/master/README.md</url>
+    <url desc="Support">https://lab.civicrm.org/extensions/timetrack/-/issues</url>
     <url desc="Licensing">https://civicrm.org/licensing</url>
   </urls>
   <civix>
