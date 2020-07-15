@@ -362,13 +362,18 @@ function civicrm_api3_timetrackpunch_punchout($params) {
     return civicrm_api3_create_error('You must specify the user to punch out.');
   }
 
-  $result = civicrm_api3('Timetrackpunch', 'getsingle', [
+  $result = civicrm_api3('Timetrackpunch', 'get', [
     'contact_id' => $params['contact_id'],
     'duration' => -1,
+    'sequential' => 1,
   ]);
 
+  if (empty($result['values'][0])) {
+    throw new Exception('Not currently punched in.');
+  }
+
   $punch = new CRM_Timetrack_DAO_Punch();
-  $punch->copyValues($result);
+  $punch->copyValues($result['values'][0]);
 
   $punch->duration = time() - $punch->begin;
 
