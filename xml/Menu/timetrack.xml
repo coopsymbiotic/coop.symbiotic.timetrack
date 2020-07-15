@@ -46,7 +46,13 @@
   <item>
     <path>civicrm/timetrack/gitlab</path>
     <page_callback>CRM_Timetrack_Page_Gitlab</page_callback>
-    <title>Gitlab</title>
+    <title>Gitlab Webhook</title>
+    <access_callback>1</access_callback>
+  </item>
+  <item>
+    <path>civicrm/timetrack/mattermost</path>
+    <page_callback>CRM_Timetrack_Page_Mattermost</page_callback>
+    <title>Mattermost Slash Command</title>
     <access_callback>1</access_callback>
   </item>
   <item>

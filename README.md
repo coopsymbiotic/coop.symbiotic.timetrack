@@ -1,5 +1,4 @@
-Timetrack
-=========
+# Timetrack
 
 General idea: you have activities and can track time with activities.
 However, you may have some activities are done over various moments in a
@@ -26,16 +25,14 @@ Here are a few screenshots:
 To download the latest version of this module:  
 https://lab.civicrm.org/extensions/timetrack
 
-Requirements
-============
+## Requirements
 
 - CiviCRM 5.7+
-- PHP 7.0+
+- PHP 7.2+
 
 Timetrack does not (yet) work with the CiviCase v5 extension.
 
-Installation
-============
+## Installation
 
 Install as any other regular CiviCRM extension:
 
@@ -45,8 +42,7 @@ Install as any other regular CiviCRM extension:
 
 2- Enable the extension from CiviCRM -> Administer -> System -> Extensions.
 
-History
-=======
+## History
 
 Timetrack is a partial rewrite of "kproject"[1], a time management tool written by
 Koumbit.org. It was written as a Drupal 6 module, and was an awesome time
@@ -71,21 +67,48 @@ have an "order_line" in order to keep more granular tracking in invoices.
 
   [1] https://www.drupal.org/project/kproject
 
-Punching using a bot
-====================
+## Punching using Mattermost
 
-The following assumes you generally understand how IRC and bots work.
+[Mattermost](https://mattermost.org/) is an open source, self-hosted alternative.
+The following instructions should also work for Slack.
 
-IRC punching is done using the CiviCRM API. This extension provides
-basic entities for 'Timetracktask', 'Timetrackpunch', etc.
+You can connect your Mattermost instance with your Timetrack instance by setting
+up a "Slash Command" in Mattermost. You may need to be an admin to do this.
 
-Timetrack has been successfully tested with Mattermost using a Hubot
-robot.
+* Go to Menu > Integrations > Slash Commands
+* Fill in the instructions.
+  * Command Trigger Word: (example) `punch`, so that we can punch time using `/punch [...]` on the chat
+  * Request URL: `https://example.org/civicrm/timetrack/mattermost`
+  * Request Method: POST
+  * Response Username: (example) "timetrack" (name of the bot)
+  * Autocomplete Hint: `[14:30+90m] [project/task] [comment]`
 
-TODO: URL to Hubot script for Timetrack. Ping us if you need more information.
+For more information, see:  
+https://docs.mattermost.com/help/messaging/executing-commands.html
 
-Invoicing
-=========
+### Examples
+
+Punch in a project, then later punch out:
+
+```
+/punch myproject/mytask This is my comment
+/punch
+```
+
+Punch in at a specific time, then later punch out:
+
+```
+/punch 9:30 myproject/mytask This is my comment
+/punch
+```
+
+Punch in at a specific time, and with a specified duration (no need to punch out):
+
+```
+/punch 9:30+1h myproject/mytask This is my comment
+```
+
+## Invoicing
 
 Invoices can be quite an art and need to look good, Timetrack takes an ordinary
 OpenDocument file (odt) as a template in order to generate invoices.
@@ -143,21 +166,14 @@ You can also use the API explorer (example.org/civicrm/api/explorer), instead of
 
 (yes, this is a bit weird, it was a quick hack and needs a UI)
 
-Timetrack APIs
-==============
+## Timetrack APIs
 
 TODO: needs documentation. See the 'api/v3' directory of this extension.
 
-Status & Todo
-=============
-
-WARNING: this extension is highly experimental. I am trying to provide an
-upgrade path from users of kproject, but not between experimental releases
-of this extension. Below is a short list of things that need fixing.
+## Status & Todo
 
 Tasks and punches:
 
-* [rc] Script to convert the contracts (kcontract) to be linked to civicrm_case, instead of node.
 * [wishlist] Punching in a 'new' task should change it to 'open'.
 * [wishlist] Quick punch form, not linked to a specific case.
 
@@ -174,7 +190,6 @@ Misc:
 * [rc] Implement "case merge" hook.
 * [rc] Convert all unix timestamp fields to mysql datetime (ex: task begin/end, punch begin).
 * [important] Config UI for the invoice template file (currently the path of the template is hardcoded).
-* [wishlist] Bot integration (merge kpirc into bot_kproject?).
 * [wishlist] Invoicing has some redundancy with CiviAccounts. Would be neat to integrate all that together.
 
 General assumptions that might need fixing:
@@ -182,14 +197,12 @@ General assumptions that might need fixing:
 * Assuming that cases have only 1 client contact, ex: api/v3/Timetrackinvoice.php get.
 * The system mostly works in hours. All durations displayed are usually in hours (as opposed to days).
 
-Support
-=======
+## Support
 
 Please post bug reports in the issue tracker of this project on CiviCRM's Gitlab:  
 https://lab.civicrm.org/extensions/timetrack/issues
 
-For general questions and support, please post on the CiviCRM Stack Exchange
-and tag your question with "timetrack":  
+For general questions and support, please post on the CiviCRM Stack Exchange:  
 http://civicrm.stackexchange.com
 
 This extension was written thanks to the financial support of organisations
@@ -202,15 +215,14 @@ if you can.
 Support via Coop SymbioTIC:  
 https://www.symbiotic.coop/en
 
-License
-=======
+## License
 
 Distributed under the terms of the GNU Affero General public license (AGPL).
 See LICENSE.txt for details.
 
-(C) 2014-2019 Mathieu Lutfy <mathieu@bidon.ca>
-(C) 2016-2019 Mathieu Lutfy <mathieu@symbiotic.coop>
-(C) 2016-2019 Coop SymbioTIC <info@symbiotic.coop>
+(C) 2014-2020 Mathieu Lutfy <mathieu@bidon.ca>
+(C) 2016-2020 Mathieu Lutfy <mathieu@symbiotic.coop>
+(C) 2016-2020 Coop SymbioTIC <info@symbiotic.coop>
 
 Includes code based on "kproject"  
 https://drupal.org/project/kproject  

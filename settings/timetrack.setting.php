@@ -57,4 +57,22 @@ return [
       ]
     ],
   ],
+  'timetrack_mattermost_slash_token' => [
+    'group_name' => 'domain',
+    'group' => 'timetrack',
+    'name' => 'timetrack_mattermost_slash_token',
+    'type' => 'String',
+    'html_type' => 'text',
+    'default' => '',
+    'add' => '1.0',
+    'is_domain' => 1,
+    'is_contact' => 0,
+    'title' => E::ts('Mattermost Slash Command Token'),
+    'description' => E::ts('Validation token for slash commands sent from Mattermost.'),
+    'settings_pages' => [
+      'timetrack' => [
+        'weight' => 20,
+      ],
+    ],
+  ],
 ];
