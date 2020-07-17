@@ -117,15 +117,14 @@ class CRM_Timetrack_Case_Page_CaseView {
 
     $taskStatuses = CRM_Timetrack_PseudoConstant::getTaskStatuses();
 
-    // FIXME ts() domain.
     $headers = [
-      'title' => ts('Task'),
-      'estimate' => ts('Estimate'),
-      'total_included' => ts('Punches'),
-      'percent_done' => ts('% done'),
-      'state' => ts('Status'),
-      'begin' => ts('Begin'),
-      'end' => ts('End'),
+      'title' => E::ts('Task'),
+      'estimate' => E::ts('Estimate'),
+      'total_included' => E::ts('Punches'),
+      'percent_done' => E::ts('% done'),
+      'state' => E::ts('Status'),
+      'begin' => E::ts('Begin'),
+      'end' => E::ts('End'),
     ];
 
     $smarty->assign('timetrack_headers', $headers);
@@ -133,7 +132,7 @@ class CRM_Timetrack_Case_Page_CaseView {
     $rows = [];
 
     $total = [
-      'title' => ts('Total'),
+      'title' => E::ts('Total'),
       'estimate' => 0,
       'total_included' => 0,
       'percent' => '',
