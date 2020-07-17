@@ -92,7 +92,7 @@ CREATE TABLE `kpunch` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `ktask_id` int(10) unsigned DEFAULT NULL,
   `contact_id` int(10) unsigned DEFAULT NULL,
-  `begin` int(11) NOT NULL,
+  `begin` datetime NOT NULL,
   `duration` int(11) DEFAULT NULL,
   `comment` varchar(255) DEFAULT NULL,
   `billable_intern` int(11) NOT NULL DEFAULT '1',

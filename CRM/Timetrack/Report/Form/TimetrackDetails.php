@@ -75,7 +75,7 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
           'begin' => [
             'title' => ts('Begin'),
             'default' => TRUE,
-            'type' => CRM_Utils_Type::T_TIME, // FIXME, currently a timestamp
+            'type' => CRM_Utils_Type::T_TIME,
           ],
           'duration' => [
             'title' => ts('Duration (h)'),
@@ -171,9 +171,6 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
 
     parent::select();
 
-    // FIXME: remove when field has been converted to mysql date.
-    $this->_select = str_replace('punch_civireport.begin as punch_begin', 'FROM_UNIXTIME(punch_civireport.begin) as punch_begin', $this->_select);
-
     // Replace the drupal contact_id by the civicrm contact display_name
     $this->_select = str_replace('punch_civireport.contact_id as punch_contact_id', 'contact_civireport.display_name as punch_contact_id', $this->_select);
 
@@ -238,11 +235,6 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
     else {
       $this->_where = " WHERE " . implode(' AND ', $clauses);
     }
-
-    // FIXME: hacks because the where clause includes mysql date,
-    // but our DB still uses unix timestamps.
-    $this->_where = preg_replace('/( \d{14} )/', 'UNIX_TIMESTAMP(\1)', $this->_where);
-    $this->_where = preg_replace('/( \d{8} )/', 'UNIX_TIMESTAMP(\1)', $this->_where);
 
     // Fix the 'current_contact = 1' clause, since this is not a real database table field
     $session = CRM_Core_Session::singleton();

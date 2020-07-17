@@ -64,12 +64,12 @@ function civicrm_api3_timetrackpunch_get($params) {
   // FIXME: Using the DAO would be much simpler!
   if (!empty($params['filter.begin_low'])) {
     $sqlparams[4] = [$params['filter.begin_low'], 'Timestamp'];
-    $sql .= ' AND kpunch.begin >= UNIX_TIMESTAMP(%4)';
+    $sql .= ' AND kpunch.begin >= %4';
   }
 
   if (!empty($params['filter.begin_high'])) {
     $sqlparams[5] = [$params['filter.begin_high'], 'Timestamp'];
-    $sql .= ' AND kpunch.begin <= UNIX_TIMESTAMP(%5)';
+    $sql .= ' AND kpunch.begin <= %5';
   }
 
   // FIXME: should this be $params['options']['sort']?
@@ -268,30 +268,11 @@ function civicrm_api3_timetrackpunch_create($params) {
       }
     }
 
-    // Check for overlapping punches.
-// [ML] we don't really care about overlapping punches.
-// There are more legitimate cases for it, than against it.
-/*
-    if (empty($params['skip_overlap_check']) && empty($params['id'])) {
-      $test_punch = array(
-        'id' => $task['id'],
-        'contact_id' => $params['contact_id'],
-        'begin' => $begin,
-        'duration' => time() - $begin,
-      );
-
-      // FIXME: needs more testing.
-      // NB: throws an exception if it fails.
-      timetrack_punch_validate($test_punch);
-    }
-*/
-
     $params['begin'] = $begin;
   }
   else {
     if (empty($params['id'])) {
-      // TODO: should be mysql datetime
-      $params['begin'] = time();
+      $params['begin'] = date('Y-m-d H:i:s');
     }
   }
 
@@ -375,7 +356,8 @@ function civicrm_api3_timetrackpunch_punchout($params) {
   $punch = new CRM_Timetrack_DAO_Punch();
   $punch->copyValues($result['values'][0]);
 
-  $punch->duration = time() - $punch->begin;
+  $t1 = strtotime($punch->begin);
+  $punch->duration = time() - $t1;
 
   if (!empty($params['comment'])) {
     $punch->comment = $params['comment'];
@@ -431,7 +413,7 @@ function civicrm_api3_timetrackpunch_setvalue($params) {
       $value = strtotime($value);
 
       CRM_Core_DAO::executeQuery('UPDATE kpunch SET begin = %1 WHERE id = %2', [
-        1 => [$value, 'Positive'], // FIXME convert to string when field is fixed
+        1 => [$value, 'Timestamp'],
         2 => [$id, 'Positive']
       ]);
 
@@ -474,12 +456,14 @@ function civicrm_api3_timetrackpunch_setvalue($params) {
  * 00[m|min|h|hour] - Time minus specified length
  * 00[h|:]00 - Exact time today
  *
+ * @deprecated
+ *
  * @return
  *   A timestamp or FALSE if the string is not formatted correctly
  */
 function timetrack_convert_punch_start_to_timestamp($time_to_convert = NULL) {
   if ($time_to_convert === NULL) {
-    return time();
+    return date('Y-m-d H:i:s');
   }
 
   if ((strlen($time_to_convert) == 16 || strlen($time_to_convert) == 19) && CRM_Utils_Rule::dateTime($time_to_convert)) {
@@ -493,62 +477,26 @@ function timetrack_convert_punch_start_to_timestamp($time_to_convert = NULL) {
 
     // Converts time (00:00) to timestamp of the same time today,
     // or FALSE if format is incorrect.
-    return strtotime($time_to_convert);
+    return date('Y-m-d H:i:s', strtotime($time_to_convert));
   }
   elseif (preg_match("/^[0-9]*(m|min|minute)s?\z/i", $time_to_convert)) {
     // relative time in minutes (000m)
     $minutes = (int) $time_to_convert;
 
-    return strtotime(date('Y-m-d H:i:s') . '-' . $minutes . ' minutes');
+    // @todo cleanup! This was probably for relative time, add examples?
+    return date('Y-m-d H:i:s', strtotime(date('Y-m-d H:i:s') . '-' . $minutes . ' minutes'));
   }
   elseif (preg_match("/^[0-9]*(h|hour)s?\z/i", $time_to_convert)) {
     // relative time in hours (000h)
     $hours = (int) $time_to_convert;
 
-    return strtotime(date('Y-m-d H:i:s') . '-' . $hours . ' hours');
+    // @todo cleanup! This was probably for relative time, add examples?
+    return date('Y-m-d H:i:s', strtotime(date('Y-m-d H:i:s') . '-' . $hours . ' hours'));
   }
   else {
     // format error
     return FALSE;
   }
-}
-
-/**
- * Validates that the punch can be safely added to the database.
- *
- * TODO: move to BAO. Use CiviCRM DB API.
- * Copied from kpirc.module.
- *
- * @param array $punch
- *   An array containing the punch properties as they are to be written.
- *
- * @return
- *   TRUE if the entry is valid, throws an exception otherwise.
- */
-function timetrack_punch_validate($punch) {
-  $sql = 'SELECT * FROM kpunch k
-           WHERE k.contact_id = %2
-             AND (
-               (%3 >= k.begin AND %3 <= (k.begin + k.duration))
-               OR (%4 >= k.begin AND %4 <= (k.begin + k.duration))
-               OR ((k.begin >= %3) AND (k.begin <= %4))
-             )
-           ORDER BY k.id DESC';
-
-  $params = [
-    2 => [$punch['contact_id'], 'Positive'],
-    3 => [$punch['begin'], 'Positive'], // Mysql timestamp FIXME
-    4 => [$punch['begin'] + $punch['duration'], 'Positive'], // Mysql timestamp
-  ];
-
-  $dao = CRM_Core_DAO::executeQuery($sql, $params);
-
-  if ($dao->fetch()) {
-    throw new Exception(ts('Error: Overlapping with punch %1 (%2) on %3 id=%4',
-      [1 => $dao->id, 2 => $dao->comment, 3 => $dao->title, 4 => $dao->ktask_id]));
-  }
-
-  return TRUE;
 }
 
 /**

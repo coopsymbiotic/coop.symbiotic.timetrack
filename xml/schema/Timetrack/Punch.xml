@@ -44,7 +44,13 @@
     <fieldName>ktask_id</fieldName>
     <add>1.0</add>
     <add>1.0</add>
-    <comment>Start timestamp of the punch.</comment>
+  </field>
+  <field>
+    <name>begin</name>
+    <type>datetime</type>
+    <required>true</required>
+    <add>1.0</add>
+    <comment>Start date of the punch.</comment>
   </field>
   <field>
     <name>duration</name>

@@ -41,13 +41,15 @@ class CRM_Timetrack_Page_TimelineData extends CRM_Core_Page {
         $val['duration'] = 5;
       }
 
+      $end_date = date('Y-m-d H:i:s', strtotime($val['begin']) + $val['duration']);
+
       $punches[] = [
         'id' => $val['id'], // required for punch deletion
         'punch_id' => $val['id'],
         'ktask_id' => $val['ktask_id'],
         'text' => $val['comment'],
-        'start_date' => date('Y-m-d H:i:s', $val['begin']), // FIXME begin should be mysql date
-        'end_date' => date('Y-m-d H:i:s', $val['begin'] + $val['duration']), // FIXME begin should be mysql date
+        'start_date' => $val['begin'],
+        'end_date' => $end_date,
         'contact_id' => $val['contact_id'], // FIXME should be contact_id
       ];
     }

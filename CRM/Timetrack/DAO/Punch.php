@@ -99,9 +99,9 @@ class CRM_Timetrack_DAO_Punch extends CRM_Core_DAO
    */
   public $ktask_id;
   /**
-   * Start timestamp of the punch.
+   * Start datetime of the punch.
    *
-   * @var int unsigned
+   * @var datetime
    */
   public $begin;
   /**
@@ -181,9 +181,9 @@ class CRM_Timetrack_DAO_Punch extends CRM_Core_DAO
         ) ,
         'begin' => array(
           'name' => 'begin',
-          'type' => CRM_Utils_Type::T_INT,
+          'type' => CRM_Utils_Type::T_DATE + CRM_Utils_Type::T_TIME,
           'title' => ts('Begin') ,
-          'description' => 'Start timestamp of the punch.',
+          'description' => 'Start date and time of the punch.',
           'required' => true,
         ) ,
         'duration' => array(
