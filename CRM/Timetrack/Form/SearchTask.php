@@ -65,21 +65,18 @@ class CRM_Timetrack_Form_SearchTask extends CRM_Core_Form {
       // it might not really be necessary, if the 'contact' hack works?
       // but might be better to keep it (and refactor), so that we can avoid that hack.
       $clauses = [];
+      $sql_params = [];
 
       if (!empty($values['start_date'])) {
-        // Convert to unix timestamp (FIXME)
-        $start = $values['start_date'];
-        $start = strtotime($start);
-
-        $clauses[] = 'kpunch.begin >= ' . $start;
+        $start = CRM_Utils_Date::isoToMysql($values['start_date']);
+        $clauses[] = 'kpunch.begin >= %1';
+        $sql_params[1] = [$start, 'Timestamp'];
       }
 
       if (!empty($values['end_date'])) {
-        // Convert to unix timestamp (FIXME)
-        $end = $values['end_date'] . ' 23:59:59';
-        $end = strtotime($end);
-
-        $clauses[] = 'kpunch.begin <= ' . $end;
+        $end = CRM_Utils_Date::isoToMysql($values['end_date'] . ' 23:59:59');
+        $clauses[] = 'kpunch.begin <= %2';
+        $sql_params[2] = [$end, 'Timestamp'];
       }
 
       if (isset($values['state']) && $values['state'] !== '') {
@@ -87,16 +84,19 @@ class CRM_Timetrack_Form_SearchTask extends CRM_Core_Form {
           $clauses[] = 'korder.state is NULL';
         }
         else {
-          $clauses[] = 'korder.state = ' . intval($values['state']);
+          $clauses[] = 'korder.state = %3';
+          $sql_params[3] = [$values['state'], 'Positive'];
         }
       }
 
       if (!empty($values['ktask'])) {
-        $clauses[] = 'kpunch.ktask_id = ' . CRM_Utils_Type::escape($values['ktask'], 'Positive');
+        $clauses[] = 'kpunch.ktask_id = %4';
+        $sql_params[4] = [$values['ktask'], 'Positive'];
       }
 
       if (!empty($values['case_id'])) {
-        $clauses[] = 'civicrm_case.id = ' . intval($values['case_id']);
+        $clauses[] = 'civicrm_case.id = %5';
+        $sql_params[5] = [$values['case_id'], 'Positive'];
       }
 
       $where = implode(' AND ', $clauses);
@@ -115,17 +115,11 @@ class CRM_Timetrack_Form_SearchTask extends CRM_Core_Form {
         LEFT JOIN civicrm_case ON (civicrm_case.id = kt.case_id)";
 
       $sql = "SELECT $select FROM $from WHERE $where";
-
-      $dao = CRM_Core_DAO::executeQuery($sql);
+      $dao = CRM_Core_DAO::executeQuery($sql, $sql_params);
 
       while ($dao->fetch()) {
         $ids[] = $dao->pid;
       }
-    }
-
-    if (!empty($ids)) {
-#      $form->_componentClause = ' civicrm_activity.id IN ( ' . implode(',', $ids) . ' ) ';
-#      $form->assign('totalSelectedActivities', count($ids));
     }
 
     $form->_componentIds = $ids;

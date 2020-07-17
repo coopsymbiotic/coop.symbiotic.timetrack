@@ -218,15 +218,18 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
    */
   public function where($includeContactIDs = FALSE) {
     $clauses = [];
+    $sql_params = [];
 
     if (!empty($this->_formValues['start_date'])) {
-      $start = $this->_formValues['start_date'];
-      $clauses[] = 'kpunch.begin >= "' . $start . '"';
+      $start = CRM_Utils_Date::isoToMysql($this->_formValues['start_date']);
+      $clauses[] = 'kpunch.begin >= %1';
+      $sql_params[1] = [$start, 'Timestamp'];
     }
 
     if (!empty($this->_formValues['end_date'])) {
-      $end = $this->_formValues['end_date'] . ' 23:59:59';
-      $clauses[] = 'kpunch.begin <= "' . $end . '"';
+      $end = CRM_Utils_Date::isoToMysql($this->_formValues['end_date'] . ' 23:59:59');
+      $clauses[] = 'kpunch.begin <= %2';
+      $sql_params[2] = [$end, 'Timestamp'];
     }
 
     if (isset($this->_formValues['state']) && $this->_formValues['state'] !== '') {
@@ -234,32 +237,39 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
         $clauses[] = 'korder.state is NULL';
       }
       else {
-        $clauses[] = 'korder.state = ' . intval($this->_formValues['state']);
+        $clauses[] = 'korder.state = %3';
+        $sql_params[3] = [$this->_formValues['state'], 'Positive'];
       }
     }
 
     if (!empty($this->_formValues['ktask'])) {
-      $clauses[] = 'kpunch.ktask_id = ' . CRM_Utils_Type::escape($this->_formValues['ktask'], 'Positive');
+      $clauses[] = 'kpunch.ktask_id = %4';
+      $sql_params[4] = [$this->_formValues['ktask'], 'Positive'];
     }
 
     if (!empty($this->_formValues['contact_id'])) {
-      $clauses[] = 'kpunch.contact_id IN (' . CRM_Utils_Type::validate($this->_formValues['contact_id'], 'CommaSeparatedIntegers') . ')';
+      $clauses[] = 'kpunch.contact_id IN (%5)';
+      $sql_params[5] = [$this->_formValues['contact_id'], 'CommaSeparatedIntegers'];
     }
 
     if (!empty($this->_formValues['case_id'])) {
-      $clauses[] = 'civicrm_case.id = ' . intval($this->_formValues['case_id']);
+      $clauses[] = 'civicrm_case.id = %6';
+      $sql_params[6] = [$this->_formValues['case_id'], 'Positive'];
     }
 
     if (!empty($this->_formValues['invoice_id'])) {
-      $clauses[] = 'kpunch.korder_id = ' . intval($this->_formValues['invoice_id']);
+      $clauses[] = 'kpunch.korder_id = %7';
+      $sql_params[7] = [$this->_formValues['invoice_id'], 'Positive'];
     }
 
     // FIXME: insecure?
     if (!empty($this->_formValues['comment'])) {
-      $clauses[] = 'kpunch.comment LIKE "%' . CRM_Utils_Type::escape($this->_formValues['comment'], 'String') . '%"';
+      $clauses[] = 'kpunch.comment LIKE %8';
+      $sql_params[8] = ['%' . $this->_formValues['comment'] . '%', 'String'];
     }
 
     $where = implode(' AND ', $clauses);
+    $where = CRM_Core_DAO::composeQuery($where, $sql_params, FALSE);
 
 /* FIXME
     if(!empty($this->_permissionWhereClause)){
