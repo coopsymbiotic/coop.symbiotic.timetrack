@@ -155,7 +155,7 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
    */
   public function all($offset = 0, $rowcount = 0, $sort = NULL, $includeContactIDs = FALSE, $onlyIDs = FALSE) {
     // XXX: kpunch.id as contact_id is a hack because the tasks require it for the checkboxes.
-    $select = "kpunch.id as pid, kpunch.id as contact_id, kpunch.contact_id as real_contact_id, from_unixtime(kpunch.begin) as begin, kpunch.duration as duration_hours,
+    $select = "kpunch.id as pid, kpunch.id as contact_id, kpunch.contact_id as real_contact_id, kpunch.begin as begin, kpunch.duration as duration_hours,
                kpunch.duration as duration_rounded, kpunch.comment, kpunch.korder_id as invoice_id,
                korder.state as order_state,
                kt.title as task,
@@ -220,19 +220,13 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
     $clauses = [];
 
     if (!empty($this->_formValues['start_date'])) {
-      // Convert to unix timestamp (FIXME)
       $start = $this->_formValues['start_date'];
-      $start = strtotime($start);
-
-      $clauses[] = 'kpunch.begin >= ' . $start;
+      $clauses[] = 'kpunch.begin >= "' . $start . '"';
     }
 
     if (!empty($this->_formValues['end_date'])) {
-      // Convert to unix timestamp (FIXME)
       $end = $this->_formValues['end_date'] . ' 23:59:59';
-      $end = strtotime($end);
-
-      $clauses[] = 'kpunch.begin <= ' . $end;
+      $clauses[] = 'kpunch.begin <= "' . $end . '"';
     }
 
     if (isset($this->_formValues['state']) && $this->_formValues['state'] !== '') {

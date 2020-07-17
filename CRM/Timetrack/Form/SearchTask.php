@@ -102,7 +102,7 @@ class CRM_Timetrack_Form_SearchTask extends CRM_Core_Form {
       $where = implode(' AND ', $clauses);
 
       // XXX: kpunch.id as contact_id is a hack because the tasks require it for the checkboxes.
-      $select = "kpunch.id as pid, kpunch.id as contact_id, kpunch.contact_id, from_unixtime(kpunch.begin) as begin, kpunch.duration,
+      $select = "kpunch.id as pid, kpunch.id as contact_id, kpunch.contact_id, kpunch.begin, kpunch.duration,
                  kpunch.duration as duration_rounded, kpunch.comment, kpunch.korder_id as invoice_id,
                  korder.state as order_state,
                  kt.title as task,
