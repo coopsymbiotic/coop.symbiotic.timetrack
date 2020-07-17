@@ -180,7 +180,7 @@ Tasks and punches:
 Invoices:
 
 * [rc] Rename the "hours_billed" in the DB to just "qty".
-* [important] Have a per-task default cost (hourly fee), currently hardcoded.
+* [wishlist] Have a per-task default cost (hourly fee)? Currently we support a per-project fee.
 * [wishlist] Have a way to list the punches specific to a task? (popup?)
 * [wishlist] Add a "public note" field, for a text to add on the invoice sent to the client?
 * [wishlist] Add a "private note" field, for internal notes? (not shown on the final invoice)
@@ -188,7 +188,7 @@ Invoices:
 Misc:
 
 * [rc] Implement "case merge" hook.
-* [rc] Convert all unix timestamp fields to mysql datetime (ex: task begin/end, punch begin).
+* [rc] Convert all unix timestamp fields to mysql datetime (ex: task begin/end, ~~punch begin~~ ✔).
 * [important] Config UI for the invoice template file (currently the path of the template is hardcoded).
 * [wishlist] Invoicing has some redundancy with CiviAccounts. Would be neat to integrate all that together.
 
@@ -214,6 +214,11 @@ if you can.
 
 Support via Coop SymbioTIC:  
 https://www.symbiotic.coop/en
+
+Coop Symbiotic is a worker-owned co-operative based in Canada. We have a strong
+experience working with non-profits and CiviCRM. We provide affordable, fast,
+turn-key hosting with regular upgrades and proactive monitoring, as well as
+custom development and training.
 
 ## License
 
