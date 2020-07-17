@@ -39,7 +39,7 @@ class CRM_Timetrack_Form_Task_Export extends CRM_Timetrack_Form_SearchTask {
 
     $rows = [];
 
-    $dao = CRM_Core_DAO::executeQuery('SELECT p.*, from_unixtime(p.begin) as start_date,
+    $dao = CRM_Core_DAO::executeQuery('SELECT p.*, p.begin as start_date,
         t.title as task, s.subject as case_title
       FROM kpunch p
       LEFT JOIN ktask t ON (p.ktask_id = t.id)
