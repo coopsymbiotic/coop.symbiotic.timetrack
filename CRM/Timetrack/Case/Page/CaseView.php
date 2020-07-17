@@ -57,7 +57,7 @@ class CRM_Timetrack_Case_Page_CaseView {
       }
 
       foreach ($actionsreg as $key => $action) {
-        $actions_html .= "<a href='{$action['url']}' style='display: inline-block; padding-left: 1em;'><span><div class='{$action['classes']}'></div>{$action['label']}</span></a>";
+        $actions_html .= "<a href='{$action['url']}' class='button' style='display: inline-block; padding-left: 1em;'><span><div class='{$action['classes']}'></div>{$action['label']}</span></a>";
       }
 
       $summary['timetrack_actions'] = [

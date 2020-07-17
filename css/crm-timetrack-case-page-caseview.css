@@ -1,3 +1,17 @@
 #timetrack_billing_status {
   clear: both;
 }
+
+#timetrack_actions, #timetrack_billing_status, #timetrack_irc_alias {
+  padding: 15px 15px 0;
+}
+#timetrack_edit {
+  padding: 15px;
+}
+#timetrack_actions label,
+#timetrack_billing_status label,
+#timetrack_irc_alias label {
+  text-transform: uppercase;
+  font-size: 13px;
+  font-weight: bold;
+}
