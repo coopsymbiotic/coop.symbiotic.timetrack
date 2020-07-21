@@ -89,7 +89,13 @@ class CRM_Timetrack_Page_Mattermost extends CRM_Core_Page {
       $extra = $t['extra_comments'] ?? '';
 
       if ($t['duration'] > 0) {
-        self::done('OK :checkered_flag: punch added for task ' . $t['case_subject'] . '/' . $t['ktask_title'] . ' (' . $t['ktask_id'] . ') ' . $extra . ' --- ' . $t['duration']);
+        $rounded = sprintf('%.2f', CRM_Timetrack_Utils::roundUpSeconds($t['duration'], 1));
+        self::done(E::ts('OK :checkered_flag: %1h punch added for task %2/%3 (%4)', [
+          1 => $rounded,
+          2 => $t['case_subject'],
+          3 => $t['ktask_title'],
+          4 => $t['ktask_id'],
+        ]) . ' ' . $extra);
       }
       else {
         self::done('OK :white_check_mark: punched in task ' . $t['case_subject'] . '/' . $t['ktask_title'] . ' (' . $t['ktask_id'] . ') ' . $extra . '\\n**Don\'t forget to punch out!**');
@@ -107,7 +113,8 @@ class CRM_Timetrack_Page_Mattermost extends CRM_Core_Page {
    */
   private function done(String $output) {
     CRM_Utils_System::setHttpHeader("Content-Type", "application/json");
-    echo '{"text": "Input: ' . $_POST['command'] . ' ' . $_POST['text'] . '\\nResponse: ' . $output . '"}';
+    $command = substr($_POST['command'], 1);
+    echo '{"response_type": "in_channel", "text": "' . $command . ' ' . $_POST['text'] . '\\n' . $output . '"}';
     CRM_Utils_System::civiExit();
   }
 
