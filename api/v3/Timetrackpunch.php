@@ -228,7 +228,7 @@ function civicrm_api3_timetrackpunch_create($params) {
   if (!empty($params['begin'])) {
     $begin = timetrack_convert_punch_start_to_timestamp($params['begin']);
 
-    if ($begin === FALSE) {
+    if (!$begin) {
       return civicrm_api3_create_error(ts('Begin time format error (%1). Choose from 00:00, YYYY-MM-DD 00:00, 0m, 0min, 0h, 0hour.', [1 => $params['begin']]));
     }
 
@@ -448,7 +448,10 @@ function civicrm_api3_timetrackpunch_setvalue($params) {
 
 /**
  * Converts a time string of specific format to a timestamp.
- * TODO: move to BAO
+ *
+ * @todo Move to BAO?
+ * @todo Consider using strtotime() instead? might accept more formats.
+ * @todo Good candidate for unit tests.
  *
  * Copied from kpirc.module.
  *
@@ -459,16 +462,20 @@ function civicrm_api3_timetrackpunch_setvalue($params) {
  * @deprecated
  *
  * @return
- *   A timestamp or FALSE if the string is not formatted correctly
+ *   A datetime (Y-m-d H:i:s) or FALSE if the string is not formatted correctly
  */
 function timetrack_convert_punch_start_to_timestamp($time_to_convert = NULL) {
   if ($time_to_convert === NULL) {
     return date('Y-m-d H:i:s');
   }
 
-  if ((strlen($time_to_convert) == 16 || strlen($time_to_convert) == 19) && CRM_Utils_Rule::dateTime($time_to_convert)) {
-    // Date time: YYYY-MM-DD 00:00:00 or YYYY-MM-DD 00:00
-    return strtotime($time_to_convert);
+  // Ex: 2020-01-02 15:00 -> 2020-01-02 15:00:00
+  if (strlen($time_to_convert) == 16 && CRM_Utils_Rule::dateTime($time_to_convert)) {
+    $time_to_convert .= ':00';
+  }
+
+  if (strlen($time_to_convert) == 19 && CRM_Utils_Rule::dateTime($time_to_convert)) {
+    return $time_to_convert;
   }
   elseif (preg_match("/^[0-9][0-9]?[h:][0-9]{2}\z/i", $time_to_convert)) {
     // absolute time (00:00)

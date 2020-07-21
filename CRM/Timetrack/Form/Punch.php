@@ -49,13 +49,8 @@ class CRM_Timetrack_Form_Punch extends CRM_Core_Form {
       $result = civicrm_api3('Timetrackpunch', 'getsingle', ['id' => $this->_pid]);
       $defaults = array_merge($defaults, $result);
 
-      // TODO: mysql timestamps vs date..
-      if (!empty($defaults['begin']) && !empty($defaults['duration'])) {
-        $defaults['end'] = date('Y-m-d H:i:s', $defaults['begin'] + $defaults['duration']);
-      }
-
       if (!empty($defaults['begin'])) {
-        $defaults['begin'] = date('Y-m-d H:i:s', $defaults['begin']);
+        $defaults['begin'] = $defaults['begin'];
       }
 
       if (!empty($defaults['duration'])) {
@@ -95,8 +90,7 @@ class CRM_Timetrack_Form_Punch extends CRM_Core_Form {
     $this->addEntityRef('contact_id', ts('Contact'), ['api' => ['params' => ['uf_user' => 1]]]);
 
     $this->add('datepicker', 'begin', ts('Start'), [], TRUE);
-    $this->add('datepicker', 'end', ts('End'));
-    $this->add('number', 'duration', ts('Duration'), ['class' => 'four', 'placeholder' => E::ts('Hours')], TRUE);
+    $this->add('number', 'duration', ts('Duration'), ['class' => 'four', 'placeholder' => E::ts('Hours'), 'step' => '0.25'], TRUE);
     $this->add('text', 'comment', ts('Comment'), ['class' => 'huge'], TRUE);
 
     $this->addButtons([
@@ -122,50 +116,30 @@ class CRM_Timetrack_Form_Punch extends CRM_Core_Form {
     $values = $this->exportValues();
     $buttonName = $this->controller->getButtonName();
 
-    // TODO save values, convert mysql date to timestamps..
-    // TODO move out to API Timetrackpunch.create
-
-    $begin = strtotime($values['begin']);
-    $duration = $values['duration'] * 60 * 60;
+    $params = [];
+    $params['begin'] = $values['begin'];
+    $params['duration'] = $values['duration'] * 60 * 60;
+    $params['comment'] = $values['comment'];
+    $params['contact_id'] = $values['contact_id'];
 
     if ($this->_pid) {
-      $dao = CRM_Core_DAO::executeQuery('UPDATE kpunch SET begin = %1, duration = %2, comment = %3, ktask_id = %4, contact_id = %5 WHERE id = %6', [
-        1 => [$begin, 'Positive'], // FIXME date mysql
-        2 => [$duration, 'Integer'],
-        3 => [$values['comment'], 'String'],
-        4 => [$values['activity_id'], 'Positive'],
-        5 => [$values['contact_id'], 'Positive'],
-        6 => [$this->_pid, 'Positive'],
-      ]);
-      CRM_Core_Session::setStatus(ts('The punch has been updated.'), '', 'success');
-    }
-    else {
-      $dao = CRM_Core_DAO::executeQuery('INSERT INTO kpunch (begin, duration, comment, ktask_id, contact_id) VALUES (%1, %2, %3, %4, %5)', [
-        1 => [$begin, 'Positive'], // FIXME date mysql
-        2 => [$duration, 'Integer'],
-        3 => [$values['comment'], 'String'],
-        4 => [$values['activity_id'], 'Positive'],
-        5 => [$values['contact_id'], 'Positive'],
-      ]);
-      CRM_Core_Session::setStatus(ts('The punch has been saved.'), '', 'success');
+      $params['id'] = $this->_pid;
     }
 
-    $session = CRM_Core_Session::singleton();
+    civicrm_api3('Timetrackpunch', 'create', $params);
+
+    CRM_Core_Session::setStatus(ts('The punch has been saved.'), '', 'success');
+
     if ($buttonName == $this->getButtonName('next', 'new')) {
-      $session->replaceUserContext(
-        CRM_Utils_System::url(
-          'civicrm/timetrack/punch',
-          'reset=1&action=add&cid=' . $this->_cid
-        )
-      );
+      CRM_Utils_System::redirect(CRM_Utils_System::url(
+        'civicrm/timetrack/punch',
+        'reset=1&action=add&cid=' . $this->_cid
+      ));
     }
     else {
-      $contact_id = CRM_Core_DAO::singleValueQuery('select contact_id from civicrm_case_contact where case_id = %1 limit 1', [
-        1 => [$this->_cid, 'Positive'],
-      ]);
-      $session->replaceUserContext(CRM_Utils_System::url(
-        'civicrm/contact/view/case',
-        'reset=1&action=view&context=case&id=' . $this->_cid . '&cid=' . $contact_id
+      CRM_Utils_System::redirect(CRM_Utils_System::url(
+        'civicrm/timetrack/punch',
+        'reset=1&pid=' . $this->_pid . '&cid=' . $this->_cid
       ));
     }
 
