@@ -205,12 +205,12 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Timetrack_Form_SearchTask {
 
   public function getPeriodStart() {
     $ids = $this->getPunchIds();
-    return CRM_Core_DAO::singleValueQuery("SELECT FROM_UNIXTIME(MIN(begin)) as begin FROM kpunch WHERE id IN (" . implode(',', $ids) . ")");
+    return CRM_Core_DAO::singleValueQuery("SELECT MIN(begin) as begin FROM kpunch WHERE id IN (" . implode(',', $ids) . ")");
   }
 
   public function getPeriodEnd() {
     $ids = $this->getPunchIds();
-    return CRM_Core_DAO::singleValueQuery("SELECT FROM_UNIXTIME(MAX(begin)) as begin FROM kpunch WHERE id IN (" . implode(',', $ids) . ")");
+    return CRM_Core_DAO::singleValueQuery("SELECT MAX(begin) as begin FROM kpunch WHERE id IN (" . implode(',', $ids) . ")");
   }
 
   public function getBillingPerTasks() {
