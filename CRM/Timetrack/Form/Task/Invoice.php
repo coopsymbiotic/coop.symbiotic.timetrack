@@ -39,6 +39,7 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Timetrack_Form_SearchTask {
     $contact = civicrm_api3('Contact', 'getsingle', ['id' => $client_id]);
     $period_start = $this->getPeriodStart();
     $period_end = $this->getPeriodEnd();
+    $invoice_date = date('Y-m-d');
 
     CRM_Utils_System::setTitle(ts('New invoice for %1', [1 => $contact['display_name']]));
 
@@ -46,11 +47,23 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Timetrack_Form_SearchTask {
     $domain_id = CRM_Core_Config::domainID();
     $this->defaults['invoice_from_id'] = civicrm_api3('Domain', 'getsingle', ['id' => $domain_id])['contact_id'];
 
+    // Find the last day of the previous month
+    // If we are in the beginning of the month, and there are no punches in this month,
+    // assume that we are invoicing for last month's work.
+    if (date('d') <= 7) {
+      $d = new DateTime('-1 month');
+      $last_month = $d->format('Y-m-t');
+
+      if ($last_month >= $period_end) {
+        $invoice_date = $last_month;
+      }
+    }
+
     $this->defaults['client_name'] = $contact['display_name'];
     $this->defaults['title'] = $contact['display_name'] . ' ' . substr($period_end, 0, 10);
     $this->defaults['invoice_period_start'] = $period_start;
     $this->defaults['invoice_period_end'] = $period_end;
-    $this->defaults['created_date'] = date('m/d/Y');
+    $this->defaults['created_date'] = $invoice_date;
     $this->defaults['ledger_order_id'] = '';
     $this->defaults['ledger_invoice_id'] = '';
 
