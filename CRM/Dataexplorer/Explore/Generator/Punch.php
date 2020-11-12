@@ -1,11 +1,9 @@
 <?php
 
-class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_Generator {
-  protected $_options;
+use CRM_Timetrack_ExtensionUtil as E;
 
-  function __construct() {
-    parent::__construct();
-  }
+class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_Generator {
+  use CRM_Dataexplorer_Explore_Generator_DateTrait;
 
   function config($options = []) {
     if ($this->_configDone) {
@@ -13,7 +11,7 @@ class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_
     }
 
     $defaults = [
-      'y_label' => 'Punchs',
+      'y_label' => E::ts('Punchs'),
       'y_series' => 'hours',
       'y_type' => 'number',
     ];
@@ -22,7 +20,7 @@ class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_
 
     // It helps to call this here as well, because some filters affect the groupby options.
     // FIXME: see if we can call it only once, i.e. remove from data(), but not very intensive, so not a big deal.
-    $params = array();
+    $params = [];
     $this->whereClause($params);
 
     // We can only have 2 groupbys, otherwise would be too complicated
@@ -46,16 +44,16 @@ class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_
       case 2:
         // Find all the labels for this type of group by
         if (in_array('period-year', $this->_groupBy)) {
-          $this->configGroupByPeriodYear();
+          $this->configGroupByPeriodYear('p.begin');
         }
         if (in_array('period-month', $this->_groupBy)) {
-          $this->configGroupByPeriodMonth();
+          $this->configGroupByPeriodMonth('p.begin');
         }
         if (in_array('period-week', $this->_groupBy)) {
-          $this->configGroupByPeriodWeek();
+          $this->configGroupByPeriodWeek('p.begin');
         }
         if (in_array('period-day', $this->_groupBy)) {
-          $this->configGroupByPeriodDay();
+          $this->configGroupByPeriodDay('p.begin');
         }
         if (in_array('other-contact', $this->_groupBy)) {
           $this->configGroupByOtherContact();
@@ -187,11 +185,11 @@ class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_
 
         if ($bar[1] == 'start' && ! empty($foo[1])) {
           $params[1] = array($foo[1], 'Timestamp');
-          $where_clauses[] = 'FROM_UNIXTIME(p.begin) >= %1';
+          $where_clauses[] = 'p.begin >= %1';
         }
         elseif ($bar[1] == 'end' && ! empty($foo[1])) {
           $params[2] = array($foo[1] . '235959', 'Timestamp');
-          $where_clauses[] = 'FROM_UNIXTIME(p.begin) <= %2';
+          $where_clauses[] = 'p.begin <= %2';
         }
       }
       elseif ($bar[0] == 'punchinvoiced') {
@@ -226,50 +224,6 @@ class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_
     return $where;
   }
 
-  function configGroupByPeriodYear() {
-    // Assume that if we are grouping by year, it's always a line chart.
-    // that's why we check for the period groupby first.
-    $this->_config['axis_x'] = array(
-      'label' => 'Année',
-      'type' => 'date',
-    );
-
-    $this->_select[] = "DATE_FORMAT(FROM_UNIXTIME(p.begin), '%Y') as x";
-  }
-
-  function configGroupByPeriodMonth() {
-    // Assume that if we are grouping by month, it's always a line chart.
-    // that's why we check for the period groupby first.
-    $this->_config['axis_x'] = array(
-      'label' => 'Mois',
-      'type' => 'date',
-    );
-
-    $this->_select[] = "DATE_FORMAT(FROM_UNIXTIME(p.begin), '%Y-%m') as x";
-  }
-
-  function configGroupByPeriodWeek() {
-    // Assume that if we are grouping by week, it's always a line chart.
-    // that's why we check for the period groupby first.
-    $this->_config['axis_x'] = array(
-      'label' => 'Week',
-      'type' => 'date',
-    );
-
-    $this->_select[] = "YEARWEEK(FROM_UNIXTIME(p.begin)) as x";
-  }
-
-  function configGroupByPeriodDay() {
-    // Assume that if we are grouping by month, it's always a line chart.
-    // that's why we check for the period groupby first.
-    $this->_config['axis_x'] = array(
-      'label' => 'Jour',
-      'type' => 'date',
-    );
-
-    $this->_select[] = "DATE_FORMAT(FROM_UNIXTIME(p.begin), '%Y-%m-%d') as x";
-  }
-
   /**
    * @param String $type = { day, month, year }
    */
@@ -277,16 +231,16 @@ class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_
     // NB: date itself has already been put in the select[] by config().
     switch ($type) {
       case 'year':
-        $this->_group[] = "DATE_FORMAT(FROM_UNIXTIME(p.begin), '%Y')";
+        $this->_group[] = "DATE_FORMAT(p.begin, '%Y')";
         break;
       case 'month':
-        $this->_group[] = "DATE_FORMAT(FROM_UNIXTIME(p.begin), '%Y-%m')";
+        $this->_group[] = "DATE_FORMAT(p.begin, '%Y-%m')";
         break;
       case 'week':
-        $this->_group[] = "YEARWEEK(FROM_UNIXTIME(p.begin))";
+        $this->_group[] = "YEARWEEK(p.begin)";
         break;
       case 'day':
-        $this->_group[] = "DATE_FORMAT(FROM_UNIXTIME(p.begin), '%Y-%m-%d')";
+        $this->_group[] = "DATE_FORMAT(p.begin, '%Y-%m-%d')";
         break;
       default:
         CRM_Core_Error::fatal('Unknown type of period');
