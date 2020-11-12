@@ -9,11 +9,12 @@ class Events {
 
   static public function fireDataExplorerBoot(DataExplorerEvent $event) {
     $sources = $event->getDataSources();
+    $filters = $event->getFilters();
+    $groups = $event->getGroupBy();
+
     $sources['punch'] = E::ts('Timetrack Punchs');
     $sources['invoice'] = E::ts('Timetrack Invoices');
-    $event->setDataSources($sources);
 
-    $filters = $event->getFilters();
     $filters['punchinvoiced'] = [
       'type' => 'items',
       'label' => 'Punch Invoiced',
@@ -25,7 +26,25 @@ class Events {
         'punch',
       ],
     ];
+
+    $groups += [
+      'timetrack' => [
+        'type' => 'items',
+        'label' => E::ts('Punch'),
+        'items' => [
+          'contact' => E::ts('Contact'),
+          'case' => E::ts('Case'),
+          'task' => E::ts('Task'),
+        ],
+      ],
+      'depends' => [
+        'punch',
+      ],
+    ];
+
+    $event->setDataSources($sources);
     $event->setFilters($filters);
+    $event->setGroupBy($groups);
   }
 
 }

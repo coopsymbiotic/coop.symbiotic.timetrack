@@ -34,7 +34,6 @@ class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_
           'label' => $this->_options['y_label'],
           'type' => $this->_options['y_type'],
           'series' => $this->_options['y_series'],
-          'id' => 90, // FIXME: for CSV merge, ugly.
         );
 
         $this->_select[] = '"Total" as x';
@@ -55,14 +54,14 @@ class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_
         if (in_array('period-day', $this->_groupBy)) {
           $this->configGroupByPeriodDay('p.begin');
         }
-        if (in_array('other-contact', $this->_groupBy)) {
-          $this->configGroupByOtherContact();
+        if (in_array('timetrack-contact', $this->_groupBy)) {
+          $this->configGroupByPunchContact();
         }
-        if (in_array('other-task', $this->_groupBy)) {
-          $this->configGroupByOtherTask();
+        if (in_array('timetrack-task', $this->_groupBy)) {
+          $this->configGroupByPunchTask();
         }
-        if (in_array('other-case', $this->_groupBy)) {
-          $this->configGroupByOtherCase();
+        if (in_array('timetrack-case', $this->_groupBy)) {
+          $this->configGroupByPunchCase();
         }
 
         break;
@@ -95,69 +94,34 @@ class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_
     $this->_from[] = "kpunch as p ";
                       
     if (in_array('period-year', $this->_groupBy)) {
-      $this->queryAlterPeriod('year');
+      $this->queryAlterPeriod('year', 'p.begin');
     }
     if (in_array('period-month', $this->_groupBy)) {
-      $this->queryAlterPeriod('month');
+      $this->queryAlterPeriod('month', 'p.begin');
     }
     if (in_array('period-week', $this->_groupBy)) {
-      $this->queryAlterPeriod('week');
+      $this->queryAlterPeriod('week', 'p.begin');
     }
     if (in_array('period-day', $this->_groupBy)) {
-      $this->queryAlterPeriod('day');
+      $this->queryAlterPeriod('day', 'p.begin');
     }
-    if (in_array('other-campaign', $this->_groupBy)) {
-      $this->queryAlterOtherCampaign();
+    if (in_array('timetrack-contact', $this->_groupBy)) {
+      $this->queryAlterPunchContact();
     }
-    if (in_array('other-contact', $this->_groupBy)) {
-      $this->queryAlterOtherContact();
+    if (in_array('timetrack-task', $this->_groupBy)) {
+      $this->queryAlterPunchTask();
     }
-    if (in_array('other-task', $this->_groupBy)) {
-      $this->queryAlterOtherTask();
-    }
-    if (in_array('other-case', $this->_groupBy)) {
-      $this->queryAlterOtherCase();
+    if (in_array('timetrack-case', $this->_groupBy)) {
+      $this->queryAlterPunchCase();
     }
 
     $where = $this->whereClause($params);
-    $has_data = FALSE;
-
-    $sql = 'SELECT ' . implode(', ', $this->_select) . ' '
-         . ' FROM ' . implode(' ', $this->_from)
-         . (!empty($where) ? ' WHERE ' . $where : '')
-         . (!empty($this->_group) ? ' GROUP BY ' . implode(', ', $this->_group) : '');
-
-    $dao = $this->executeQuery($sql, $params);
-
-    while ($dao->fetch()) {
-      if ($dao->x && $dao->y) {
-        $has_data = TRUE;
-        $x = $dao->x;
-
-        if (isset($this->_config['x_translate']) && isset($this->_config['x_translate'][$x])) {
-          $x = $this->_config['x_translate'][$x];
-        }
-
-        if (!empty($dao->yy)) {
-          if (isset($this->_config['y_translate']) && isset($this->_config['y_translate'][$dao->yy])) {
-            $yy = $this->_config['y_translate'][$dao->yy];
-            $data[$x][$yy] = $dao->y;
-          }
-          else {
-            $data[$x][$dao->yy] = $dao->y;
-          }
-        }
-        else {
-          $ylabel = $this->_options['y_label'];
-          $data[$x][$ylabel] = $dao->y;
-        }
-      }
-    }
+    $this->runQuery($where, $params, $data, NULL);
 
     // FIXME: if we don't have any results, and we are querying two
     // types of data, the 2nd column of results (CSV) might get bumped into
     // the first column. This really isn't ideal, should fix the CSV merger.
-    if (! $has_data) {
+    if (empty($data)) {
       $tlabel = $this->_config['axis_x']['label'];
       $data[$tlabel][$ylabel] = 0;
     }
@@ -192,6 +156,15 @@ class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_
           $where_clauses[] = 'p.begin <= %2';
         }
       }
+      elseif ($bar[0] == 'relative_date') {
+        $dates = CRM_Utils_Date::getFromTo($bar[1], NULL, NULL);
+
+        $params[1] = array($dates[0], 'Timestamp');
+        $where_clauses[] = 'p.begin >= %1';
+
+        $params[2] = array($dates[1], 'Timestamp');
+        $where_clauses[] = 'p.begin <= %2';
+      }
       elseif ($bar[0] == 'punchinvoiced') {
         if ($bar[1] == 1) {
           $where_clauses[] = 'korder_id IS NOT NULL';
@@ -225,32 +198,9 @@ class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_
   }
 
   /**
-   * @param String $type = { day, month, year }
-   */
-  function queryAlterPeriod($type) {
-    // NB: date itself has already been put in the select[] by config().
-    switch ($type) {
-      case 'year':
-        $this->_group[] = "DATE_FORMAT(p.begin, '%Y')";
-        break;
-      case 'month':
-        $this->_group[] = "DATE_FORMAT(p.begin, '%Y-%m')";
-        break;
-      case 'week':
-        $this->_group[] = "YEARWEEK(p.begin)";
-        break;
-      case 'day':
-        $this->_group[] = "DATE_FORMAT(p.begin, '%Y-%m-%d')";
-        break;
-      default:
-        CRM_Core_Error::fatal('Unknown type of period');
-    }
-  }
-
-  /**
    * Group by contact_id (Menu: Afficher -> Autres -> Contact).
    */
-  function configGroupByOtherContact() {
+  function configGroupByPunchContact() {
     $contacts = [];
 
     $params = [];
@@ -301,14 +251,14 @@ class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_
     $this->_select[] = 'contact_id as yy';
   }
 
-  function queryAlterOtherContact() {
+  function queryAlterPunchContact() {
     $this->_group[] = 'contact_id';
   }
 
   /**
    * Group by case_id (Menu: Afficher -> Autres -> Case).
    */
-  function configGroupByOtherCase() {
+  function configGroupByPunchCase() {
     $cases = [];
 
     $params = [];
@@ -361,7 +311,7 @@ class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_
   /**
    * Group by task_id (Menu: Afficher -> Autres -> Task).
    */
-  function configGroupByOtherTask() {
+  function configGroupByPunchTask() {
     $tasks = [];
 
     $params = [];
@@ -410,12 +360,12 @@ class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_
     $this->_select[] = 'ktask.id as yy';
   }
 
-  function queryAlterOtherCase() {
+  function queryAlterPunchCase() {
     $this->_group[] = 'case_id';
     $this->_from[] = 'LEFT JOIN ktask ON (p.ktask_id = ktask.id) LEFT JOIN civicrm_case c ON (c.id = ktask.case_id)';
   }
 
-  function queryAlterOtherTask() {
+  function queryAlterPunchTask() {
     $this->_group[] = 'ktask.id';
     $this->_from[] = 'LEFT JOIN ktask ON (p.ktask_id = ktask.id) LEFT JOIN civicrm_case c ON (c.id = ktask.case_id)';
   }
