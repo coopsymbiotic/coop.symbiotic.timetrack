@@ -5,7 +5,7 @@ class CRM_Timetrack_Page_Gitlab extends CRM_Core_Page {
 
   public function run() {
     $alias = $_SERVER['HTTP_X_GITLAB_TOKEN'];
-    $supported_hooks = ['Issue Hook', 'Merge Request Hook'];
+    $supported_hooks = ['Issue Hook', 'Merge Request Hook', 'Confidential Issue Hook'];
 
     if (!in_array($_SERVER['HTTP_X_GITLAB_EVENT'], $supported_hooks)) {
       Civi::log()->warning('Timetrack/Gitlab: received an unsupported webhook event type', [
