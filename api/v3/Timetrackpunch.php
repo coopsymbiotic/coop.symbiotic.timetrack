@@ -235,7 +235,7 @@ function civicrm_api3_timetrackpunch_create($params) {
     // Check to see if the user is already punched in.
     // NB: we do not check existing punches. This is meant to help unpunch,
     // not police against overlapping punches.
-    if (empty($params['skip_punched_in_check'])) {
+    if (empty($params['skip_punched_in_check']) && empty($params['id']) && !empty($params['contact_id'])) {
       $result = civicrm_api3('Timetrackpunch', 'get', [
         'duration' => -1,
         'contact_id' => $params['contact_id'],

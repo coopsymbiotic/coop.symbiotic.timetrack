@@ -249,9 +249,9 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
     $has_civicase_access = CRM_Core_Permission::access('CiviCase');
 
     $crmEditable = [
-      'punch_begin' => 'punch_begin',
-      'punch_duration' => 'punch_duration',
-      'punch_comment' => 'punch_comment',
+      'punch_begin' => 'begin',
+      'punch_duration' => 'duration',
+      'punch_comment' => 'comment',
      ];
 
      // This is a bit more sensitive, because it includes a list of all projects
