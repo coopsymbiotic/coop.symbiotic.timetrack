@@ -142,6 +142,14 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
       }
     }
 
+    if (empty($this->_formValues['ktask'])) {
+      $this->ktask = CRM_Utils_Request::retrieve('ktask', 'Integer', $this, FALSE, NULL);
+      if ($this->ktask) {
+        $defaults['ktask'] = $this->ktask;
+        unset($defaults['state']);
+      }
+    }
+
     return $defaults;
   }
 

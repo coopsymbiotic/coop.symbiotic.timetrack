@@ -115,6 +115,7 @@ class CRM_Timetrack_Case_Page_CaseView {
     $smarty->assign('timetrack_header_idcss', 'caseview-tasks');
     $smarty->assign('timetrack_header_title', ts('Tasks', ['domain' => 'coop.symbiotic.timetrack']));
 
+    $csid = $this->getPunchesCSID();
     $taskStatuses = CRM_Timetrack_PseudoConstant::getTaskStatuses();
 
     $headers = [
@@ -155,11 +156,14 @@ class CRM_Timetrack_Case_Page_CaseView {
         $percent_done = round($included_hours / $task['estimate'] * 100) . '%';
       }
 
+      $view_punches_url = CRM_Utils_System::url('civicrm/contact/search/custom', ['csid' => $csid, 'case_id' => $case_id, 'ktask' => $task['task_id'], 'force' => 1, 'crmSID' => '6_d']);
+      $view_task_url = CRM_Utils_System::url('civicrm/timetrack/task', ['tid' => $task['task_id']]);
+
       $rows[] = [
-        'title' => '<a class="crm-popup" href="' . CRM_Utils_System::url('civicrm/timetrack/task', ['tid' => $task['task_id']]) . '">' . htmlspecialchars($task['title']) . '</a>',
+        'title' => '<a class="crm-popup" href="' . $view_task_url . '">' . htmlspecialchars($task['title']) . '</a>',
         'description' => $task['description'],
         'estimate' => $task['estimate'],
-        'total_included' => $included_hours,
+        'total_included' => '<a class="crm-popup" href="' . $view_punches_url . '">' . $included_hours . '</a>',
         'percent_done' => $percent_done,
         'state' => $taskStatuses[$task['state']],
         'begin' => substr($task['begin'], 0, 10), // TODO format date l10n
