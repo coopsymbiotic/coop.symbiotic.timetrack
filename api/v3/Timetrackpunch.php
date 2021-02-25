@@ -180,10 +180,20 @@ function civicrm_api3_timetrackpunch_create($params) {
     if ($result['count'] > 1) {
       $choices = [];
       foreach ($result['values'] as $v) {
-        $choices[$v['id']] = $v['title'];
+        // Filter out completed tasks. This way we can eventually close tasks and only have one,
+        // but we can still punch in it if we know the task name.
+        if ($v['state'] != 3) {
+          $choices[$v['id']] = $v['title'];
+
+          // This is in case there is only one match, simplifies the code below
+          $params['ktask_id'] = $v['id'];
+          $task = $v;
+        }
       }
 
-      return civicrm_api3_create_error(ts('Did you mean one of: %1', [1 => implode('; ', $choices)]));
+      if (count($choices) > 1) {
+        return civicrm_api3_create_error(ts('Did you mean one of: %1', [1 => implode('; ', $choices)]));
+      }
     }
     elseif ($result['count'] == 1) {
       $task = array_shift($result['values']);
