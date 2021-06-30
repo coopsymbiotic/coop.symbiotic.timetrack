@@ -186,7 +186,7 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Timetrack_Form_SearchTask {
           'order_id' => $order_id,
           'title' => $params['task_extra' . $key . '_title'],
           'hours_billed' => $params['task_extra' . $key . '_hours_billed'],
-          'cost' => $params['task_extra' . $key . '_cost'],
+          'cost' => $params['task_extra' . $key . '_cost'] ?? 0,
           'unit' => $params['task_extra' . $key . '_unit'],
         ]);
       }
