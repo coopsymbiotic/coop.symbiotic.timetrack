@@ -41,6 +41,14 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
             'options' => $all_projects,
           ],
         ],
+        'order_bys' => [
+          'id' => [
+            'title' => ts('Case'),
+            'default' => FALSE,
+            'default_weight' => 1,
+            'default_order' => 'ASC',
+          ],
+        ],
       ],
       'task' => [
         'dao' => 'CRM_Timetrack_DAO_Task',
@@ -228,16 +236,35 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
     }
 
     // Fix the 'current_contact = 1' clause, since this is not a real database table field
-    // and enforce some permissions
     $userID = CRM_Core_Session::singleton()->get('userID');
+    $this->_where = preg_replace('/current_contact = 1/', 'contact_id = ' . $userID, $this->_where);
+    $this->_where = preg_replace('/current_contact = 0/', 'contact_id != ' . $serID, $this->_where);
 
-    if (CRM_Core_Permission::check('view all contacts')) {
-      $this->_where = preg_replace('/current_contact = 1/', 'contact_id = ' . $userID, $this->_where);
-      $this->_where = preg_replace('/current_contact = 0/', 'contact_id != ' . $serID, $this->_where);
-    }
-    else {
+    // and enforce some permissions
+    if (!CRM_Core_Permission::check('view all contacts')) {
       $this->_where .= ' AND contact_id = ' . $userID;
     }
+  }
+
+  /**
+   * Override the parent, which does complicated things.
+   * This only works for grouping on the 'case' field.
+   */
+  public function sectionTotals() {
+    if (empty($this->_sections['civicrm_case_id'])) {
+      parent::sectionTotals();
+      return;
+    }
+
+    $totals = [];
+    $sql = "SELECT SQL_CALC_FOUND_ROWS case_civireport.id, sum(punch_civireport.duration) as sumtime {$this->_from} {$this->_where} GROUP BY case_civireport.id";
+    $dao = CRM_Core_DAO::executeQuery($sql);
+
+    while ($dao->fetch()) {
+      $totals[$dao->id] = sprintf('%.2f', CRM_Timetrack_Utils::roundUpSeconds($dao->sumtime)) . ' h';
+    }
+
+    $this->assign('sectionTotals', $totals);
   }
 
   /**
