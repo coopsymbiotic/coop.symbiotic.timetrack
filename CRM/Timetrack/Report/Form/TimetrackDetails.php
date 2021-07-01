@@ -22,13 +22,12 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
         'alias' => 'case',
         'fields' => [
           'id' => [
-            'title' => ts('Project ID'),
+            'title' => ts('Case'),
             'default' => TRUE,
             'required' => TRUE,
-            'type' => CRM_Utils_Type::T_INT,
           ],
           'subject' => [
-            'title' => ts('Project'),
+            'title' => ts('Case Title'),
             'default' => TRUE,
             'type' => CRM_Utils_Type::T_STRING,
           ],
@@ -36,7 +35,7 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
         'filters' => [
           // TODO: case type, case status?
           'id' => [
-            'title' => ts('Project'),
+            'title' => ts('Case'),
             'operatorType' => CRM_Report_Form::OP_SELECT,
             'type' => CRM_Utils_Type::T_INT,
             'options' => $all_projects,
@@ -141,14 +140,6 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
         ],
       ],
     ];
-  }
-
-  /**
-   * Load our custom CSS
-   */
-  public function preProcess() {
-    Civi::resources()->addStyleFile('coop.symbiotic.timetrack', 'css/crm-timetrack-report-timetrackdetails.css');
-    parent::preProcess();
   }
 
   /**
@@ -259,25 +250,29 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
        $crmEditable['task_title'] = 'ktask_id';
      }
 
-    // TODO: in 4.6, see CRM-15759
-    // and see also duplicate code in CRM/Timetrack/Form/Search/TimetrackPunches.php
+    // See also duplicate code in CRM/Timetrack/Form/Search/TimetrackPunches.php
     $optionsCache = [
       'ktask_id' => json_encode(CRM_Timetrack_Utils::getActivitiesForCase(0), JSON_HEX_APOS),
       'punch_contact_id' => json_encode(CRM_Timetrack_Utils::getUsers(), JSON_HEX_APOS),
     ];
 
     foreach ($rows as &$row) {
-      // Link the case subject to the case itself.
-      if (!empty($row['civicrm_case_subject'])) {
+      // Link the case ID and subject to the case itself.
+      if (!empty($row['civicrm_case_subject']) || !empty($row['civicrm_case_id'])) {
         $contact_id = CRM_Timetrack_Utils::getCaseContact($row['civicrm_case_id']);
 
-        $row['civicrm_case_subject'] = CRM_Utils_System::href($row['civicrm_case_subject'], 'civicrm/contact/view/case', [
+        $url = CRM_Utils_System::url('civicrm/contact/view/case', [
           'reset' => 1,
           'id' => $row['civicrm_case_id'],
           'cid' => $contact_id,
           'action' => 'view',
           'context' => 'case',
         ]);
+
+        $row['civicrm_case_subject_link'] = $url;
+        $row['civicrm_case_subject_hover'] = ts('View Case');
+        $row['civicrm_case_id_link'] = $url;
+        $row['civicrm_case_id_hover'] = ts('View Case');
       }
 
       // Keep the plain/orig values for the statistics().
