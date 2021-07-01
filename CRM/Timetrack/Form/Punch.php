@@ -5,7 +5,7 @@ use CRM_Timetrack_ExtensionUtil as E;
 /**
  * Form controller class
  *
- * @see http://wiki.civicrm.org/confluence/display/CRMDOC43/QuickForm+Reference
+ * @see https://docs.civicrm.org/dev/en/latest/framework/quickform/
  */
 class CRM_Timetrack_Form_Punch extends CRM_Core_Form {
   public $_cid;
@@ -15,16 +15,12 @@ class CRM_Timetrack_Form_Punch extends CRM_Core_Form {
    * Returns the case ID associated with a punch. Useful when editing a punch.
    */
   public function getCaseIdFromPunchId($punch_id) {
-    $sql = 'SELECT ktask.case_id
-              FROM kpunch
-              LEFT JOIN ktask on (ktask.nid = kpunch.nid)
-             WHERE kpunch.id = %1';
-
-    $params = [
+    return CRM_Core_DAO::singleValueQuery('SELECT ktask.case_id
+      FROM kpunch
+      LEFT JOIN ktask ON (ktask.id = kpunch.ktask_id)
+      WHERE kpunch.id = %1', [
       1 => [$punch_id, 'Positive'],
-    ];
-
-    return CRM_Core_DAO::singleValueQuery($sql, $params);
+    ]);
   }
 
   public function preProcess() {
