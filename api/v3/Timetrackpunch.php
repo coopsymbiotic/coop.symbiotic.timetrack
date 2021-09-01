@@ -213,6 +213,20 @@ function civicrm_api3_timetrackpunch_create($params) {
     return civicrm_api3_create_error('ktask_id is mandatory (Timetrackpunch create)');
   }
 
+  if (!empty($params['id'])) {
+    $punch->id = $params['id'];
+    $punch->find(TRUE);
+
+    $task = civicrm_api3('Timetracktask', 'getsingle', [
+      'id' => $punch->ktask_id,
+    ]);
+  }
+  elseif (!empty($params['ktask_id'])) {
+    $task = civicrm_api3('Timetracktask', 'getsingle', [
+      'id' => $params['ktask_id'],
+    ]);
+  }
+
   // Check if we are punching in an open case
   // only applies to new punches, not when editing a punch.
   if (empty($params['skip_open_case_check']) && empty($params['id'])) {

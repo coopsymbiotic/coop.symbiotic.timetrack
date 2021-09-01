@@ -82,7 +82,7 @@ class CRM_Timetrack_Form_Punch extends CRM_Core_Form {
     $this->add('hidden', 'cid', $this->_cid);
     $this->add('hidden', 'pid', $this->_pid);
 
-    $this->add('select', 'activity_id', ts('Activity'), $tasks, TRUE, ['class' => 'crm-select2 huge']);
+    $this->add('select', 'ktask_id', ts('Activity'), $tasks, TRUE, ['class' => 'crm-select2 huge']);
     $this->addEntityRef('contact_id', ts('Contact'), ['api' => ['params' => ['uf_user' => 1]]]);
 
     $this->add('datepicker', 'begin', ts('Start'), [], TRUE);
@@ -117,6 +117,7 @@ class CRM_Timetrack_Form_Punch extends CRM_Core_Form {
     $params['duration'] = $values['duration'] * 60 * 60;
     $params['comment'] = $values['comment'];
     $params['contact_id'] = $values['contact_id'];
+    $params['ktask_id'] = $values['ktask_id'];
 
     if ($this->_pid) {
       $params['id'] = $this->_pid;
