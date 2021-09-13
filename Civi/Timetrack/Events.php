@@ -15,6 +15,13 @@ class Events {
     $sources['punch'] = E::ts('Timetrack Punchs');
     $sources['invoice'] = E::ts('Timetrack Invoices');
 
+    $cases = \Civi\Api4\CiviCase::get(false)
+      ->addSelect('id', 'subject')
+      ->addOrderBy('subject', 'ASC')
+      ->execute()
+      ->indexBy('id')
+      ->column('subject');
+
     $filters['punchinvoiced'] = [
       'type' => 'items',
       'label' => 'Punch Invoiced',
@@ -22,6 +29,14 @@ class Events {
         1 => ts('Yes'),
         2 => ts('No'),
       ],
+      'depends' => [
+        'punch',
+      ],
+    ];
+    $filters['punchcase'] = [
+      'type' => 'items',
+      'label' => 'Punch in Case',
+      'items' => $cases,
       'depends' => [
         'punch',
       ],
