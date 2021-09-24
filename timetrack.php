@@ -92,6 +92,17 @@ function timetrack_civicrm_managed(&$entities) {
 }
 
 /**
+ * Implements hook_civicrm_entityTypes().
+ *
+ * Declare entity types provided by this module.
+ *
+ * @link http://wiki.civicrm.org/confluence/display/CRMDOC/hook_civicrm_entityTypes
+ */
+function timetrack_civicrm_entityTypes(&$entityTypes) {
+  _timetrack_civix_civicrm_entityTypes($entityTypes);
+}
+
+/**
  * Implements hook_civicrm_caseTypes().
  *
  * Generate a list of case-types
