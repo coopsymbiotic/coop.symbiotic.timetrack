@@ -98,8 +98,8 @@ function civicrm_api3_timetracktask_get($params) {
       'estimate' => $dao->estimate,
       'total_included' => 0,
       'state' => $dao->state,
-      'begin' => ($dao->begin ? date('Y-m-d', $dao->begin) : NULL), // TODO: convert to mysql datetime
-      'end' => ($dao->end ? date('Y-m-d', $dao->end) : NULL), // TODO: convert.
+      'begin' => $dao->begin ?? NULL,
+      'end' => $dao->end ?? NULL,
       'lead' => $dao->lead,
       'description' => $dao->description,
     ];

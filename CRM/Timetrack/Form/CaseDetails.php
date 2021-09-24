@@ -58,7 +58,6 @@ class CRM_Timetrack_Form_CaseDetails extends CRM_Core_Form {
     $values = $this->exportValues();
     $buttonName = $this->controller->getButtonName();
 
-    $alias = strtotime($values['begin']);
     $values['estimate'] = (empty($values['estimate']) ? 0 : $values['estimate']);
 
     $exists = CRM_Core_DAO::singleValueQuery('SELECT case_id FROM kcontract WHERE case_id = %1', [

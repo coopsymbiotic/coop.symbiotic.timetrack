@@ -16,9 +16,10 @@ class CRM_Timetrack_Form_Task extends CRM_Core_Form {
 
     if ($this->_taskid) {
       // Editing an existing task. Fetch the task data for setDefaultValues() later.
-      $this->_taskdata = civicrm_api3('Timetracktask', 'getsingle', [
-        'task_id' => $this->_taskid,
-      ]);
+      $this->_taskdata = \Civi\Api4\Timetracktask::get(false)
+        ->addWhere('id', '=', $this->_taskid)
+        ->execute()
+        ->first();
 
       if ($this->_taskdata['lead']) {
         $contact = civicrm_api3('Contact', 'getsingle', [
@@ -31,6 +32,9 @@ class CRM_Timetrack_Form_Task extends CRM_Core_Form {
 
       $this->_caseid = $this->_taskdata['case_id'];
     }
+    else {
+      $this->_taskdata = ['case_id' => $this->_caseid];
+    }
 
     if (!$this->_caseid) {
       CRM_Core_Error::fatal(ts('Could not find the case ID or the task ID from the request arguments.'));
@@ -40,29 +44,10 @@ class CRM_Timetrack_Form_Task extends CRM_Core_Form {
   }
 
   public function setDefaultValues() {
-    $defaults = [];
-
-    if ($this->_taskdata) {
-      $defaults = array_merge($defaults, $this->_taskdata);
-
-      // TODO: mysql timestamps vs date..
-      if (!empty($defaults['begin'])) {
-        $defaults['begin'] = date('Y-m-d', strtotime($defaults['begin']));
-      }
-
-      if (!empty($defaults['end'])) {
-        $defaults['end'] = date('Y-m-d', strtotime($defaults['end']));
-      }
-    }
-    else {
-      $defaults['case_id'] = $this->_caseid;
-    }
-
-    return $defaults;
+    return $this->_taskdata;
   }
 
   public function buildQuickForm() {
-
     if ($this->_taskid) {
       CRM_Utils_System::setTitle(ts('Edit task %1 for %2', [1 => $this->_taskdata['title'], 2 => $this->_taskdata['case_subject']]));
     }
@@ -115,15 +100,12 @@ class CRM_Timetrack_Form_Task extends CRM_Core_Form {
     $params = $this->exportValues();
     $buttonName = $this->controller->getButtonName();
 
-    // TODO: fix mysql/unix timestamps
-    if (!empty($params['begin'])) {
-      $params['begin'] = strtotime($params['begin']);
-    }
-    if (!empty($params['end'])) {
-      $params['end'] = strtotime($params['end']);
-    }
+    // $result = civicrm_api3('Timetracktask', 'create', $params);
 
-    $result = civicrm_api3('Timetracktask', 'create', $params);
+    $result = civicrm_api4('Timetracktask', 'create', [
+      'values' => $params,
+    ]);
+
     CRM_Core_Session::setStatus(ts('The task "%1" (%2) has been saved.', [1 => $params['title'], 2 => $result['id']]), '', 'success');
 
     parent::postProcess();
