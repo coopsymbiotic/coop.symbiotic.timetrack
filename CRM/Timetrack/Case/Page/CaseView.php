@@ -290,7 +290,7 @@ class CRM_Timetrack_Case_Page_CaseView {
     $dao = CRM_Core_DAO::executeQuery('SELECT o.ledger_bill_id, o.title, t.title as ktask_title, t.estimate, t.id as ktask_id, l.hours_billed
       FROM korder_line l
       INNER JOIN korder o ON (o.id = l.order_id)
-      INNER JOIN ktask t ON (t.id = l.ktask_id)
+      INNER JOIN civicrm_timetracktask as t ON (t.id = l.ktask_id)
       WHERE t.case_id = %1
       GROUP BY t.id, o.id
       ORDER BY o.id ASC', [
@@ -353,7 +353,7 @@ class CRM_Timetrack_Case_Page_CaseView {
     // TODO: move to API ?
     $dao = CRM_Core_DAO::executeQuery('SELECT sum(duration) as total
       FROM kpunch
-      INNER JOIN ktask on (ktask.id = kpunch.ktask_id AND ktask.case_id = %1)
+      INNER JOIN civicrm_timetracktask as ktask on (ktask.id = kpunch.ktask_id AND ktask.case_id = %1)
       WHERE korder_id is NULL', [
       1 => [$case_id, 'Positive'],
     ]);

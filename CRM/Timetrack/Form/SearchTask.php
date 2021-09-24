@@ -109,7 +109,7 @@ class CRM_Timetrack_Form_SearchTask extends CRM_Core_Form {
                  civicrm_case.subject as case_subject, civicrm_case.id as case_id";
 
       $from = "kpunch
-        LEFT JOIN ktask kt ON (kt.id = kpunch.ktask_id)
+        LEFT JOIN civicrm_timetracktask as kt ON (kt.id = kpunch.ktask_id)
         LEFT JOIN kcontract ON (kcontract.case_id = kt.case_id)
         LEFT JOIN korder ON (korder.id = kpunch.korder_id)
         LEFT JOIN civicrm_case ON (civicrm_case.id = kt.case_id)";

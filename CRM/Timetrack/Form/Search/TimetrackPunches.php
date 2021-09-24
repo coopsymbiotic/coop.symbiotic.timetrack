@@ -170,7 +170,7 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
                civicrm_case.subject as case_subject, civicrm_case.id as case_id";
 
     $this->_tables['kpunch'] = "kpunch";
-    $this->_tables['ktask'] = "LEFT JOIN ktask kt ON (kt.id = kpunch.ktask_id)";
+    $this->_tables['ktask'] = "LEFT JOIN civicrm_timetracktask as kt ON (kt.id = kpunch.ktask_id)";
     $this->_tables['kcontract'] = "LEFT JOIN kcontract ON (kcontract.case_id = kt.case_id)";
     $this->_tables['korder'] = "LEFT JOIN korder ON (korder.id = kpunch.korder_id)";
     $this->_tables['civicrm_case'] = "LEFT JOIN civicrm_case ON (civicrm_case.id = kt.case_id)";

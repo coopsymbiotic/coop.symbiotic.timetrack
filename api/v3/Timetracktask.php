@@ -23,7 +23,7 @@ function civicrm_api3_timetracktask_get($params) {
   $sqlparams = [];
 
   $sql = 'SELECT kt.*, c.subject as case_subject
-            FROM ktask as kt
+            FROM civicrm_timetracktask as kt
            INNER JOIN civicrm_case as c on (c.id = kt.case_id)
            INNER JOIN kcontract as kc on (c.id = kc.case_id)
            WHERE 1=1 ';

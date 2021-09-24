@@ -179,7 +179,7 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
 
   public function from() {
     $this->_from = 'FROM kpunch as punch_civireport
-              LEFT JOIN ktask as task_civireport ON (task_civireport.id = punch_civireport.ktask_id)
+              LEFT JOIN civicrm_timetracktask as task_civireport ON (task_civireport.id = punch_civireport.ktask_id)
               LEFT JOIN korder as invoice_civireport ON (invoice_civireport.id = punch_civireport.korder_id)
               LEFT JOIN civicrm_case as case_civireport ON (case_civireport.id = task_civireport.case_id)
               LEFT JOIN civicrm_contact as contact_civireport ON (contact_civireport.id = punch_civireport.contact_id)';

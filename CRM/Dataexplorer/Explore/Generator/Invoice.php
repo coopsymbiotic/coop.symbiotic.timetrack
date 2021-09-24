@@ -344,7 +344,7 @@ class CRM_Dataexplorer_Explore_Generator_Invoice extends CRM_Dataexplorer_Explor
       return;
     }
 
-    $dao = CRM_Core_DAO::executeQuery("SELECT distinct c.id, c.subject FROM kpunch p LEFT JOIN ktask ON (p.ktask_id = ktask.id) LEFT JOIN civicrm_case c ON (c.id = ktask.case_id) WHERE $where", $params);
+    $dao = CRM_Core_DAO::executeQuery("SELECT distinct c.id, c.subject FROM kpunch p LEFT JOIN civicrm_timetracktask as ktask ON (p.ktask_id = ktask.id) LEFT JOIN civicrm_case c ON (c.id = ktask.case_id) WHERE $where", $params);
 
     while ($dao->fetch()) {
       $cases[$dao->id] = $dao->subject;
@@ -396,7 +396,7 @@ class CRM_Dataexplorer_Explore_Generator_Invoice extends CRM_Dataexplorer_Explor
       return;
     }
 
-    $dao = CRM_Core_DAO::executeQuery("SELECT distinct ktask.id, ktask.title FROM kpunch p LEFT JOIN ktask ON (p.ktask_id = ktask.id) WHERE $where", $params);
+    $dao = CRM_Core_DAO::executeQuery("SELECT distinct ktask.id, ktask.title FROM kpunch p LEFT JOIN civicrm_timetracktask as ktask ON (p.ktask_id = ktask.id) WHERE $where", $params);
 
     while ($dao->fetch()) {
       $tasks[$dao->id] = $dao->title;
@@ -437,11 +437,11 @@ class CRM_Dataexplorer_Explore_Generator_Invoice extends CRM_Dataexplorer_Explor
 
   function queryAlterOtherCase() {
     $this->_group[] = 'case_id';
-    $this->_from[] = 'LEFT JOIN ktask ON (p.ktask_id = ktask.id) LEFT JOIN civicrm_case c ON (c.id = ktask.case_id)';
+    $this->_from[] = 'LEFT JOIN civicrm_timetracktask as ktask ON (p.ktask_id = ktask.id) LEFT JOIN civicrm_case c ON (c.id = ktask.case_id)';
   }
 
   function queryAlterOtherTask() {
     $this->_group[] = 'ktask.id';
-    $this->_from[] = 'LEFT JOIN ktask ON (p.ktask_id = ktask.id) LEFT JOIN civicrm_case c ON (c.id = ktask.case_id)';
+    $this->_from[] = 'LEFT JOIN civicrm_timetracktask as ktask ON (p.ktask_id = ktask.id) LEFT JOIN civicrm_case c ON (c.id = ktask.case_id)';
   }
 }

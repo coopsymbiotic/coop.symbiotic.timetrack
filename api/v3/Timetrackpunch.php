@@ -17,7 +17,7 @@ function civicrm_api3_timetrackpunch_get($params) {
 
   $sql = 'SELECT kpunch.*, ktask.title as ktask_title, civicrm_case.subject as case_subject
             FROM kpunch
-            LEFT JOIN ktask on (ktask.id = kpunch.ktask_id)
+            LEFT JOIN civicrm_timetracktask as ktask on (ktask.id = kpunch.ktask_id)
             LEFT JOIN civicrm_case on (ktask.case_id = civicrm_case.id)
            WHERE 1=1 ';
 

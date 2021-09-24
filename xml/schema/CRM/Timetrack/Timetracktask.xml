@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+
+<table>
+  <base>CRM/Timetrack</base>
+  <class>Timetracktask</class>
+  <name>civicrm_timetracktask</name>
+  <comment>Timetrack Task</comment>
+  <log>true</log>
+
+  <field>
+    <name>id</name>
+    <type>int unsigned</type>
+    <required>true</required>
+    <comment>Unique Timetracktask ID</comment>
+    <add>1.0</add>
+    <html>
+      <type>Number</type>
+    </html>
+  </field>
+  <primaryKey>
+    <name>id</name>
+    <autoincrement>true</autoincrement>
+  </primaryKey>
+
+  <field>
+    <name>case_id</name>
+    <type>int unsigned</type>
+    <comment>FK to Case</comment>
+    <add>1.0</add>
+  </field>
+
+  <field>
+    <name>title</name>
+    <title>Title</title>
+    <type>varchar</type>
+    <length>255</length>
+    <comment>Task Title</comment>
+    <add>1.0</add>
+  </field>
+  <field>
+    <name>description</name>
+    <title>Description</title>
+    <type>text</type>
+    <comment>Task Description</comment>
+    <add>1.0</add>
+  </field>
+  <field>
+    <name>state</name>
+    <type>int unsigned</type>
+    <comment>Task status</comment>
+    <add>1.0</add>
+  </field>
+  <field>
+    <name>estimate</name>
+    <title>Estimate</title>
+    <type>int unsigned</type>
+    <comment>Task estimate in hours</comment>
+    <add>1.0</add>
+  </field>
+  <field>
+    <name>begin</name>
+    <title>Start Date</title>
+    <type>timestamp</type>
+    <comment>Expected task start date</comment>
+    <add>1.0</add>
+  </field>
+  <field>
+    <name>end</name>
+    <title>End Date</title>
+    <type>timestamp</type>
+    <comment>Expected task end date</comment>
+    <add>1.0</add>
+  </field>
+  <field>
+    <name>lead</name>
+    <title>Lead</title>
+    <type>int unsigned</type>
+    <comment>Task Lead, FK to Contact</comment>
+    <add>1.0</add>
+  </field>
+  <foreignKey>
+    <name>case_id</name>
+    <table>civicrm_case</table>
+    <key>id</key>
+    <onDelete>SET NULL</onDelete>
+  </foreignKey>
+  <foreignKey>
+    <name>lead</name>
+    <table>civicrm_contact</table>
+    <key>id</key>
+    <onDelete>SET NULL</onDelete>
+  </foreignKey>
+</table>
