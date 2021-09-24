@@ -102,11 +102,21 @@ class CRM_Timetrack_Form_Task extends CRM_Core_Form {
 
     // $result = civicrm_api3('Timetracktask', 'create', $params);
 
-    $result = civicrm_api4('Timetracktask', 'create', [
-      'values' => $params,
-    ]);
-
-    CRM_Core_Session::setStatus(ts('The task "%1" (%2) has been saved.', [1 => $params['title'], 2 => $result['id']]), '', 'success');
+    if (!empty($params['task_id'])) {
+      $result = civicrm_api4('Timetracktask', 'update', [
+        'where' => [
+          ['id', '=', $params['task_id']],
+        ],
+        'values' => $params,
+      ]);
+      CRM_Core_Session::setStatus(ts('The task "%1" has been updated.', [1 => $params['title']]), '', 'success');
+    }
+    else {
+      $result = civicrm_api4('Timetracktask', 'create', [
+        'values' => $params,
+      ]);
+      CRM_Core_Session::setStatus(ts('The task "%1" has been created.', [1 => $params['title']]), '', 'success');
+    }
 
     parent::postProcess();
 
