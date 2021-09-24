@@ -87,11 +87,10 @@ class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_
   function data() {
     $data = [];
     $params = [];
+    $this->_from[] = "kpunch as p ";
 
     // This makes it easier to check specific exceptions later on.
     $this->config();
-
-    $this->_from[] = "kpunch as p ";
                       
     if (in_array('period-year', $this->_groupBy)) {
       $this->queryAlterPeriod('year', 'p.begin');
@@ -172,6 +171,14 @@ class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_
         elseif ($bar[1] == 2) {
           $where_clauses[] = 'korder_id IS NULL';
         }
+      }
+      elseif ($bar[0] == 'punchcase') {
+        // @todo This is pure lazyness
+        if (empty(Civi::$statics[__CLASS__]['ktask_join'])) {
+          $this->_from[] = 'LEFT JOIN ktask kt ON (kt.id = p.ktask_id)';
+          Civi::$statics[__CLASS__]['ktask_join'] = 1;
+        }
+        $where_clauses[] = 'kt.case_id = ' . $bar[1];
       }
     }
 
