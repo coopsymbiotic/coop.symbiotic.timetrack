@@ -42,7 +42,7 @@ class CRM_Timetrack_Form_Task_Export extends CRM_Timetrack_Form_SearchTask {
     $dao = CRM_Core_DAO::executeQuery('SELECT p.*, p.begin as start_date,
         t.title as task, s.subject as case_title
       FROM kpunch p
-      LEFT JOIN ktask t ON (p.ktask_id = t.id)
+      LEFT JOIN civicrm_timetracktask t ON (p.ktask_id = t.id)
       LEFT JOIN civicrm_case s ON (s.id = t.case_id)
       WHERE p.id IN (' . implode(',', $this->getPunchIds()) . ')');
 
@@ -66,7 +66,7 @@ class CRM_Timetrack_Form_Task_Export extends CRM_Timetrack_Form_SearchTask {
 
     $sql = "SELECT case_id
             FROM kpunch
-            LEFT JOIN ktask kt ON (kt.id = kpunch.ktask_id)
+            LEFT JOIN civicrm_timetracktask kt ON (kt.id = kpunch.ktask_id)
             WHERE kpunch.id = %1";
 
     return CRM_Core_DAO::singleValueQuery($sql, [
