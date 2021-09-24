@@ -43,19 +43,6 @@ CREATE TABLE `korder` (
   CONSTRAINT `FK_korder_invoice_from_id` FOREIGN KEY (`invoice_from_id`) REFERENCES `civicrm_contact` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-CREATE TABLE `kprojectreports_schedules` (
-  `krid` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `title` char(255) DEFAULT NULL,
-  `frequency` char(16) DEFAULT NULL,
-  `report` char(255) DEFAULT NULL,
-  `mail` char(255) DEFAULT NULL,
-  `format` char(16) DEFAULT NULL,
-  `lastrun` int(11) DEFAULT NULL,
-  `options` text,
-  `intro` text,
-  PRIMARY KEY (`krid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
 CREATE TABLE `ktask` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `case_id` int(10) unsigned NOT NULL DEFAULT '0',
