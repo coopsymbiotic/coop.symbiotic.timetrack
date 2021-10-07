@@ -1,5 +1,7 @@
 <?php
 
+use CRM_Timetrack_ExtensionUtil as E;
+
 /**
  * This class provides the functionality to invoice punches.
  */
@@ -40,6 +42,14 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Timetrack_Form_SearchTask {
     $period_start = $this->getPeriodStart();
     $period_end = $this->getPeriodEnd();
     $invoice_date = date('Y-m-d');
+
+    // Get the default unit in the language of the contact, since that will be in the invoice
+    // @todo This should be an Option Group instead
+    $i18n = CRM_Core_I18n::singleton();
+    $orig_locale = $i18n->getLocale();
+    $i18n->setLocale($contact['preferred_language']);
+    $default_unit = E::ts('hour');
+    $i18n->setLocale($orig_locale);
 
     CRM_Utils_System::setTitle(ts('New invoice for %1', [1 => $contact['display_name']]));
 
@@ -91,7 +101,7 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Timetrack_Form_SearchTask {
       $this->defaults['task_' . $key . '_title'] = $val['title'];
       $this->defaults['task_' . $key . '_hours'] = $this->getTotalHours($val['punches'], 'duration');
       $this->defaults['task_' . $key . '_hours_billed'] = $this->getTotalHours($val['punches'], 'duration_rounded');
-      $this->defaults['task_' . $key . '_unit'] = ts('hour'); // FIXME
+      $this->defaults['task_' . $key . '_unit'] = $default_unit;
       $this->defaults['task_' . $key . '_cost'] = $default_hourly_rate;
 
       // This gets recalculated in JS on page load / change.
