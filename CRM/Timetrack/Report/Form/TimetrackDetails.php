@@ -238,7 +238,7 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
     // Fix the 'current_contact = 1' clause, since this is not a real database table field
     $userID = CRM_Core_Session::singleton()->get('userID');
     $this->_where = preg_replace('/current_contact = 1/', 'contact_id = ' . $userID, $this->_where);
-    $this->_where = preg_replace('/current_contact = 0/', 'contact_id != ' . $serID, $this->_where);
+    $this->_where = preg_replace('/current_contact = 0/', 'contact_id != ' . $userID, $this->_where);
 
     // and enforce some permissions
     if (!CRM_Core_Permission::check('view all contacts')) {
