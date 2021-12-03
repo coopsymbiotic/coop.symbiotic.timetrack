@@ -58,7 +58,8 @@ class CRM_Timetrack_Upgrader extends CRM_Timetrack_Upgrader_Base {
     CRM_Core_DAO::executeQuery('ALTER TABLE korder_line ADD CONSTRAINT FK_korder_line_ktask_id FOREIGN KEY (ktask_id) REFERENCES civicrm_timetracktask(id)');
 
     // Create the civicrm_timetracktask log table
-    CRM_Extension_Upgrades::upgradeLogTables();
+    // @todo Removed? use $logging->fixSchemaDifferences()?
+    // CRM_Extension_Upgrades::upgradeLogTables();
 
     return TRUE;
   }
@@ -72,7 +73,11 @@ class CRM_Timetrack_Upgrader extends CRM_Timetrack_Upgrader_Base {
   public function upgrade_4202() {
     $this->ctx->log->info('Applying update 4202');
 
-    $updateLogTables = \Civi::settings()->get('logging');// && CRM_Core_DAO::checkTableExists('log_civicrm_timetracktask');
+    $updateLogTables = \Civi::settings()->get('logging');
+
+    // @todo Wouldn't this have worked?
+    // $logging = new CRM_Logging_Schema();
+    // $logging->fixSchemaDifferences();
 
     // Rename the old column, add a new 'begin' column,
     // then migrate the data over.
@@ -107,6 +112,15 @@ class CRM_Timetrack_Upgrader extends CRM_Timetrack_Upgrader_Base {
    */
   public function upgrade_4203() {
     CRM_Core_DAO::executeQuery('ALTER TABLE korder DROP COLUMN node_reference');
+    return TRUE;
+  }
+
+  /**
+   * Towards using Contributions and LineItems
+   */
+  public function upgrade_4204() {
+    // This table is not prefixed by civicrm, so it is not logged
+    CRM_Core_DAO::executeQuery('ALTER TABLE kpunch ADD line_item_id int(11) DEFAULT NULL');
     return TRUE;
   }
 
