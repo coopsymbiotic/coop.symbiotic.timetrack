@@ -83,6 +83,7 @@ CREATE TABLE `kpunch` (
   `order_reference` int(10) unsigned DEFAULT NULL,
   `korder_id` int(10) unsigned DEFAULT NULL,
   `korder_line_id` int(10) unsigned DEFAULT NULL,
+  `line_item_id` int(10) unsigned DEFAULT NULL,
   PRIMARY KEY (`id`),
   KEY `contact_id` (`contact_id`),
   KEY `order_reference` (`order_reference`),
@@ -92,5 +93,6 @@ CREATE TABLE `kpunch` (
   CONSTRAINT `FK_kpunch_contact_id` FOREIGN KEY (`contact_id`) REFERENCES `civicrm_contact` (`id`) ON DELETE SET NULL,
   CONSTRAINT `FK_kpunch_korder_id` FOREIGN KEY (`korder_id`) REFERENCES `korder` (`id`) ON DELETE SET NULL,
   CONSTRAINT `FK_kpunch_korder_line_id` FOREIGN KEY (`korder_line_id`) REFERENCES `korder_line` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `FK_kpunch_line_item_id` FOREIGN KEY (`korder_line_item_id`) REFERENCES `civicrm_line_item` (`id`) ON DELETE SET NULL,
   CONSTRAINT `FK_ktask_id` FOREIGN KEY (`ktask_id`) REFERENCES `civicrm_timetracktask` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
