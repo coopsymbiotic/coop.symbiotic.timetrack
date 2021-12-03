@@ -35,13 +35,6 @@
     <comment>Case (contract) invoiced.</comment>
   </field>
   <field>
-    <name>node_reference</name>
-    <type>int unsigned</type>
-    <required>true</required>
-    <add>1.0</add>
-    <comment>Case (contract) invoiced LEGACY.</comment>
-  </field>
-  <field>
     <name>state</name>
     <type>int unsigned</type>
     <size>FOUR</size>

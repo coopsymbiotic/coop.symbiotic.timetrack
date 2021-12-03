@@ -102,4 +102,12 @@ class CRM_Timetrack_Upgrader extends CRM_Timetrack_Upgrader_Base {
     return TRUE;
   }
 
+  /**
+   * Remove a legacy field
+   */
+  public function upgrade_4203() {
+    CRM_Core_DAO::executeQuery('ALTER TABLE korder DROP COLUMN node_reference');
+    return TRUE;
+  }
+
 }

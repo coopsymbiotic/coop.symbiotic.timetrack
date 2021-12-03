@@ -99,12 +99,6 @@ class CRM_Timetrack_DAO_Invoice extends CRM_Core_DAO
    */
   public $case_id;
   /**
-   * Case (contract) invoiced LEGACY.
-   *
-   * @var int unsigned
-   */
-  public $node_reference;
-  /**
    * Invoice status.
    *
    * @var int unsigned
@@ -217,13 +211,6 @@ class CRM_Timetrack_DAO_Invoice extends CRM_Core_DAO
           'description' => 'Case (contract) invoiced.',
           'required' => true,
         ) ,
-        'node_reference' => array(
-          'name' => 'node_reference',
-          'type' => CRM_Utils_Type::T_INT,
-          'title' => ts('Node Reference') ,
-          'description' => 'Case (contract) invoiced LEGACY.',
-          'required' => true,
-        ) ,
         'state' => array(
           'name' => 'state',
           'type' => CRM_Utils_Type::T_INT,
@@ -323,7 +310,6 @@ class CRM_Timetrack_DAO_Invoice extends CRM_Core_DAO
         'id' => 'timetrack_invoice_id',
         'title' => 'title',
         'case_id' => 'case_id',
-        'node_reference' => 'node_reference',
         'state' => 'state',
         'invoice_from_id' => 'invoice_from_id',
         'ledger_order_id' => 'ledger_order_id',

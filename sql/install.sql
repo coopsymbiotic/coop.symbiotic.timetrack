@@ -22,7 +22,6 @@ CREATE TABLE `korder` (
   `invoice_from_id` int(10) unsigned DEFAULT NULL COMMENT 'Invoice From Contact ID',
   `nid` int(10) unsigned NOT NULL DEFAULT '0',
   `vid` int(10) unsigned NOT NULL DEFAULT '0',
-  `node_reference` int(10) unsigned NOT NULL DEFAULT '0',
   `state` tinyint(4) NOT NULL DEFAULT '0',
   `ledger_order_id` int(11) DEFAULT '0',
   `ledger_bill_id` int(11) NOT NULL DEFAULT '0',
@@ -38,7 +37,6 @@ CREATE TABLE `korder` (
   `details_private` text COMMENT 'Additional information regarding the invoice, not shown on the invoice.',
   PRIMARY KEY (`id`),
   KEY `state` (`state`),
-  KEY `node_reference` (`node_reference`),
   KEY `FK_korder_invoice_from_id` (`invoice_from_id`),
   CONSTRAINT `FK_korder_invoice_from_id` FOREIGN KEY (`invoice_from_id`) REFERENCES `civicrm_contact` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
