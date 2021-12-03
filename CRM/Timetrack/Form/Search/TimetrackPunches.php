@@ -375,7 +375,9 @@ class CRM_Timetrack_Form_Search_TimetrackPunches extends CRM_Contact_Form_Search
       ]);
 
       foreach ($result['values'] as $key => $val) {
-        $task_cache[$case_id][$key] = $val['title'];
+        // The quote replacement is to avoid issues with the json encoding
+        // I could not find the right way to escape it
+        $task_cache[$case_id][$key] = str_replace("'", "’", $val['title']);
       }
     }
 
