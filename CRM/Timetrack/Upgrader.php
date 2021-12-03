@@ -76,14 +76,14 @@ class CRM_Timetrack_Upgrader extends CRM_Timetrack_Upgrader_Base {
 
     // Rename the old column, add a new 'begin' column,
     // then migrate the data over.
-    CRM_Core_DAO::executeQuery('ALTER TABLE civicrm_timetracktask CHANGE begin begin_old int(11) NOT NULL');
-    CRM_Core_DAO::executeQuery('ALTER TABLE civicrm_timetracktask CHANGE end end_old int(11) NOT NULL');
+    CRM_Core_DAO::executeQuery('ALTER TABLE civicrm_timetracktask CHANGE begin begin_old int(11) NULL');
+    CRM_Core_DAO::executeQuery('ALTER TABLE civicrm_timetracktask CHANGE end end_old int(11) NULL');
     CRM_Core_DAO::executeQuery('ALTER TABLE civicrm_timetracktask ADD begin datetime DEFAULT NULL AFTER begin_old');
     CRM_Core_DAO::executeQuery('ALTER TABLE civicrm_timetracktask ADD end datetime DEFAULT NULL AFTER end_old');
 
     if ($updateLogTables) {
-      CRM_Core_DAO::executeQuery('ALTER TABLE log_civicrm_timetracktask CHANGE begin begin_old int(11) NOT NULL');
-      CRM_Core_DAO::executeQuery('ALTER TABLE log_civicrm_timetracktask CHANGE end end_old int(11) NOT NULL');
+      CRM_Core_DAO::executeQuery('ALTER TABLE log_civicrm_timetracktask CHANGE begin begin_old int(11) NULL');
+      CRM_Core_DAO::executeQuery('ALTER TABLE log_civicrm_timetracktask CHANGE end end_old int(11) NULL');
       CRM_Core_DAO::executeQuery('ALTER TABLE log_civicrm_timetracktask ADD begin datetime DEFAULT NULL AFTER begin_old');
       CRM_Core_DAO::executeQuery('ALTER TABLE log_civicrm_timetracktask ADD end datetime DEFAULT NULL AFTER end_old');
     }
