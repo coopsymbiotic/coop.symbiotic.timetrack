@@ -174,6 +174,79 @@ trait CRM_Timetrack_Form_InvoiceCommonTrait {
       }
     }
 
+    // BETA: Create a contribution and LineItems
+    // Check if the contribution already exists. @todo Support updates (sync changes).
+/*
+    $exists = \Civi\Api4\Contribution::get(FALSE)
+      ->addSelect('id')
+      ->addWhere('source', '=', 'timetrack=' . $order_id)
+      ->execute()
+      ->first();
+
+    if (!empty($exists['id'])) {
+      return $order_id;
+    }
+
+    $contact_id = CRM_Timetrack_Utils::getCaseContact($case_id);
+
+    // @todo
+    // - price_field_id / price_field_value_id : currently set semi-random. Why won't they display on ContributionView?
+    // - when generating the invoice PDF, it displays the PriceFieldValue label, not the line item label. How does lineitemeditor do it?
+    // - update the invoice_id using QuickBooks? sync?
+    // - taxes? from QB? or taxcalculator?
+    $contribution = \Civi\Api4\Contribution::create(FALSE)
+      ->addValue('contact_id', $contact_id)
+      ->addValue('financial_type_id', 7) // @todo Consultation
+      ->addValue('receive_date', date('Y-m-d H:i:s', strtotime($params['created_date'])))
+      ->addValue('total_amount', $total_amount)
+      ->addValue('source', 'timetrack=' . $order_id)
+      ->addValue('contribution_status_id', 2) // Pending
+      ->addValue('skipLineItem', 1) // surprisingly, it works
+      ->execute()
+      ->first();
+
+    foreach ($tasks as $key => $val) {
+      if ($params['task_' . $key . '_cost'] === '') {
+        continue;
+      }
+
+      civicrm_api3('LineItem', 'create', [
+        // 'id' => ($action == 'create' ? NULL : $key),
+        'contribution_id' => $contribution['id'],
+        'entity_table' => 'civicrm_contribution',
+        'entity_id' => $contribution['id'],
+        'price_field_id' => 4, // @todo hmm (random "other amount" field; create new PriceField?)
+        'price_field_value_id' => 6, // @todo
+        'label' => $params['task_' . $key . '_title'],
+        'qty' => $params['task_' . $key . '_hours_billed'],
+        'unit_price' => $params['task_' . $key . '_cost'],
+        'line_total' => $params['task_' . $key . '_hours_billed'] * $params['task_' . $key . '_cost'],
+        'financial_type_id' => 7, // @todo Consultation
+      ]);
+    }
+
+    // Extra tasks, no punches assigned.
+    for ($key = 0; $key < CRM_Timetrack_Form_Invoice::EXTRA_LINES; $key++) {
+      // FIXME: not sure what to consider sufficient to charge an 'extra' line.
+      // Assuming that if there is a 'cost' value, it's enough to charge.
+      if (!empty($params['task_extra_' . $key . '_cost'])) {
+        civicrm_api3('LineItem', 'create', [
+          // 'id' => ($action == 'create' ? NULL : $key), // @todo (if we want to sync changes)
+          'contribution_id' => $contribution['id'],
+          'entity_table' => 'civicrm_contribution',
+          'entity_id' => $contribution['id'],
+          'price_field_id' => 1, // @todo hmm
+          'price_field_value_id' => 1, // @todo
+          'label' => $params['task_extra_' . $key . '_title'],
+          'qty' => $params['task_extra_' . $key . '_hours_billed'],
+          'unit_price' => $params['task_extra_' . $key . '_cost'],
+          'line_total' => $params['task_extra_' . $key . '_hours_billed'] * $params['task_extra_' . $key . '_cost'],
+          'financial_type_id' => 7, // @todo Consultation
+        ]);
+      }
+    }
+*/
+
     return $order_id;
   }
 
