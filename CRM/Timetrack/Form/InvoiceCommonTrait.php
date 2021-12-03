@@ -8,13 +8,14 @@
  * - CRM_Timetrack_Form_Task_Invoice : invoice punches.
  */
 
-class CRM_Timetrack_Form_InvoiceCommon {
+trait CRM_Timetrack_Form_InvoiceCommonTrait {
+
   /**
    * @param CRM_Core_Form $form
    * @param array $tasks
    * @param array $options
    */
-  public static function buildForm(&$form, $tasks, $options = []) {
+  public static function buildFormCommon(&$form, $tasks, $options = []) {
     $form->addEntityRef('invoice_from_id', ts('Invoice from'), [
       'create' => FALSE,
       'api' => ['extra' => ['email']],
@@ -57,9 +58,9 @@ class CRM_Timetrack_Form_InvoiceCommon {
    *
    * Returns the order_id that was created/updated.
    */
-  public static function postProcess(&$form, $case_id, $tasks) {
-    $params = $form->exportValues();
+  public static function postProcessCommon(&$form, $case_id, $tasks) {
     $total_hours_billed = 0;
+    $params = $form->exportValues();
 
     // If editing an existing invoice.
     $invoice_id = CRM_Utils_Array::value('invoiceid', $params);
@@ -127,6 +128,8 @@ class CRM_Timetrack_Form_InvoiceCommon {
     ]);
 
     // Known tasks, extracted from the punches being billed.
+    $total_amount = 0;
+
     foreach ($tasks as $key => $val) {
       if ($params['task_' . $key . '_cost'] === '') {
         continue;
@@ -142,6 +145,7 @@ class CRM_Timetrack_Form_InvoiceCommon {
       ]);
 
       $line_item_id = $result['id'];
+      $total_amount += $params['task_' . $key . '_hours_billed'] * $params['task_' . $key . '_cost'];
 
       // Assign punches to line item / order.
       if (!empty($val['punches'])) {
@@ -152,6 +156,21 @@ class CRM_Timetrack_Form_InvoiceCommon {
             3 => [$pval['pid'], 'Positive'],
           ]);
         }
+      }
+    }
+
+    // Extra tasks, no punches assigned.
+    for ($key = 0; $key < CRM_Timetrack_Form_Invoice::EXTRA_LINES; $key++) {
+      // FIXME: not sure what to consider sufficient to charge an 'extra' line.
+      // Assuming that if there is a 'cost' value, it's enough to charge.
+      if ($params['task_extra' . $key . '_cost']) {
+        $result = civicrm_api3('Timetrackinvoicelineitem', 'create', [
+          'order_id' => $order_id,
+          'title' => $params['task_extra' . $key . '_title'],
+          'hours_billed' => $params['task_extra' . $key . '_hours_billed'],
+          'cost' => $params['task_extra' . $key . '_cost'] ?? 0,
+          'unit' => $params['task_extra' . $key . '_unit'],
+        ]);
       }
     }
 

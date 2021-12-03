@@ -6,6 +6,8 @@
  * @see http://wiki.civicrm.org/confluence/display/CRMDOC/QuickForm+Reference
  */
 class CRM_Timetrack_Form_Invoice extends CRM_Core_Form {
+  use CRM_Timetrack_Form_InvoiceCommonTrait;
+
   public $_caseid;
   public $_invoiceid;
   public $_action;
@@ -126,7 +128,7 @@ class CRM_Timetrack_Form_Invoice extends CRM_Core_Form {
       $this->add('hidden', 'invoiceid', $this->_invoiceid);
     }
 
-    CRM_Timetrack_Form_InvoiceCommon::buildForm($this, $this->_tasksdata, [
+    CRM_Timetrack_Form_InvoiceCommonTrait::buildFormCommon($this, $this->_tasksdata, [
       'invoice_other_only' => TRUE,
     ]);
 
@@ -147,7 +149,7 @@ class CRM_Timetrack_Form_Invoice extends CRM_Core_Form {
     $params = $this->exportValues();
     $caseid = CRM_Utils_Array::value('caseid', $params);
 
-    $order_id = CRM_Timetrack_Form_InvoiceCommon::postProcess($this, $caseid, $this->_tasksdata);
+    $order_id = CRM_Timetrack_Form_InvoiceCommonTrait::postProcessCommon($this, $caseid, $this->_tasksdata);
     CRM_Core_Session::setStatus(ts('The invoice #%1 has been saved.', [1 => $order_id]), '', 'success');
 
     // Redirect back to the case.

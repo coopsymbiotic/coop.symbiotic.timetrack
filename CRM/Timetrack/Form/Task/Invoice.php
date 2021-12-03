@@ -6,6 +6,8 @@ use CRM_Timetrack_ExtensionUtil as E;
  * This class provides the functionality to invoice punches.
  */
 class CRM_Timetrack_Form_Task_Invoice extends CRM_Timetrack_Form_SearchTask {
+  use CRM_Timetrack_Form_InvoiceCommonTrait;
+
   protected $defaults;
   protected $punchIds;
 
@@ -115,93 +117,20 @@ class CRM_Timetrack_Form_Task_Invoice extends CRM_Timetrack_Form_SearchTask {
       ];
     }
 
-    CRM_Timetrack_Form_InvoiceCommon::buildForm($this, $tasks);
+    CRM_Timetrack_Form_InvoiceCommonTrait::buildFormCommon($this, $tasks);
     $this->addDefaultButtons(ts('Save'));
 
     $smarty->assign('invoice_tasks', $tasks);
   }
 
   /**
-   * process the form after the input has been submitted and validated
-   *
-   * @access public
+   * Process the form after the input has been submitted and validated
    */
   public function postProcess() {
     $case_id = $this->getCaseID();
-    $params = $this->exportValues();
-
-    $total_hours_billed = 0;
 
     $tasks = $this->getBillingPerTasks();
-
-    // TODO: remove code duplication / use InvoiceCommon's postProcess.
-
-    foreach ($tasks as $key => $val) {
-      $total_hours_billed += $params['task_' . $key . '_hours_billed'];
-    }
-
-    for ($key = 0; $key < CRM_Timetrack_Form_Invoice::EXTRA_LINES; $key++) {
-      $total_hours_billed += $params['task_extra' . $key . '_hours_billed'];
-    }
-
-    // NB: created_date can't be set manually becase it is a timestamp
-    // and the DB layer explicitely ignores timestamps (there is a trigger
-    // defined in timetrack.php).
-    $result = civicrm_api3('Timetrackinvoice', 'create', [
-      'case_id' => $case_id,
-      'title' => $params['title'],
-      'state' => 3, // FIXME, expose to UI, pseudoconstant, etc.
-      'ledger_order_id' => $params['ledger_order_id'],
-      'ledger_bill_id' => $params['ledger_bill_id'],
-      'hours_billed' => $total_hours_billed,
-    ]);
-
-    $order_id = $result['id'];
-
-    $params['created_date'] = date('Ymd', strtotime($params['created_date']));
-
-    CRM_Core_DAO::executeQuery('UPDATE korder SET created_date = %1 WHERE id = %2', [
-      1 => [$params['created_date'], 'Timestamp'],
-      2 => [$order_id, 'Positive'],
-    ]);
-
-    // Known tasks, extracted from the punches being billed.
-    foreach ($tasks as $key => $val) {
-      $result = civicrm_api3('Timetrackinvoicelineitem', 'create', [
-        'order_id' => $order_id,
-        'title' => $params['task_' . $key . '_title'],
-        'hours_billed' => $params['task_' . $key . '_hours_billed'],
-        'cost' => $params['task_' . $key . '_cost'],
-        'unit' => $params['task_' . $key . '_unit'],
-      ]);
-
-      $line_item_id = $result['id'];
-
-      // Assign punches to line item / order.
-      foreach ($val['punches'] as $pkey => $pval) {
-        CRM_Core_DAO::executeQuery('UPDATE kpunch SET korder_id = %1, korder_line_id = %2 WHERE id = %3', [
-          1 => [$order_id, 'Positive'],
-          2 => [$line_item_id, 'Positive'],
-          3 => [$pval['pid'], 'Positive'],
-        ]);
-      }
-    }
-
-    // Extra tasks, no punches assigned.
-    for ($key = 0; $key < CRM_Timetrack_Form_Invoice::EXTRA_LINES; $key++) {
-      // FIXME: not sure what to consider sufficient to charge an 'extra' line.
-      // Assuming that if there is a 'cost' value, it's enough to charge.
-      if ($params['task_extra' . $key . '_cost']) {
-        $result = civicrm_api3('Timetrackinvoicelineitem', 'create', [
-          'order_id' => $order_id,
-          'title' => $params['task_extra' . $key . '_title'],
-          'hours_billed' => $params['task_extra' . $key . '_hours_billed'],
-          'cost' => $params['task_extra' . $key . '_cost'] ?? 0,
-          'unit' => $params['task_extra' . $key . '_unit'],
-        ]);
-      }
-    }
-
+    $order_id = CRM_Timetrack_Form_InvoiceCommonTrait::postProcessCommon($this, $case_id, $tasks);
     CRM_Core_Session::setStatus(ts('The order #%1 has been saved.', [1 => $order_id]), '', 'success');
 
     // Redirect back to the case.
