@@ -41,6 +41,17 @@ class Events {
         'punch',
       ],
     ];
+    $filters['punchcontact'] = [
+      'type' => 'items',
+      'label' => 'Punch by me',
+      'items' => [
+        1 => ts('Yes'),
+        2 => ts('No'),
+      ],
+      'depends' => [
+        'punch',
+      ],
+    ];
 
     $groups += [
       'timetrack' => [

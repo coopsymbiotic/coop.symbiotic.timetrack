@@ -180,6 +180,12 @@ class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_
         }
         $where_clauses[] = 'kt.case_id = ' . $bar[1];
       }
+      elseif ($bar[0] == 'punchcontact') {
+        if ($bar[1] == 1) {
+          $cid = CRM_Core_Session::getLoggedInContactID();
+          $where_clauses[] = 'contact_id = ' . $cid;
+        }
+      }
     }
 
     if (! empty($this->_config['filters']['punchinvoiced'])) {
