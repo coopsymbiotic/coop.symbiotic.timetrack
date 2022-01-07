@@ -179,7 +179,7 @@ trait CRM_Timetrack_Form_InvoiceCommonTrait {
 /*
     $exists = \Civi\Api4\Contribution::get(FALSE)
       ->addSelect('id')
-      ->addWhere('source', '=', 'timetrack=' . $order_id)
+      ->addWhere('source', '=', 'timetrack#' . $order_id)
       ->execute()
       ->first();
 
@@ -190,6 +190,7 @@ trait CRM_Timetrack_Form_InvoiceCommonTrait {
     $contact_id = CRM_Timetrack_Utils::getCaseContact($case_id);
 
     // @todo
+    // - set the line_item_id on kpunch, so that when we have an upgrader in place, we won't have weird data problems
     // - price_field_id / price_field_value_id : currently set semi-random. Why won't they display on ContributionView?
     // - when generating the invoice PDF, it displays the PriceFieldValue label, not the line item label. How does lineitemeditor do it?
     // - update the invoice_id using QuickBooks? sync?
@@ -199,7 +200,7 @@ trait CRM_Timetrack_Form_InvoiceCommonTrait {
       ->addValue('financial_type_id', 7) // @todo Consultation
       ->addValue('receive_date', date('Y-m-d H:i:s', strtotime($params['created_date'])))
       ->addValue('total_amount', $total_amount)
-      ->addValue('source', 'timetrack=' . $order_id)
+      ->addValue('source', 'timetrack#' . $order_id)
       ->addValue('contribution_status_id', 2) // Pending
       ->addValue('skipLineItem', 1) // surprisingly, it works
       ->execute()
