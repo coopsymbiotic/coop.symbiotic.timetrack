@@ -62,13 +62,22 @@ function civicrm_api3_timetrackpunch_get($params) {
   }
 
   // FIXME: Using the DAO would be much simpler!
+  // FIXME: not sure why 'filter'?
   if (!empty($params['filter.begin_low'])) {
     $sqlparams[4] = [$params['filter.begin_low'], 'Timestamp'];
+    $sql .= ' AND kpunch.begin >= %4';
+  }
+  if (!empty($params['begin_low'])) {
+    $sqlparams[4] = [$params['begin_low'], 'Timestamp'];
     $sql .= ' AND kpunch.begin >= %4';
   }
 
   if (!empty($params['filter.begin_high'])) {
     $sqlparams[5] = [$params['filter.begin_high'], 'Timestamp'];
+    $sql .= ' AND kpunch.begin <= %5';
+  }
+  if (!empty($params['begin_high'])) {
+    $sqlparams[5] = [$params['begin_high'], 'Timestamp'];
     $sql .= ' AND kpunch.begin <= %5';
   }
 
