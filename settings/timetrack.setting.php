@@ -75,4 +75,23 @@ return [
       ],
     ],
   ],
+  'timetrack_gitlab_url' => [
+    'group_name' => 'domain',
+    'group' => 'timetrack',
+    'name' => 'timetrack_gitlab_url',
+    'type' => 'String',
+    'html_type' => 'text',
+    'default' => '',
+    'add' => '1.0',
+    'is_domain' => 1,
+    'is_contact' => 0,
+    'title' => E::ts('Gitlab URL'),
+    'description' => E::ts('Gitlab URL (ex: https://lab.example.org) if using auto-responder.'),
+    'settings_pages' => [
+      'timetrack' => [
+        'weight' => 30,
+      ],
+    ],
+  ],
+  // @todo custom fields for case token and response
 ];
