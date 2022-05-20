@@ -17,7 +17,7 @@ class CRM_Timetrack_Form_Punch extends CRM_Core_Form {
   public function getCaseIdFromPunchId($punch_id) {
     return CRM_Core_DAO::singleValueQuery('SELECT ktask.case_id
       FROM kpunch
-      LEFT JOIN ktask ON (ktask.id = kpunch.ktask_id)
+      LEFT JOIN civicrm_timetracktask ktask ON (ktask.id = kpunch.ktask_id)
       WHERE kpunch.id = %1', [
       1 => [$punch_id, 'Positive'],
     ]);
