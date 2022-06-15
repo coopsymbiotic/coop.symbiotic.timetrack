@@ -118,6 +118,15 @@ class CRM_Timetrack_Page_GitlabSupport extends CRM_Core_Page {
         }
       }
 
+      // New issue, with an urgent label
+      if (!empty($data['changes']['iid']) && empty($data['changes']['iid']['previous'])) {
+        foreach ($data['labels'] as $key => $label) {
+          if (preg_match('/urgent/i', $label['title'])) {
+            $is_urgent = TRUE;
+          }
+        }
+      }
+
       // Urgent added to title (works for new and existing issues, because 'previous' is empty if new issue)
       if (!empty($data['changes']['title']) && !preg_match('/urgent/i', $data['changes']['title']['previous'])) {
         if (preg_match('/urgent/i', $data['changes']['title']['current'])) {
