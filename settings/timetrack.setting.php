@@ -93,5 +93,23 @@ return [
       ],
     ],
   ],
+  'timetrack_invoice_filename_prefix' => [
+    'group_name' => 'domain',
+    'group' => 'timetrack',
+    'name' => 'timetrack_invoice_filename_prefix',
+    'type' => 'String',
+    'html_type' => 'text',
+    'default' => 'invoice',
+    'add' => '1.0',
+    'is_domain' => 1,
+    'is_contact' => 0,
+    'title' => E::ts('PDF Invoice filename prefix'),
+    'description' => E::ts('By default, when a PDF is generated, it has the form invoice_[ledgerID]_[invoiceDate]_suffix.pdf'),
+    'settings_pages' => [
+      'timetrack' => [
+        'weight' => 35,
+      ],
+    ],
+  ],
   // @todo custom fields for case token and response
 ];

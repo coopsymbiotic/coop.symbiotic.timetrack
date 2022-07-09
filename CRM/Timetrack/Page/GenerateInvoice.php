@@ -52,7 +52,10 @@ class CRM_Timetrack_Page_GenerateInvoice extends CRM_Core_Page {
     $TBS->MergeBlock('t', $lineitems);
 
     $compactdate = str_replace('-', '', substr($invoice['created_date'], 0, 10));
-    $output_file_name = 'invoice_' . $invoice['ledger_bill_id'] . '_' . $compactdate . '_' . $client['contact_id'] . '_' . $invoice['case_id'] . '.odt';
+    $prefix = Civi::settings()->get('timetrack_invoice_filename_prefix');
+    $alias = $this->getCaseAlias($invoice['case_id']);
+
+    $output_file_name = $prefix . '_' . $invoice['ledger_bill_id'] . '_' . $compactdate . '_' . $client['contact_id'] . '_' . $invoice['case_id'] . ($alias ? '_' . $alias : '') . '.odt';
     $TBS->Show(OPENTBS_DOWNLOAD, $output_file_name);
 
     CRM_Utils_System::civiExit();
@@ -81,6 +84,14 @@ class CRM_Timetrack_Page_GenerateInvoice extends CRM_Core_Page {
 
     $invoice_result[$invoice_id] = $result;
     return $result;
+  }
+
+  public function getCaseAlias($case_id) {
+    $alias = CRM_Core_DAO::singleValueQuery('SELECT alias, estimate FROM kcontract WHERE case_id = %1', [
+      1 => [$case_id, 'Positive'],
+    ]);
+
+    return $alias;
   }
 
   public function getLineItems($invoice_id) {
