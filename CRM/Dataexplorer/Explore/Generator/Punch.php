@@ -129,7 +129,7 @@ class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_
   }
 
   function whereClause(&$params) {
-    $where_clauses = array();
+    $where_clauses = [];
     $where_extra = '';
 
     $this->whereClauseCommon($params);
@@ -178,7 +178,7 @@ class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_
           $this->_from[] = 'LEFT JOIN civicrm_timetracktask as kt ON (kt.id = p.ktask_id)';
           Civi::$statics[__CLASS__]['ktask_join'] = 1;
         }
-        $where_clauses[] = 'kt.case_id = ' . $bar[1];
+        $where_clauses[] = 'kt.case_id = ' . intval($bar[1]);
       }
       elseif ($bar[0] == 'punchcontact') {
         if ($bar[1] == 1) {
@@ -223,7 +223,11 @@ class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_
       $where = ' WHERE ' . $where;
     }
 
-    $dao = CRM_Core_DAO::executeQuery("SELECT distinct p.contact_id, c.display_name FROM kpunch p LEFT JOIN civicrm_contact c ON (c.id = p.contact_id) $where", $params);
+    $dao = CRM_Core_DAO::executeQuery("SELECT distinct p.contact_id, c.display_name
+      FROM kpunch p
+      LEFT JOIN civicrm_timetracktask kt ON (kt.id = p.ktask_id)
+      LEFT JOIN civicrm_contact c ON (c.id = p.contact_id)
+      $where", $params);
 
     while ($dao->fetch()) {
       $contacts[$dao->contact_id] = $dao->display_name;
@@ -264,10 +268,6 @@ class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_
     $this->_select[] = 'contact_id as yy';
   }
 
-  function queryAlterPunchContact() {
-    $this->_group[] = 'contact_id';
-  }
-
   /**
    * Group by case_id (Menu: Afficher -> Autres -> Case).
    */
@@ -281,7 +281,7 @@ class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_
       $where = ' WHERE ' . $where;
     }
 
-    $dao = CRM_Core_DAO::executeQuery("SELECT distinct c.id, c.subject FROM kpunch p LEFT JOIN civicrm_timetracktask as ktask ON (p.ktask_id = ktask.id) LEFT JOIN civicrm_case c ON (c.id = ktask.case_id) $where", $params);
+    $dao = CRM_Core_DAO::executeQuery("SELECT distinct c.id, c.subject FROM kpunch p LEFT JOIN civicrm_timetracktask as kt ON (p.ktask_id = kt.id) LEFT JOIN civicrm_case c ON (c.id = kt.case_id) $where", $params);
 
     while ($dao->fetch()) {
       $cases[$dao->id] = $dao->subject;
@@ -334,7 +334,7 @@ class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_
       return;
     }
 
-    $dao = CRM_Core_DAO::executeQuery("SELECT distinct ktask.id, ktask.title FROM kpunch p LEFT JOIN civicrm_timetracktask as ktask ON (p.ktask_id = ktask.id) WHERE $where", $params);
+    $dao = CRM_Core_DAO::executeQuery("SELECT distinct kt.id, kt.title FROM kpunch p LEFT JOIN civicrm_timetracktask as kt ON (p.ktask_id = kt.id) WHERE $where", $params);
 
     while ($dao->fetch()) {
       $tasks[$dao->id] = $dao->title;
@@ -371,6 +371,11 @@ class CRM_Dataexplorer_Explore_Generator_Punch extends CRM_Dataexplorer_Explore_
     }
 
     $this->_select[] = 'ktask.id as yy';
+  }
+
+  function queryAlterPunchContact() {
+    $this->_group[] = 'contact_id';
+    $this->_from[] = 'LEFT JOIN civicrm_timetracktask as ktask ON (p.ktask_id = ktask.id) LEFT JOIN civicrm_case c ON (c.id = ktask.case_id)';
   }
 
   function queryAlterPunchCase() {
