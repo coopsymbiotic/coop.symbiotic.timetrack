@@ -1,6 +1,7 @@
 <?php
 
 class CRM_Timetrack_Page_GenerateInvoice extends CRM_Core_Page {
+
   public function run() {
     $invoice_id = CRM_Utils_Request::retrieve('invoice_id', 'Positive', $this, TRUE);
 
@@ -14,20 +15,23 @@ class CRM_Timetrack_Page_GenerateInvoice extends CRM_Core_Page {
     $client = $this->getClient($invoice_id);
     $invoice = $this->getInvoice($invoice_id);
 
-    $lineitems = $this->getLineItems($invoice_id);
+    $lineitems = $this->getLineItems($invoice_id, $client['preferred_language']);
     $subtotal = $this->getLineItemsTotal($lineitems);
 
     // Check if we have a template for the pref language of the client.
+    // We setLocale to display '$123' not 'CA$123' (depending on if the UI is in fr_CA or en_US)
+    CRM_Core_I18n::singleton()->setLocale($client['preferred_language']);
     $lang_code = strtoupper(substr($client['preferred_language'], 0, 2));
     $template = Civi::settings()->get('TimetrackInvoiceTemplate' . $lang_code);
 
     if (empty($template)) {
       $template = Civi::settings()->get('TimetrackInvoiceTemplateDefault');
-    } else {
-      // Reformat numbers according to the template's language
-      $subtotal = $this->formatNumber($subtotal, $lang_code);
-      $lineitems = $this->formatNumbers($lineitems, $lang_code);
     }
+
+    // Reformat numbers according to the template's language
+    // @todo Ideally we would pass the currency - at symbiotic we have a custom field for this on the case
+    // but it needs to be added as a setting on this extension
+    $subtotal = Civi::format()->money($subtotal, NULL, $client['preferred_language']);
 
     $vars = [
       'ClientName' => $client['display_name'],
@@ -94,7 +98,7 @@ class CRM_Timetrack_Page_GenerateInvoice extends CRM_Core_Page {
     return $alias;
   }
 
-  public function getLineItems($invoice_id) {
+  public function getLineItems($invoice_id, $locale) {
     $lineitems = [];
 
     $result = civicrm_api3('Timetrackinvoicelineitem', 'get', [
@@ -102,13 +106,15 @@ class CRM_Timetrack_Page_GenerateInvoice extends CRM_Core_Page {
     ]);
 
     foreach ($result['values'] as $i) {
+      $amount = $i['cost'] * $i['hours_billed'];
+
       $lineitems[] = [
         'title' => $i['title'],
         'qty' => $i['hours_billed'], // FIXME rename to qty in DB.
         'cost' => $i['cost'],
         'unit' => $i['unit'],
-        'amount' => $i['cost'] * $i['hours_billed'], // template will take care of formatting...
-        //'amount' => CRM_Utils_Money::format($i['cost'] * $i['hours_billed']), // FIXME rename
+        'amount_raw' => $amount,
+        'amount' => Civi::format()->money($amount, NULL, $locale),
       ];
     }
 
@@ -119,39 +125,10 @@ class CRM_Timetrack_Page_GenerateInvoice extends CRM_Core_Page {
     $total = 0;
 
     foreach ($lineitems as $i) {
-      $total += $i['amount'];
+      $total += $i['amount_raw'];
     }
 
     return $total;
-  }
-
-  public function formatNumber($number, $lang_code='EN') {
-
-    $format = CRM_Utils_Array::value($lang_code, [
-      'FR' => [2, ',', ''],
-    ]);
-
-    if ($format) {
-      list($decimals, $decimals_sep, $thousands_sep) = $format;
-      $number = number_format($number, $decimals, $decimals_sep, $thousands_sep);
-    }
-
-    return $number;
-  }
-
-  public function formatNumbers($array, $lang_code='EN') {
-
-    $formatted = $array;
-    foreach ($array as $key => $item) {
-      if (is_array($item)) {
-        $formatted[$key] = $this->formatNumbers($item, $lang_code);
-      }
-      elseif (is_numeric($item)) {
-        $formatted[$key] = $this->formatNumber($item, $lang_code);
-      }
-    }
-
-    return $formatted;
   }
 
 }
