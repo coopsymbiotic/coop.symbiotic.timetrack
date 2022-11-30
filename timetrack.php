@@ -14,6 +14,13 @@ function timetrack_civicrm_config(&$config) {
 
   Civi::dispatcher()->addListener('dataexplorer.boot', ['\Civi\Timetrack\Events', 'fireDataExplorerBoot']);
 
+  // Override authx's check of the token header
+  Civi::dispatcher()->addListener('civi.invoke.auth', function($event) {
+    if ((implode('/', $event->args) === 'civicrm/timetrack/mattermost')) {
+      $event->stopPropagation();
+    }
+  }, 1000);
+
   _timetrack_civix_civicrm_config($config);
 }
 
