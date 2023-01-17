@@ -41,65 +41,13 @@ class CRM_Timetrack_Page_Mattermost extends CRM_Core_Page {
         self::done('OK :checkered_flag: punched out of task ' . $t['case_subject'] . '/' . $t['ktask_title'] . ' (' . $t['ktask_id'] . ') Duration: ' . $t['duration_text']);
       }
       catch (Exception $e) {
-        self::done('ERROR: :fire: ' . $e->getMessage());
-      }
-    }
-
-    if (!preg_match('/(-s )?([0-9]+:[0-9]+\+?\d*[h|m]?)? ?([^ ]+) ?(.*)/', $input, $matches)) {
-      self::done('ERROR: :fire: invalid syntax. Try: /punch (-s 10:00+30[h|m) project/task Punch comment here');
-    }
-
-    $task = trim($matches[3]);
-    $comment = trim($matches[4]);
-
-    $params = [
-      'contact_id' => $contact_id,
-      'alias' => $task,
-      'comment' => $comment,
-    ];
-
-    if (!empty($matches[2])) {
-      $time_parts = explode('+', $matches[2]);
-
-      if (count($time_parts) == 1) {
-        $params['begin'] = $matches[2];
-      }
-      else {
-        $len = mb_strlen($time_parts[1]);
-        $unit = mb_substr($time_parts[1], -1, 1);
-        $duration = mb_substr($time_parts[1], 0, $len - 1);
-
-        $params['begin'] = $time_parts[0];
-
-        if ($unit == 'h') {
-          $params['duration'] = $duration * 60 * 60;
-        }
-        else {
-          // we assume anything else is minutes.
-          $params['duration'] = $duration * 60;
-        }
+        self::done('ERROR :fire: ' . $e->getMessage());
       }
     }
 
     try {
-      $result = civicrm_api3('Timetrackpunch', 'create', $params);
-
-      $id = $result['id'];
-      $t = $result['values'][$id];
-      $extra = $t['extra_comments'] ?? '';
-
-      if ($t['duration'] > 0) {
-        $rounded = sprintf('%.2f', CRM_Timetrack_Utils::roundUpSeconds($t['duration'], 1));
-        self::done(E::ts('OK :checkered_flag: %1h punch added for task %2/%3 (%4)', [
-          1 => $rounded,
-          2 => $t['case_subject'],
-          3 => $t['ktask_title'],
-          4 => $t['ktask_id'],
-        ]) . ' ' . $extra);
-      }
-      else {
-        self::done('OK :white_check_mark: punched in task ' . $t['case_subject'] . '/' . $t['ktask_title'] . ' (' . $t['ktask_id'] . ') ' . $extra . '\\n**Don\'t forget to punch out!**');
-      }
+      $message = CRM_Timetrack_Utils::parseAndPunch($input, $contact_id);
+      self::done('OK ' . $message);
     }
     catch (Exception $e) {
       self::done('ERROR :fire: ' . $e->getMessage());
