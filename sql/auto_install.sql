@@ -46,25 +46,16 @@ SET FOREIGN_KEY_CHECKS=1;
 -- *
 -- *******************************************************/
 --
--- [ML] DISABLED FOR NOW until we have converted all entities
---
--- CREATE TABLE `civicrm_timetracktask` (
--- 
--- 
---      `id` int unsigned NOT NULL AUTO_INCREMENT  COMMENT 'Unique Timetracktask ID',
---      `case_id` int unsigned    COMMENT 'FK to Case',
---      `title` varchar(255)    COMMENT 'Task Title',
---      `description` text    COMMENT 'Task Description',
---      `state` int unsigned    COMMENT 'Task status',
---      `estimate` int unsigned    COMMENT 'Task estimate in hours',
---      `begin` timestamp    COMMENT 'Expected task start date',
---      `end` timestamp    COMMENT 'Expected task end date',
---      `lead` int unsigned    COMMENT 'Task Lead, FK to Contact' 
--- ,
---         PRIMARY KEY (`id`)
---  
---  
--- ,          CONSTRAINT FK_civicrm_timetracktask_case_id FOREIGN KEY (`case_id`) REFERENCES `civicrm_case`(`id`) ON DELETE SET NULL,          CONSTRAINT FK_civicrm_timetracktask_lead FOREIGN KEY (`lead`) REFERENCES `civicrm_contact`(`id`) ON DELETE SET NULL  
--- )  ENGINE=InnoDB  ;
-
- 
+CREATE TABLE `civicrm_timetracktask` (
+  `id` int unsigned NOT NULL AUTO_INCREMENT  COMMENT 'Unique Timetracktask ID',
+  `case_id` int unsigned    COMMENT 'FK to Case',
+  `title` varchar(255)    COMMENT 'Task Title',
+  `description` text    COMMENT 'Task Description',
+  `state` int unsigned    COMMENT 'Task status',
+  `estimate` int unsigned    COMMENT 'Task estimate in hours',
+  `begin` timestamp    COMMENT 'Expected task start date',
+  `end` timestamp    COMMENT 'Expected task end date',
+  `lead` int unsigned    COMMENT 'Task Lead, FK to Contact',
+   PRIMARY KEY (`id`),
+   CONSTRAINT FK_civicrm_timetracktask_case_id FOREIGN KEY (`case_id`) REFERENCES `civicrm_case`(`id`) ON DELETE SET NULL,          CONSTRAINT FK_civicrm_timetracktask_lead FOREIGN KEY (`lead`) REFERENCES `civicrm_contact`(`id`) ON DELETE SET NULL
+) ENGINE=InnoDB;
