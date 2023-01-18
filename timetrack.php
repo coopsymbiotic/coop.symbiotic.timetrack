@@ -310,3 +310,15 @@ function timetrack_civicrm_alterAPIPermissions($entity, $action, &$params, &$per
     ],
   ];
 }
+
+/**
+ * Implements hook_civicrm_coreResourceList().
+ */
+function timetrack_civicrm_coreResourceList(&$list, $region) {
+  if ($region == 'html-header' && CRM_Core_Permission::check('create timetrack punch')) {
+    $menu = CRM_Timetrack_Menu::getMenuItems();
+    Civi::resources()
+      ->addScriptFile('coop.symbiotic.timetrack', 'js/menu.js', 0, 'html-header')
+      ->addVars('timetrack', ['menu' => $menu]);
+  }
+}

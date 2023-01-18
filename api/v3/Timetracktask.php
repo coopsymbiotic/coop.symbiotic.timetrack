@@ -129,6 +129,78 @@ function civicrm_api3_timetracktask_getcount($params) {
 }
 
 /**
+ * List of tasks for the menubar timetrack search.
+ *
+ * @param array $params
+ * @return array API Result Array
+ */
+function civicrm_api3_timetracktask_getquick($params) {
+  $options = [];
+  $tasks = [];
+
+  $sqlparams = [];
+
+  $sql = 'SELECT kt.*, c.subject as case_subject
+            FROM civicrm_timetracktask as kt
+           INNER JOIN civicrm_case as c on (c.id = kt.case_id)
+           INNER JOIN kcontract as kc on (c.id = kc.case_id)
+           WHERE 1=1 ';
+
+  // Ex:
+  // aliasA
+  // aliasA/
+  // aliasA/task1
+  // My Case
+  // My Task
+
+  $search = $params['search'] ?? '';
+  $search_parts = explode('/', $search);
+
+  if (count($search_parts) == 2) {
+    $sql .= ' AND kc.alias = %3 AND kt.title LIKE %4';
+    $sqlparams[3] = [$search_parts[0], 'String'];
+    if (!empty($search_parts[1])) {
+      $sqlparams[4] = [$search_parts[1] . '%', 'String'];
+    }
+  }
+  else {
+    $sql .= ' AND c.subject LIKE %3 OR kt.title LIKE %4';
+    $sqlparams[3] = ['%' . $search . '%', 'String'];
+    $sqlparams[4] = ['%' . $search . '%', 'String'];
+  }
+
+  // Show only tasks for open cases.
+  $caseStatuses = CRM_Timetrack_Utils::getCaseOpenStatuses();
+
+  if (count($caseStatuses)) {
+    $sql .= ' AND c.status_id IN (' . implode(',', array_values($caseStatuses)) . ')';
+  }
+
+  $dao = CRM_Core_DAO::executeQuery($sql, $sqlparams);
+
+  while ($dao->fetch()) {
+    $client_id = CRM_Timetrack_Utils::getCaseContact($dao->case_id);
+
+    $t = [
+      'id' => $dao->id,
+      'task_id' => $dao->id,
+      'case_id' => $dao->case_id,
+      'contact_id' => $client_id,
+      'title' => $dao->title,
+      'case_subject' => $dao->case_subject,
+      'state' => $dao->state,
+      'begin' => $dao->begin ?? NULL,
+      'end' => $dao->end ?? NULL,
+      'lead' => $dao->lead,
+    ];
+
+    $tasks[] = $t;
+  }
+
+  return civicrm_api3_create_success($tasks, $params);
+}
+
+/**
  * Create a new task.
  */
 function civicrm_api3_timetracktask_create($params) {

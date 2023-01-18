@@ -172,13 +172,23 @@ function civicrm_api3_timetrackpunch_create($params) {
   $extra_comments = [];
   $punch = new CRM_Timetrack_DAO_Punch();
 
-  // contact_id param is mandatory
-  if (empty($params['id']) && empty($params['contact_id'])) {
-    return civicrm_api3_create_error('contact_id is mandatory (Timetrackpunch create)');
-  }
-
   // Validate the task/case
   $task = NULL;
+
+  if (empty($params['id']) && empty($params['contact_id'])) {
+    $params['contact_id'] = CRM_Core_Session::getLoggedInContactID();
+
+    if (!$params['contact_id']) {
+      return civicrm_api3_create_error('contact_id is mandatory (Timetrackpunch create)');
+    }
+  }
+
+  if (!empty($params['parse_input'])) {
+    $contact_id = CRM_Core_Session::getLoggedInContactID();
+    $message = CRM_Timetrack_Utils::parseAndPunch($params['parse_input'], $contact_id);
+    $values = ['message' => $message];
+    return civicrm_api3_create_success($values, $params);
+  }
 
   if (!empty($params['alias'])) {
     // Fetch the task by alias.
@@ -214,7 +224,7 @@ function civicrm_api3_timetrackpunch_create($params) {
   }
 
   // Comments are now mandatory for new punches
-  if ((empty($params['id']) && empty($params['comment'])) || (isset($params['comment']) && empty($params['comment']))) {
+  if (empty($params['id']) && empty($params['comment'])) {
     return civicrm_api3_create_error(ts('Please enter a short comment or issue reference to describe your work.'));
   }
 
@@ -372,8 +382,12 @@ function civicrm_api3_timetrackpunch_create($params) {
  * Punch out
  */
 function civicrm_api3_timetrackpunch_punchout($params) {
-  if (empty($params['contact_id'])) {
-    return civicrm_api3_create_error('You must specify the user to punch out.');
+  if (empty($params['id']) && empty($params['contact_id'])) {
+    $params['contact_id'] = CRM_Core_Session::getLoggedInContactID();
+
+    if (!$params['contact_id']) {
+      return civicrm_api3_create_error('contact_id is mandatory (Timetrackpunch create)');
+    }
   }
 
   $result = civicrm_api3('Timetrackpunch', 'get', [
