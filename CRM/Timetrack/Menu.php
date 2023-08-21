@@ -4,7 +4,7 @@ use CRM_Timetrack_ExtensionUtil as E;
 
 class CRM_Timetrack_Menu {
 
-  public function getMenuItems() {
+  public static function getMenuItems() {
     $userID = CRM_Core_Session::getLoggedInContactID();
     $menu = [];
 
