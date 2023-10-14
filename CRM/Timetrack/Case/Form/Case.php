@@ -12,7 +12,7 @@ class CRM_Timetrack_Case_Form_Case {
   }
 
   public function validateForm(&$fields, &$files, &$form, &$errors) {
-    $alias = CRM_Utils_Array::value('alias', $fields);
+    $alias = $fields['alias'] ?? NULL;
 
     if ($alias) {
       $case_id = CRM_Core_DAO::singleValueQuery('SELECT case_id FROM kcontract WHERE lower(alias) = lower(%1)', [

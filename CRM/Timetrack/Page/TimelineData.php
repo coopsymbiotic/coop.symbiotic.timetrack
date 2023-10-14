@@ -112,17 +112,17 @@ class CRM_Timetrack_Page_TimelineData extends CRM_Core_Page {
 
     try {
       // Calculate the punch duration
-      $start_date = CRM_Utils_Array::value('start_date', $vars);
-      $end_date = CRM_Utils_Array::value('end_date', $vars);
+      $start_date = $vars['start_date'] ?? NULL;
+      $end_date = $vars['end_date'] ?? NULL;
       $duration = strtotime($end_date) - strtotime($start_date);
 
       $params = [
         'begin' => $start_date,
         'duration' => $duration,
-        'punch_id' => CRM_Utils_Array::value('punch_id', $vars),
-        'ktask_id' => CRM_Utils_Array::value('ktask_id', $vars),
-        'comment' => CRM_Utils_Array::value('text', $vars),
-        'contact_id' => CRM_Utils_Array::value('contact_id', $vars),
+        'punch_id' = $vars['punch_id'] ?? NULL,
+        'ktask_id' = $vars['ktask_id'] ?? NULL,
+        'comment' = $vars['text'] ?? NULL,
+        'contact_id' = $vars['contact_id'] ?? NULL,
         'skip_punched_in_check' => 1,
         'skip_open_case_check' => 1,
         'skip_overlap_check' => 1,
