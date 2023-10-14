@@ -63,7 +63,7 @@ trait CRM_Timetrack_Form_InvoiceCommonTrait {
     $params = $form->exportValues();
 
     // If editing an existing invoice.
-    $invoice_id = CRM_Utils_Array::value('invoiceid', $params);
+    $invoice_id = $params['invoiceid'] ?? NULL;
 
     // This is mostly important for updating the line items.
     // because we don't know if the task ID is for a new lineitem, or update.

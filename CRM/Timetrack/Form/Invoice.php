@@ -87,7 +87,7 @@ class CRM_Timetrack_Form_Invoice extends CRM_Core_Form {
         $defaults['task_' . $key . '_hours'] = $val['hours'];
         $defaults['task_' . $key . '_hours_billed'] = $val['hours_billed'];
         $defaults['task_' . $key . '_unit'] = ts('hour'); // FIXME
-        $defaults['task_' . $key . '_cost'] = CRM_Utils_Array::value('cost', $val);
+        $defaults['task_' . $key . '_cost'] = $val['cost'] ?? NULL;
         $defaults['task_' . $key . '_amount'] = $defaults['task_' . $key . '_hours_billed'] * $defaults['task_' . $key . '_cost'];
       }
     }
@@ -147,7 +147,7 @@ class CRM_Timetrack_Form_Invoice extends CRM_Core_Form {
 
   public function postProcess() {
     $params = $this->exportValues();
-    $caseid = CRM_Utils_Array::value('caseid', $params);
+    $caseid = $params['caseid'] ?? NULL;
 
     $order_id = CRM_Timetrack_Form_InvoiceCommonTrait::postProcessCommon($this, $caseid, $this->_tasksdata);
     CRM_Core_Session::setStatus(ts('The invoice #%1 has been saved.', [1 => $order_id]), '', 'success');
