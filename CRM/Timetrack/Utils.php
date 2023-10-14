@@ -211,4 +211,10 @@ class CRM_Timetrack_Utils {
     }
   }
 
+  public static function angularSettingsFactory(): array {
+    return [
+      'timetrack_help_url' => Civi::settings()->get('timetrack_help_url'),
+    ];
+  }
+
 }

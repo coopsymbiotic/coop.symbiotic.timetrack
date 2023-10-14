@@ -12,8 +12,6 @@ return [
   'css' => ['ang/timetrackImport.css'],
   'partials' => ['ang/timetrackImport'],
   'requires' => ['crmUi', 'crmUtil', 'ngRoute'],
-  'settings' => [
-    'timetrack_help_url' => Civi::settings()->get('timetrack_help_url'),
-  ],
+  'settingsFactory' => ['CRM_Timetrack_Utils', 'angularSettingsFactory'],
   'basePages' => [],
 ];
