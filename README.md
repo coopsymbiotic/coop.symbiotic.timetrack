@@ -18,7 +18,7 @@ punches and make it easy to punch using 3rd-party systems, such as Mattermost.
 Here are a few screenshots:
 
 * https://www.bidon.ca/files/timetrack/timetrack-timeline.gif (warning: 2.5 MB)
-* https://www.bidon.ca/files/timetrack/timetrack-week.jpg
+* https://www.bidon.ca/files/timetrack/timetrack-timeline-week.jpg
 * https://www.bidon.ca/files/timetrack/timetrack-search-inline-edit.gif (400 KB)
 * https://www.bidon.ca/files/timetrack/timetrack-search-inline-edit2.gif (600 KB)
 
