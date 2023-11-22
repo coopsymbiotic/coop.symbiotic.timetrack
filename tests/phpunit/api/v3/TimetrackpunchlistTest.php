@@ -9,7 +9,7 @@ use Civi\Test\TransactionalInterface;
  * This is a generic test class implemented with PHPUnit.
  * @group e2e
  */
-class api_v3_TimetrackpunchlistTest extends \PHPUnit_Framework_TestCase implements \Civi\Test\EndToEndInterface {
+class api_v3_TimetrackpunchlistTest extends \CivixPhar\PHPUnit\Framework\TestCase implements \Civi\Test\EndToEndInterface {
   use \Civi\Test\Api3TestTrait;
 
   /**

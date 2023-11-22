@@ -4,6 +4,7 @@
   <name>Timetracker</name>
   <classloader>
     <psr4 prefix="Civi\" path="Civi"/>
+    <psr0 prefix="CRM_" path="."/>
   </classloader>
   <description>Timetracker for CiviCRM</description>
   <license>AGPL-3.0</license>
@@ -15,9 +16,9 @@
   <version>1.1</version>
   <develStage>beta</develStage>
   <compatibility>
-    <ver>5.47</ver>
+    <ver>5.60</ver>
   </compatibility>
-  <comments></comments>
+  <comments/>
   <urls>
     <url desc="Main Extension Page">https://lab.civicrm.org/extensions/timetrack</url>
     <url desc="Documentation">https://lab.civicrm.org/extensions/timetrack/blob/master/README.md</url>
@@ -26,5 +27,15 @@
   </urls>
   <civix>
     <namespace>CRM/Timetrack</namespace>
+    <format>23.02.1</format>
   </civix>
+  <mixins>
+    <mixin>ang-php@1.0.0</mixin>
+    <mixin>menu-xml@1.0.0</mixin>
+    <mixin>mgd-php@1.0.0</mixin>
+    <mixin>setting-php@1.0.0</mixin>
+    <mixin>smarty-v2@1.0.1</mixin>
+    <mixin>entity-types-php@1.0.0</mixin>
+  </mixins>
+  <upgrader>CRM_Timetrack_Upgrader</upgrader>
 </extension>
