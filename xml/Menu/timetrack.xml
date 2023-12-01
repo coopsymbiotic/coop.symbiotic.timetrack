@@ -72,4 +72,10 @@
     <title>Timetrack settings</title>
     <page_callback>CRM_Admin_Form_Generic</page_callback>
   </item>
+  <item>
+    <path>civicrm/gitlab-user-report</path>
+    <page_callback>CRM_Timetrack_Page_GitlabUserReport</page_callback>
+    <title>GitlabUserReport</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
 </menu>
