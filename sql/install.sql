@@ -15,7 +15,7 @@ CREATE TABLE `kcontract` (
   KEY `parent` (`parent`),
   KEY `FK_case_id` (`case_id`),
   CONSTRAINT `FK_case_id` FOREIGN KEY (`case_id`) REFERENCES `civicrm_case` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 CREATE TABLE `korder` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -39,7 +39,7 @@ CREATE TABLE `korder` (
   KEY `state` (`state`),
   KEY `FK_korder_invoice_from_id` (`invoice_from_id`),
   CONSTRAINT `FK_korder_invoice_from_id` FOREIGN KEY (`invoice_from_id`) REFERENCES `civicrm_contact` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 CREATE TABLE `civicrm_timetracktask` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -54,7 +54,7 @@ CREATE TABLE `civicrm_timetracktask` (
   PRIMARY KEY (`id`),
   KEY `state` (`state`),
   KEY `case_id` (`case_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 CREATE TABLE `korder_line` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -68,7 +68,7 @@ CREATE TABLE `korder_line` (
   KEY `order_id` (`order_id`),
   CONSTRAINT `FK_korder_line_order_id` FOREIGN KEY (`order_id`) REFERENCES `korder` (`id`) ON DELETE CASCADE,
   CONSTRAINT `FK_korder_line_ktask_id` FOREIGN KEY (`ktask_id`) REFERENCES `civicrm_timetracktask` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
 
 CREATE TABLE `kpunch` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
@@ -95,4 +95,4 @@ CREATE TABLE `kpunch` (
   CONSTRAINT `FK_kpunch_korder_line_id` FOREIGN KEY (`korder_line_id`) REFERENCES `korder_line` (`id`) ON DELETE SET NULL,
   CONSTRAINT `FK_kpunch_line_id` FOREIGN KEY (`korder_line_id`) REFERENCES `civicrm_line_item` (`id`) ON DELETE SET NULL,
   CONSTRAINT `FK_ktask_id` FOREIGN KEY (`ktask_id`) REFERENCES `civicrm_timetracktask` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
