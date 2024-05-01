@@ -87,6 +87,7 @@ class CRM_Timetrack_Page_GitlabUserReport extends CRM_Core_Page {
    *
    */
   private function getGitlabProjectStats($issues) {
+    static $project_cache = [];
     $client = $this->getGitlabClient();
     $project_stats = [];
     $issues_by_project = [];
