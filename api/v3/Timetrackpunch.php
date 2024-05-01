@@ -369,10 +369,19 @@ function civicrm_api3_timetrackpunch_create($params) {
 
   // Fetch task title
   $pid = $punch->id;
-  $punch = civicrm_api3('Timetrackpunch', 'getsingle', ['id' => $pid]);
-  $task = civicrm_api3('Timetracktask', 'getsingle', ['id' => $punch['ktask_id']]);
+  $punch = \Civi\Api4\Timetrackpunch::get(FALSE)
+    ->addWhere('id', '=', $pid)
+    ->execute()
+    ->single();
+  $task = \Civi\Api4\Timetracktask::get(FALSE)
+    ->addSelect('*', 'case.subject')
+    ->addJoin('Case AS case', 'LEFT')
+    ->addWhere('id', '=', $punch['ktask_id'])
+    ->execute()
+    ->single();
+
   $values[$pid]['ktask_title'] = $task['title'];
-  $values[$pid]['case_subject'] = $task['case_subject'];
+  $values[$pid]['case_subject'] = $task['case.subject'];
   $values[$pid]['extra_comments'] = implode(';', $extra_comments);
 
   return civicrm_api3_create_success($values, $params);
@@ -522,6 +531,9 @@ function timetrack_convert_punch_start_to_timestamp($time_to_convert = NULL) {
   }
 
   if (strlen($time_to_convert) == 19 && CRM_Utils_Rule::dateTime($time_to_convert)) {
+    return $time_to_convert;
+  }
+  elseif (strlen($time_to_convert) == 14 && CRM_Utils_Rule::dateTime($time_to_convert)) {
     return $time_to_convert;
   }
   elseif (preg_match("/^[0-9][0-9]?[h:][0-9]{2}\z/i", $time_to_convert)) {
