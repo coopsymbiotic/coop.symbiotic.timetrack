@@ -77,11 +77,34 @@ class CRM_Timetrack_Page_GitlabOrphanPunches extends CRM_Core_Page {
           if (preg_match('/^added (\d+\w+) of time spent/', $note['body'], $matches)) {
             $note['project'] = $this->getProject($note['project_id']);
             $note['issue'] = $issue;
-            $note['time'] = $matches[1];
-            $punches[] = $note;
+            $note['duration'] = $matches[1];
+
+            // Convert updated_at from UTC to local time
+            // https://stackoverflow.com/a/33634293
+/*
+            $dt = new DateTime($note['updated_at'], new DateTimeZone('UTC'));
+            $loc = (new DateTime)->getTimezone();
+            $dt->setTimezone($loc);
+            $note['begin'] = $dt->format('Y-m-d H:i:s');
+*/
+
+            $time = strtotime($note['updated_at']);
+            // both solutions are oddly off by 1h
+            $time -= 3600;
+            $note['begin'] = date("Y-m-d H:i:s", $time);
 
             // Check for a corresponding punch
-            // @todo
+            $punch = \Civi\Api4\Timetrackpunch::get(FALSE)
+              ->addWhere('contact_id', '=', $this->contact_id)
+              ->addWhere('begin', '=', $note['begin'])
+              ->execute()
+              ->first();
+
+            if (!empty($punch)) {
+              $note['timetrack_id'] = $punch['id'];
+            }
+
+            $punches[] = $note;
           }
         }
       }

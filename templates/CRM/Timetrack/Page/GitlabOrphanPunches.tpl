@@ -13,8 +13,8 @@
       <tr>
         <td><a href="{$punch.project.web_url}" target="_blank">{$punch.project.name}</a></td>
         <td>{$punch.issue.title}</td>
-        <td>{$punch.updated_at|substr:0:16}</td>
-        <td>{$punch.time}</td>
+        <td>{$punch.begin}</td>
+        <td>{$punch.duration}</td>
         <td>{$punch.timetrack_id}</td>
       </tr>
     {/foreach}
