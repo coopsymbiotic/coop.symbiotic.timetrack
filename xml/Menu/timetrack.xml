@@ -78,4 +78,10 @@
     <title>GitlabUserReport</title>
     <access_arguments>access CiviCRM</access_arguments>
   </item>
+  <item>
+    <path>civicrm/gitlab-orphan-punches</path>
+    <page_callback>CRM_Timetrack_Page_GitlabOrphanPunches</page_callback>
+    <title>GitlabOrphanPunches</title>
+    <access_arguments>access CiviCRM</access_arguments>
+  </item>
 </menu>
