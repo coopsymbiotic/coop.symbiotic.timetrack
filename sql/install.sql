@@ -69,30 +69,3 @@ CREATE TABLE `korder_line` (
   CONSTRAINT `FK_korder_line_order_id` FOREIGN KEY (`order_id`) REFERENCES `korder` (`id`) ON DELETE CASCADE,
   CONSTRAINT `FK_korder_line_ktask_id` FOREIGN KEY (`ktask_id`) REFERENCES `civicrm_timetracktask` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
-
-CREATE TABLE `kpunch` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `ktask_id` int(10) unsigned DEFAULT NULL,
-  `contact_id` int(10) unsigned DEFAULT NULL,
-  `begin` datetime NOT NULL,
-  `duration` int(11) DEFAULT NULL,
-  `comment` varchar(255) DEFAULT NULL,
-  `billable_intern` int(11) NOT NULL DEFAULT '1',
-  `billable_client` int(11) NOT NULL DEFAULT '1',
-  `rate` decimal(11,0) DEFAULT NULL,
-  `order_reference` int(10) unsigned DEFAULT NULL,
-  `korder_id` int(10) unsigned DEFAULT NULL,
-  `korder_line_id` int(10) unsigned DEFAULT NULL,
-  `line_item_id` int(10) unsigned DEFAULT NULL,
-  PRIMARY KEY (`id`),
-  KEY `contact_id` (`contact_id`),
-  KEY `order_reference` (`order_reference`),
-  KEY `FK_kpunch_korder_line_id` (`korder_line_id`),
-  KEY `FK_kpunch_korder_id` (`korder_id`),
-  KEY `ktask_id` (`ktask_id`),
-  CONSTRAINT `FK_kpunch_contact_id` FOREIGN KEY (`contact_id`) REFERENCES `civicrm_contact` (`id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_kpunch_korder_id` FOREIGN KEY (`korder_id`) REFERENCES `korder` (`id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_kpunch_korder_line_id` FOREIGN KEY (`korder_line_id`) REFERENCES `korder_line` (`id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_kpunch_line_id` FOREIGN KEY (`korder_line_id`) REFERENCES `civicrm_line_item` (`id`) ON DELETE SET NULL,
-  CONSTRAINT `FK_ktask_id` FOREIGN KEY (`ktask_id`) REFERENCES `civicrm_timetracktask` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci ROW_FORMAT=DYNAMIC;
