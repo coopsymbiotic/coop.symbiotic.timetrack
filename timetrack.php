@@ -16,7 +16,7 @@ function timetrack_civicrm_config(&$config) {
 
   // Override authx's check of the token header
   Civi::dispatcher()->addListener('civi.invoke.auth', function($event) {
-    if ((implode('/', $event->args) === 'civicrm/timetrack/mattermost')) {
+    if ((implode('/', $event->args) === 'pcivicrm/timetrack/mattermost')) {
       $event->stopPropagation();
     }
   }, 1000);
@@ -160,12 +160,12 @@ function timetrack_civicrm_triggerInfo(&$info, $tableName) {
  */
 function timetrack_civicrm_permission(&$permissions) {
   $permissions['create timetrack punch'] = array(
-    E::ts('CiviCRM Timetrack: %1', [1 => E::ts('create Timetrack punch')]),
-    E::ts('Create or Edit Timetrack punches'),
+    'label' => E::ts('CiviCRM Timetrack: %1', [1 => E::ts('create Timetrack punch')]),
+    'description' => E::ts('Create or Edit Timetrack punches'),
   );
   $permissions['generate timetrack invoice'] = array(
-    E::ts('CiviCRM Timetrack: %1', [1 => E::ts('generate Timetrack invoice')]),
-    E::ts('Generate a Timetrack invoice (ODT document)'),
+    'label' => E::ts('CiviCRM Timetrack: %1', [1 => E::ts('generate Timetrack invoice')]),
+    'description' => E::ts('Generate a Timetrack invoice (ODT document)'),
   );
 }
 
