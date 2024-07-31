@@ -386,7 +386,7 @@ class CRM_Timetrack_Report_Form_TimetrackDetails extends CRM_Report_Form {
     $avg_weeks_worked = ($nb_weeks_worked > 0) ? $total_hours_rounded / $nb_weeks_worked : 0;
     $statistics['counts']['avgperweek'] = [
       'title' => ts('Average per week worked'),
-      'value' => ts('%1 hours', [1 => sprintf('%.2f', $avg_weeks_worked)),
+      'value' => ts('%1 hours', [1 => sprintf('%.2f', $avg_weeks_worked)]),
       'type' => CRM_Utils_Type::T_STRING,
     ];
 
