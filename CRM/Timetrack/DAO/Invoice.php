@@ -217,6 +217,9 @@ class CRM_Timetrack_DAO_Invoice extends CRM_Core_DAO
           'title' => ts('State') ,
           'description' => 'Invoice status.',
           'required' => false,
+          'pseudoconstant' => array(
+            'callback' => 'CRM_Timetrack_PseudoConstant::getInvoiceStatuses',
+          )
         ) ,
         'invoice_from_id' => array(
           'name' => 'invoice_from_id',
