@@ -41,6 +41,12 @@
     <required>false</required>
     <add>1.0</add>
     <comment>Invoice status.</comment>
+    <html>
+      <type>Select</type>
+    </html>
+    <pseudoconstant>
+      <callback>CRM_Timetrack_PseudoConstant::getInvoiceStatuses</callback>
+    </pseudoconstant>
   </field>
   <field>
     <name>invoice_from_id</name>
