@@ -81,16 +81,8 @@ class CRM_Timetrack_Page_GitlabOrphanPunches extends CRM_Core_Page {
 
             // Convert updated_at from UTC to local time
             // https://stackoverflow.com/a/33634293
-/*
-            $dt = new DateTime($note['updated_at'], new DateTimeZone('UTC'));
-            $loc = (new DateTime)->getTimezone();
-            $dt->setTimezone($loc);
-            $note['begin'] = $dt->format('Y-m-d H:i:s');
-*/
-
             $time = strtotime($note['updated_at']);
-            // both solutions are oddly off by 1h
-            $time -= 3600;
+            $time -= $this->durationToSeconds($note['duration']);
             $note['begin'] = date("Y-m-d H:i:s", $time);
 
             // Check for a corresponding punch
@@ -128,6 +120,22 @@ class CRM_Timetrack_Page_GitlabOrphanPunches extends CRM_Core_Page {
     }
 
     return $project_cache[$project_id];
+  }
+
+  private function durationToSeconds($duration) {
+    if (preg_match('/^(\d+)(\w+)$/', $duration, $matches)) {
+      if ($matches[2] == 'h') {
+        return $matches[1] * 60 * 60;
+      }
+      elseif ($matches[2] == 'm') {
+        return $matches[1] * 60;
+      }
+      else {
+        throw new Exception('Unknown time unit: ' . $matches[2]);
+      }
+    }
+
+    return 0;
   }
 
 }
