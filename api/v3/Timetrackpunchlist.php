@@ -67,7 +67,7 @@ function civicrm_api3_timetrackpunchlist_preview($params) {
       'line' => $line,
     ];
 
-    if (empty($line) || $line{0} === '#') {
+    if (empty($line) || $line[0] === '#') {
       continue;
     }
     elseif (preg_match("/^($piPat)? ?($datePat)? ?($timePat)?\\+($durPat)($durUnitPat) ($aliasPat)( ?$commentPat)?$/", $line, $m)) {
